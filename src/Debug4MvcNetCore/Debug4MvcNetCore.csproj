@@ -5,7 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Pages\EntityFrameworkCore.cshtml" />
     <None Remove="Pages\Index.cshtml" />
+    <None Remove="Pages\ServerInfo.cshtml" />
     <None Remove="Pages\_Layout.cshtml" />
     <None Remove="wwwroot\bootstrap.min.css" />
     <None Remove="wwwroot\bootstrap.min.js" />
@@ -13,6 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Pages\EntityFrameworkCore.cshtml" />
+    <EmbeddedResource Include="Pages\ServerInfo.cshtml" />
     <EmbeddedResource Include="Pages\_Layout.cshtml" />
     <EmbeddedResource Include="Pages\Index.cshtml" />
     <EmbeddedResource Include="wwwroot\bootstrap.min.css" />

@@ -1,0 +1,96 @@
+﻿<div class="row">
+    <div class="col-md-12">
+        <h2 class="mt-5">ServerInfo</h2>
+        <table class="table-sm">
+            <tr>
+                <td>CommandLine</td>
+                <td>@Model.Environment.CommandLine</td>
+            </tr>
+            <tr>
+                <td class="align-top">CommandLineArgs</td>
+                <td>
+                    @foreach (var arg in Model.Environment.CommandLineArgs)
+                    {
+                        <div>@arg</div>
+                    }
+                </td>
+            </tr>
+
+            <tr>
+                <td>MachineName</td>
+                <td>@Model.Environment.MachineName</td>
+            </tr>
+            <tr>
+                <td>OSVersion</td>
+                <td>@Model.Environment.OSVersion</td>
+            </tr>
+            <tr>
+                <td>ProcessorCount</td>
+                <td>@Model.Environment.ProcessorCount</td>
+            </tr>
+            <tr>
+                <td>WorkingSet</td>
+                <td>@Model.Environment.WorkingSet</td>
+            </tr>
+            <tr>
+                <td>Version</td>
+                <td>@Model.Environment.Version</td>
+            </tr>
+            <tr>
+                <td>SystemDirectory</td>
+                <td>@Model.Environment.SystemDirectory</td>
+            </tr>
+            <tr>
+                <td>SystemPageSize</td>
+                <td>@Model.Environment.SystemPageSize</td>
+            </tr>
+            <tr>
+                <td>UserName</td>
+                <td>@Model.Environment.UserName</td>
+            </tr>
+            <tr>
+                <td>UserInteractive</td>
+                <td>@Model.Environment.UserInteractive</td>
+            </tr>
+            <tr>
+                <td>UserDomainName</td>
+                <td>@Model.Environment.UserDomainName</td>
+            </tr>
+            <tr>
+                <td>CurrentDirectory</td>
+                <td>@Model.Environment.CurrentDirectory</td>
+            </tr>
+            <tr>
+                <td>Is64BitProcess</td>
+                <td>@Model.Environment.Is64BitProcess</td>
+            </tr>
+            <tr>
+                <td>Is64BitOperatingSystem</td>
+                <td>@Model.Environment.Is64BitOperatingSystem</td>
+            </tr>
+            <tr>
+                <td class="align-top">EnvironmentVariables</td>
+                <td>
+                    <table class="table-sm">
+                        <thead class="small">
+                            <tr>
+                                <th>Name</th>
+                                <th>Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in @Model.Environment.EnvironmentVariables)
+                            {
+                                <tr>
+                                    <td class="text-nowrap">@item.Key</td>
+                                    <td>@item.Value</td>
+                                </tr>
+
+                            }
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>

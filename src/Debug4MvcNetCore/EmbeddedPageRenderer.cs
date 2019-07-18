@@ -39,12 +39,14 @@ namespace Debug4MvcNetCore
             var pageCodeDocument = engine.Process(page);
             var pageCs = pageCodeDocument.GetCSharpDocument();
             var pageTree = CSharpSyntaxTree.ParseText(pageCs.GeneratedCode);
-
-            const string dllName = "Debug4MvcNetCore.Dynamic";
-            var compilation = CSharpCompilation.Create(dllName, new[] { pageTree},
-                new[]
+            
+            MetadataReference[] metadataReferences =
+                typeof(EmbeddedPageRenderer)
+                .Assembly
+                .GetReferencedAssemblies()
+                .Select(x => GetMetadataReference(x.Name))
+                .Union(new[]
                 {
-                    //GetMetadataReference(typeof(InputTagHelper)),
                     GetMetadataReference(typeof(UrlResolutionTagHelper)),
                     GetMetadataReference(typeof(RazorCompiledItemAttribute)),
                     GetMetadataReference(typeof(IModelExpressionProvider)),
@@ -52,18 +54,55 @@ namespace Debug4MvcNetCore
                     GetMetadataReference(typeof(object)),
                     GetMetadataReference(typeof(DynamicAttribute)),
                     GetMetadataReference(typeof(EmbeddedPageRenderer)),
-
+                    GetMetadataReference(typeof(Microsoft.AspNetCore.Http.HttpContext)),
+                    GetMetadataReference(typeof(IHeaderDictionary)),
+                    GetMetadataReference(typeof(Microsoft.Extensions.Primitives.StringValues)),
+                    GetMetadataReference(typeof(System.Net.IPAddress)),
+                    GetMetadataReference(typeof(System.Security.Cryptography.X509Certificates.X509Certificate2)),
+                    
+                    GetMetadataReference(typeof(System.Security.Claims.ClaimsPrincipal)),
+                    
                     //tadataReference.CreateFromFile(typeof(object).Assembly.Location), // include corlib
                     //MetadataReference.CreateFromFile(typeof(RazorCompiledItemAttribute).Assembly.Location), // include Microsoft.AspNetCore.Razor.Runtime
-                    //MetadataReference.CreateFromFile(Assembly.GetExecutingAssembly().Location), // this file (that contains the MyTemplate base class)
+                    MetadataReference.CreateFromFile(Assembly.GetExecutingAssembly().Location), // this file (that contains the MyTemplate base class)
 
                     // for some reason on .NET core, I need to add this... this is not needed with .NET framework
                     MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location), "System.Runtime.dll")),
 
                     // as found out by @Isantipov, for some other reason on .NET Core for Mac and Linux, we need to add this... this is not needed with .NET framework
                     MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location), "netstandard.dll")),
-                    
-                },
+                })
+                .ToArray();
+
+
+            const string dllName = "Debug4MvcNetCore.Dynamic";
+            var compilation = CSharpCompilation.Create(dllName, new[] { pageTree},
+                metadataReferences,
+                //new[]
+                //{
+                //    //GetMetadataReference(typeof(InputTagHelper)),
+                //    GetMetadataReference(typeof(UrlResolutionTagHelper)),
+                //    GetMetadataReference(typeof(RazorCompiledItemAttribute)),
+                //    GetMetadataReference(typeof(IModelExpressionProvider)),
+                //    GetMetadataReference(typeof(IUrlHelper)),
+                //    GetMetadataReference(typeof(object)),
+                //    GetMetadataReference(typeof(DynamicAttribute)),
+                //    GetMetadataReference(typeof(EmbeddedPageRenderer)),
+                //    GetMetadataReference(typeof(Microsoft.AspNetCore.Http.HttpContext)),
+                //    GetMetadataReference(typeof(IHeaderDictionary)),
+
+
+                //    //tadataReference.CreateFromFile(typeof(object).Assembly.Location), // include corlib
+                //    //MetadataReference.CreateFromFile(typeof(RazorCompiledItemAttribute).Assembly.Location), // include Microsoft.AspNetCore.Razor.Runtime
+                //    //MetadataReference.CreateFromFile(Assembly.GetExecutingAssembly().Location), // this file (that contains the MyTemplate base class)
+
+                //    // for some reason on .NET core, I need to add this... this is not needed with .NET framework
+                //    MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location), "System.Runtime.dll")),
+
+                //    // as found out by @Isantipov, for some other reason on .NET Core for Mac and Linux, we need to add this... this is not needed with .NET framework
+                //    MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location), "netstandard.dll")),
+
+                //},
                 new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)); // we want a dll
 
 
@@ -102,7 +141,7 @@ namespace Debug4MvcNetCore
                                 + lineSpan.StartLinePosition.Character.ToString()
                                 + ") "
                                 + errorMessage;
-                            Console.WriteLine(formattedMessage);
+                            throw new Exception(formattedMessage);
                         }
                         return null;
                     }

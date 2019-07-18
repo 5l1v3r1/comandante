@@ -45,7 +45,7 @@ namespace Debug4MvcNetCore.TestsWeb
             {
                 app.UseExceptionHandler("/Home/Error");
             }
-
+            
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseDebug();

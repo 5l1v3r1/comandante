@@ -24,7 +24,8 @@ namespace Debug4MvcNetCore
 
         public void Write(object obj)
         {
-            HttpContext?.Response.WriteAsync(obj.ToString());
+            if (obj != null)
+                HttpContext?.Response.WriteAsync(obj.ToString());
         }
 
         public object RenderResource(string resource)
