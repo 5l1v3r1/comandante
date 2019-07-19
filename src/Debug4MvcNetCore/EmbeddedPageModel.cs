@@ -17,6 +17,40 @@ namespace Debug4MvcNetCore
 
         public abstract Task InitPage();
 
+
+        private string AttributeEnding { get; set; }
+        private List<string> AttributeValues { get; set; }
+
+        public void BeginWriteAttribute(string name, string begining, int startPosition, string ending, int endPosition, int thingy)
+        {
+            HttpContext?.Response.WriteAsync(begining);
+            AttributeEnding = ending;
+        }
+
+        public void WriteAttributeValue(string prefix, int prefixOffset, object value, int valueOffset, int valueLength, bool isLiteral)
+        {
+            if (value != null && AttributeValues == null)
+            {
+                AttributeValues = new List<string>();
+            }
+
+            AttributeValues.Add(value.ToString());
+        }
+
+        public void EndWriteAttribute()
+        {
+            if (AttributeValues != null)
+            {
+                var attributes = string.Join(" ", AttributeValues);
+                HttpContext?.Response.WriteAsync(attributes);
+            }
+
+            AttributeValues = null;
+
+            HttpContext?.Response.WriteAsync(AttributeEnding);
+            AttributeEnding = null;
+        }
+
         public void WriteLiteral(string literal)
         {
             HttpContext?.Response.WriteAsync(literal);

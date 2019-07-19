@@ -1,6 +1,36 @@
 ﻿<div class="row">
     <div class="col-md-12">
+        <h2 class="mt-5">Logs</h2>
+        <table class="table-sm">
+            <thead>
+                <tr>
+                    <th class="small">LoggerName</th>
+                    <th class="small">EventId</th>
+                    <th class="small">LogLevel</th>
+                    <th class="small">Details</th>
+                    <th class="small">IdentityName</th>
+                    <th class="small">TraceIdentifier</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model.Logs)
+                {
+                    <tr>
+                        <td>@log.LoggerName</td>
+                        <td>@log.EventId</td>
+                        <td>@log.LogLevel</td>
+                        <td>@log.Details</td>
+                        <td>@log.IdentityName</td>
+                        <td>@log.TraceIdentifier</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
 
+<div class="row">
+    <div class="col-md-12">
         <h2 class="mt-5">Request</h2>
         <table class="table-sm">
             <tr>

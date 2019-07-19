@@ -19,15 +19,11 @@ namespace Debug4MvcNetCore.Pages
         {
             Model = new IndexModel();
             Model.DebugInfo = new DebugInfoService().Create(this.HttpContext);
-            Model.FirstName = "Daniel";
         }
     }
 
     public class IndexModel
     {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-
         public DebugInfo DebugInfo = new DebugInfo();
     }
 

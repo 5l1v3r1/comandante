@@ -37,6 +37,8 @@ namespace Debug4MvcNetCore.TestsWeb
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseDebug4MvcNetCore();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -48,7 +50,6 @@ namespace Debug4MvcNetCore.TestsWeb
             
             app.UseStaticFiles();
             app.UseCookiePolicy();
-            app.UseDebug();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

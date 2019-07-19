@@ -7,19 +7,20 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Debug4MvcNetCore.Pages
 {
-    public class EntityFrameworkCore : EmbeddedPageModel
+    public class Logs : EmbeddedPageModel
     {
-        public EntityFrameworkCoreModel Model { get; set; }
+        public LogsModel Model { get; set; }
 
         public override async Task InitPage()
         {
-            Model = new EntityFrameworkCoreModel();
-
+            Model = new LogsModel();
+            Model.Logs = new LogsService().Logs;
         }
     }
 
-    public class EntityFrameworkCoreModel
+    public class LogsModel
     {
+        public IEnumerable<LogEntry> Logs { get; internal set; }
     }
 
 }

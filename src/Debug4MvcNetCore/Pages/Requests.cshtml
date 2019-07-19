@@ -1,0 +1,26 @@
+﻿<div class="row">
+    <div class="col-md-12">
+        <h2 class="mt-5">Requests</h2>
+        <table class="table-sm">
+            <thead>
+                <tr>
+                    <th class="small">Request</th>
+                    <th class="small">TimeUtc</th>
+                    <th class="small">User</th>
+                    <th class="small">TraceIdentifier</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var request in Model.Requests)
+                {
+                <tr>
+                    <td>@request.RequestMethod @request.RequestPath</td>
+                    <td>@request.DateTime.NowUtc</td>
+                    <td>@request.Identity?.Name</td>
+                    <td><a href="/debug/Request?TraceIdentifier=@(request.TraceIdentifier)">@request.TraceIdentifier</a></td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

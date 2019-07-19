@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -12,20 +11,25 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace Debug4MvcNetCore
 {
-    public class DebugMiddleware
+    public class Debug4MvcNetCoreLoggerMiddleware
     {
         private readonly RequestDelegate _next;
 
-        public DebugMiddleware(RequestDelegate next)
+        public Debug4MvcNetCoreLoggerMiddleware(RequestDelegate next)
         {
             _next = next;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
+            new HttpContextService().HttpContext = context;
+            new LogsService().AddRequest(context);
+
             var request = context.Request;
             var response = context.Response;
             
@@ -48,20 +52,25 @@ namespace Debug4MvcNetCore
             // Call the next delegate/middleware in the pipeline
             await _next(context);
 
-
             var resonse = context.Response;
         }
     }
 
-    public static class DebugMiddlewareExtensions
+    public static class Debug4MvcNetCoreLoggerMiddlewareExtensions
     {
-        public static IApplicationBuilder UseDebug(this IApplicationBuilder builder)
+        public static IApplicationBuilder UseDebug4MvcNetCore(this IApplicationBuilder builder)
         {
             if (builder == null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }
-            return builder.UseMiddleware<DebugMiddleware>();
+            var loggerFactory = (ILoggerFactory)builder.ApplicationServices.GetService(typeof(ILoggerFactory));
+            loggerFactory.AddProvider(new Debug4MvcNetCoreLoggerProvider());
+
+            return builder.UseMiddleware<Debug4MvcNetCoreLoggerMiddleware>();
         }
     }
+
+
+
 }

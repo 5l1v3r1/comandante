@@ -14,6 +14,7 @@ namespace Debug4MvcNetCore
             var now = DateTime.Now;
             var nowUtc = now.ToUniversalTime();
             DebugInfo debugInfo = new DebugInfo();
+            debugInfo.Created = now;
             debugInfo.TraceIdentifier = httpContext.TraceIdentifier;
             debugInfo.RequestQueryString = httpContext.Request.QueryString.Value;
             debugInfo.RequestHost = httpContext.Request.Host.ToString();
@@ -106,6 +107,10 @@ namespace Debug4MvcNetCore
         public DateTimeDebugInfo DateTime = new DateTimeDebugInfo();
         public ConnectionDebugInfo Connection = new ConnectionDebugInfo();
         public IdentityDebugInfo[] Identities = new IdentityDebugInfo[0];
+        public IdentityDebugInfo Identity => Identities.FirstOrDefault();
+
+        public DateTime Created { get; internal set; }
+
         public TimeZoneDebugInfo LocalTimeZone = new TimeZoneDebugInfo();
         public TimeZoneDebugInfo UtcTimeZone = new TimeZoneDebugInfo();
         public CultureDebugInfo CurrentCulture = new CultureDebugInfo();
