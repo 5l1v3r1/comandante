@@ -5,11 +5,11 @@ using System.Linq;
 
 namespace Debug4MvcNetCore
 {
-    public class EnvironmentInfoService
+    public class EnvironmentService
     {
-        public EnvironmentInfo Create()
+        public Environments Create()
         {
-            EnvironmentInfo info = new EnvironmentInfo();
+            Environments info = new Environments();
             info.CurrentDirectory = Environment.CurrentDirectory;
             info.CommandLine = Environment.CommandLine;
             info.CommandLineArgs = Environment.GetCommandLineArgs();
@@ -35,7 +35,7 @@ namespace Debug4MvcNetCore
             return info;
         }
     }
-    public class EnvironmentInfo
+    public class Environments
     {
         public string CommandLine;
         public string MachineName;

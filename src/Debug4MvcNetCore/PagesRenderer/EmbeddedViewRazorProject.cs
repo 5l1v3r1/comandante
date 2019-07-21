@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace Debug4MvcNetCore
+namespace Debug4MvcNetCore.PagesRenderer
 {
-    public class EmbeddedPagesRazorProject : RazorProjectFileSystem
+    public class EmbeddedViewRazorProject : RazorProjectFileSystem
     {
         public override IEnumerable<RazorProjectItem> EnumerateItems(string basePath)
         {
@@ -13,7 +13,7 @@ namespace Debug4MvcNetCore
 
         public override RazorProjectItem GetItem(string path)
         {
-            return new EmbeddedPagesRazorProjectItem(path);
+            return new EmbeddedViewRazorProjectItem(path);
         }
     }
 

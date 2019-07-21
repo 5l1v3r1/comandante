@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Builder;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using System.Threading;
+using Debug4MvcNetCore.PagesRenderer;
 
 namespace Debug4MvcNetCore
 {
@@ -28,7 +29,7 @@ namespace Debug4MvcNetCore
         public async Task InvokeAsync(HttpContext context)
         {
             new HttpContextService().HttpContext = context;
-            new LogsService().AddRequest(context);
+            new RequestsService().AddRequest(context);
 
             var request = context.Request;
             var response = context.Response;
@@ -36,16 +37,16 @@ namespace Debug4MvcNetCore
             var matchSubPage  = Regex.Match(request.Path, "/debug/([A-Za-z0-9]*).*");
             if (matchSubPage != null && matchSubPage.Success && matchSubPage.Index == 0 && matchSubPage.Groups.Count == 2 && matchSubPage.Groups[1].Success)
             {
-                var renderer = new EmbeddedPageRenderer();
-                await renderer.Render(matchSubPage.Groups[1].Value, context);
+                var renderer = new EmbeddedViewRenderer();
+                await renderer.RenderView(matchSubPage.Groups[1].Value, context);
                 return;
             }
 
             var matchIndexPage = Regex.Match(request.Path, "/debug[\\?#/$]*");
             if (matchIndexPage != null && matchIndexPage.Success && matchIndexPage.Index == 0)
             {
-                var renderer = new EmbeddedPageRenderer();
-                await renderer.Render("Index", context);
+                var renderer = new EmbeddedViewRenderer();
+                await renderer.RenderView("Index", context);
                 return;
             }
 

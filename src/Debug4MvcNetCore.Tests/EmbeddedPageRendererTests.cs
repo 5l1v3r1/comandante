@@ -14,10 +14,10 @@ namespace Debug4MvcNetCore.Tests
         [Test]
         public void RenderViewToString()
         {
-            EmbeddedPageRenderer sut = new EmbeddedPageRenderer();
+            EmbeddedViewRenderer sut = new EmbeddedViewRenderer();
 
             var httpContext = new TestHttpContex();
-            sut.Render("Index", httpContext).Wait();
+            sut.RenderView("Index", httpContext).Wait();
 
             Console.Write(httpContext.ResponseHtml);
         }

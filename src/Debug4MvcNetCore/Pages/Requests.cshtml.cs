@@ -3,24 +3,25 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Debug4MvcNetCore.Pages;
+using Debug4MvcNetCore.PagesRenderer;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Debug4MvcNetCore.Pages
 {
-    public class Requests : EmbeddedPageModel
+    public class Requests : EmbeddedViewModel
     {
         public RequestsModel Model { get; set; }
 
-        public override async Task InitPage()
+        public override async Task InitView()
         {
             Model = new RequestsModel();
-            Model.Requests = new LogsService().Requests;
+            Model.Requests = new RequestsService().Requests;
         }
     }
 
     public class RequestsModel
     {
-        public IEnumerable<DebugInfo> Requests { get; internal set; }
+        public IEnumerable<Debug4MvcNetCore.RequestInfo> Requests { get; internal set; }
     }
 
 }

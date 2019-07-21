@@ -1,0 +1,320 @@
+﻿<div class="row">
+    <div class="col-md-12">
+        <h2 class="mt-5">Request</h2>
+        <table class="table-sm">
+            <tr>
+                <td>TraceIdentifier</td>
+                <td>@Model?.TraceIdentifier</td>
+            </tr>
+            <tr>
+                <td>Host</td>
+                <td>@Model?.RequestHost</td>
+            </tr>
+            <tr>
+                <td>Method</td>
+                <td>@Model?.RequestMethod</td>
+            </tr>
+            <tr>
+                <td>Scheme</td>
+                <td>@Model?.RequestScheme</td>
+            </tr>
+            <tr>
+                <td>Protocol</td>
+                <td>@Model?.RequestProtocol</td>
+            </tr>
+            <tr>
+                <td>Path</td>
+                <td>@Model?.RequestPath</td>
+            </tr>
+            <tr>
+                <td>PathBase</td>
+                <td>@Model?.RequestPathBase</td>
+            </tr>
+        </table>
+
+        <h2 class="mt-5">Request.Headers</h2>
+        <table class="table-sm">
+            <thead class="small">
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model?.RequestHeaders != null)
+                {
+                    foreach (var header in Model.RequestHeaders)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@header.Key</td>
+                            <td>@System.String.Join(", ", @header.Value)</td>
+                        </tr>
+
+                    }
+                }
+            </tbody>
+        </table>
+
+        <h2 class="mt-5">Request.Cookies</h2>
+        <table class="table-sm">
+            <thead class="small">
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model?.RequestCookies != null)
+                {
+                    foreach (var cookie in @Model.RequestCookies)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@cookie.Key</td>
+                            <td>@cookie.Value</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+        <h2 class="mt-5">Request.QueryString</h2>
+        @Model?.RequestQueryString
+
+        <h2 class="mt-5">Request.Form</h2>
+        <table class="table-sm">
+            <thead class="small">
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model?.RequestForm != null)
+                {
+                    foreach (var formItem in @Model.RequestForm)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@formItem.Key</td>
+                            <td>@System.String.Join(", ", formItem.Value)</td>
+                        </tr>
+
+                    }
+                }
+            </tbody>
+        </table>
+
+        <h2 class="mt-5">DateTime</h2>
+        <table class="table-sm">
+            <tr>
+                <td>Now</td>
+                <td>@Model?.DateTime?.Now</td>
+            </tr>
+            <tr>
+                <td>NowUtc</td>
+                <td>@Model?.DateTime?.NowUtc</td>
+            </tr>
+        </table>
+
+        <h2 class="mt-5">TimeZoneInfo.Local</h2>
+        <table class="table-sm">
+            <tr>
+                <td>Id</td>
+                <td>@Model?.LocalTimeZone?.Id</td>
+            </tr>
+            <tr>
+                <td>DisplayName</td>
+                <td>@Model?.LocalTimeZone?.DisplayName</td>
+            </tr>
+            <tr>
+                <td>StandardName</td>
+                <td>@Model?.LocalTimeZone?.StandardName</td>
+            </tr>
+            <tr>
+                <td>NowUtcOffset</td>
+                <td>@Model?.LocalTimeZone?.NowUtcOffset</td>
+            </tr>
+            <tr>
+                <td>BaseUtcOffset</td>
+                <td>@Model?.LocalTimeZone?.BaseUtcOffset</td>
+            </tr>
+            <tr>
+                <td>SupportsDaylightSavingTime</td>
+                <td>@Model?.LocalTimeZone?.SupportsDaylightSavingTime</td>
+            </tr>
+        </table>
+
+        <h2 class="mt-5">TimeZoneInfo.Utc</h2>
+        <table class="table-sm">
+            <tr>
+                <td>Id</td>
+                <td>@Model?.UtcTimeZone?.Id</td>
+            </tr>
+            <tr>
+                <td>DisplayName</td>
+                <td>@Model?.UtcTimeZone?.DisplayName</td>
+            </tr>
+            <tr>
+                <td>StandardName</td>
+                <td>@Model?.UtcTimeZone?.StandardName</td>
+            </tr>
+            <tr>
+                <td>NowUtcOffset</td>
+                <td>@Model?.UtcTimeZone?.NowUtcOffset</td>
+            </tr>
+            <tr>
+                <td>BaseUtcOffset</td>
+                <td>@Model?.UtcTimeZone?.BaseUtcOffset</td>
+            </tr>
+            <tr>
+                <td>SupportsDaylightSavingTime</td>
+                <td>@Model?.UtcTimeZone?.SupportsDaylightSavingTime</td>
+            </tr>
+        </table>
+
+        <h2 class="mt-5">CurrentThread.CultureInfo</h2>
+        <table class="table-sm">
+            <tr>
+                <td>Name</td>
+                <td>@Model?.CurrentCulture?.Name</td>
+            </tr>
+            <tr>
+                <td>DisplayName</td>
+                <td>@Model?.CurrentCulture?.DisplayName</td>
+            </tr>
+            <tr>
+                <td>EnglishName</td>
+                <td>@Model?.CurrentCulture?.EnglishName</td>
+            </tr>
+            <tr>
+                <td>DateTimeFormat</td>
+                <td>@Model?.CurrentCulture?.DateTimeFormat</td>
+            </tr>
+        </table>
+
+        <h2 class="mt-5">CurrentThread.UICultureInfo</h2>
+        <table class="table-sm">
+            <tr>
+                <td>Name</td>
+                <td>@Model?.CurrentUICulture?.Name</td>
+            </tr>
+            <tr>
+                <td>DisplayName</td>
+                <td>@Model?.CurrentUICulture?.DisplayName</td>
+            </tr>
+            <tr>
+                <td>EnglishName</td>
+                <td>@Model?.CurrentUICulture?.EnglishName</td>
+            </tr>
+            <tr>
+                <td>DateTimeFormat</td>
+                <td>@Model?.CurrentUICulture?.DateTimeFormat</td>
+            </tr>
+        </table>
+
+        <h2 class="mt-5">User.Identities</h2>
+        @if (Model?.Identities != null)
+        {
+            foreach (var identity in @Model?.Identities)
+            {
+                <table class="table-sm">
+                    <tr>
+                        <td>Name</td>
+                        <td>@identity.Name</td>
+                    </tr>
+                    <tr>
+                        <td class="pl-4">AuthenticationType</td>
+                        <td>@identity.AuthenticationType</td>
+                    </tr>
+                    <tr>
+                        <td class="pl-4">IsAuthenticated</td>
+                        <td>@identity.IsAuthenticated</td>
+                    </tr>
+                    <tr>
+                        <td class="pl-4">Label</td>
+                        <td>@identity.Label</td>
+                    </tr>
+                    <tr>
+                        <td class="pl-4">Actor</td>
+                        <td>@identity.Actor</td>
+                    </tr>
+                    <tr>
+                        <td class="pl-4">NameClaimType</td>
+                        <td>@identity.NameClaimType</td>
+                    </tr>
+                    <tr>
+                        <td class="pl-4">RoleClaimType</td>
+                        <td>@identity.RoleClaimType</td>
+                    </tr>
+                    <tr>
+                        <td class="pl-4">Claims</td>
+                        <td>
+                            <table class="table-sm">
+                                <thead>
+                                    <tr>
+                                        <th class="small">Subject</th>
+                                        <th class="small">Type</th>
+                                        <th class="small">Value</th>
+                                        <th class="small">ValueType</th>
+                                        <th class="small">Issuer</th>
+                                        <th class="small">OriginalIssuer</th>
+                                        <th class="small">Properties</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (identity.Claims != null)
+                                    {
+                                        foreach (var claim in identity.Claims)
+                                        {
+                                            <tr>
+                                                <td>@claim.Subject</td>
+                                                <td>@claim.Type</td>
+                                                <td>@claim.Value</td>
+                                                <td>@claim.ValueType</td>
+                                                <td>@claim.Issuer</td>
+                                                <td>@claim.OriginalIssuer</td>
+                                                <td>
+                                                    @foreach (var prop in claim.Properties)
+                                                    {
+                                                        @prop.Key @prop.Value<br />
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            }
+        }
+
+        <h2 class="mt-5">Connection</h2>
+        <table class="table-sm">
+            <tr>
+                <td>Id</td>
+                <td>@Model?.Connection?.Id</td>
+            </tr>
+            <tr>
+                <td>LocalIpAddress</td>
+                <td>@Model?.Connection?.LocalIpAddress</td>
+            </tr>
+            <tr>
+                <td>LocalPort</td>
+                <td>@Model?.Connection?.LocalPort</td>
+            </tr>
+            <tr>
+                <td>RemoteIpAddress</td>
+                <td>@Model?.Connection?.RemoteIpAddress</td>
+            </tr>
+            <tr>
+                <td>RemotePort</td>
+                <td>@Model?.Connection?.RemotePort</td>
+            </tr>
+            <tr>
+                <td>ClientCertificate</td>
+                <td>@Model?.Connection?.ClientCertificate</td>
+            </tr>
+        </table>
+    </div>
+</div>

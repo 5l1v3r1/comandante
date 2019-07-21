@@ -16,50 +16,57 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Debug4MvcNetCore
+namespace Debug4MvcNetCore.PagesRenderer
 {
-    public class EmbeddedPageRenderer
+    public class EmbeddedViewRenderer
     {
-        public EmbeddedPageRenderer()
+        public EmbeddedViewRenderer()
         {
  
         }
 
-        public async Task Render(string view, HttpContext httpContext)
+        public async Task RenderView(string view, HttpContext httpContext)
         {
-            var fs = new EmbeddedPagesRazorProject();
-            var engine = RazorProjectEngine.Create(RazorConfiguration.Default, fs, (builder) =>
-            {
-                InheritsDirective.Register(builder);
-                builder.SetNamespace("Debug4MvcNetCore");
-                builder.SetBaseType("Debug4MvcNetCore.Pages." + view);
-            });
+            await RenderView(view, httpContext, null);
+        }
 
-            var page = fs.GetItem(view + ".cshtml");
-            var pageCodeDocument = engine.Process(page);
-            var pageCs = pageCodeDocument.GetCSharpDocument();
-            var pageTree = CSharpSyntaxTree.ParseText(pageCs.GeneratedCode);
-            
-            MetadataReference[] metadataReferences =
-                typeof(EmbeddedPageRenderer)
-                .Assembly
-                .GetReferencedAssemblies()
-                .Select(x => GetMetadataReference(x.Name))
-                .Union(new[]
+        public async Task RenderView(string view, HttpContext httpContext, object model)
+        {
+            try
+            {
+                var fs = new EmbeddedViewRazorProject();
+                var engine = RazorProjectEngine.Create(RazorConfiguration.Default, fs, (builder) =>
                 {
+                    InheritsDirective.Register(builder);
+                    builder.SetNamespace("Debug4MvcNetCore");
+                    builder.SetBaseType("Debug4MvcNetCore.Pages." + view);
+                });
+
+                var page = fs.GetItem(view + ".cshtml");
+                var pageCodeDocument = engine.Process(page);
+                var pageCs = pageCodeDocument.GetCSharpDocument();
+                var pageTree = CSharpSyntaxTree.ParseText(pageCs.GeneratedCode);
+
+                MetadataReference[] metadataReferences =
+                    typeof(EmbeddedViewRenderer)
+                    .Assembly
+                    .GetReferencedAssemblies()
+                    .Select(x => GetMetadataReference(x.Name))
+                    .Union(new[]
+                    {
                     GetMetadataReference(typeof(UrlResolutionTagHelper)),
                     GetMetadataReference(typeof(RazorCompiledItemAttribute)),
                     GetMetadataReference(typeof(IModelExpressionProvider)),
                     GetMetadataReference(typeof(IUrlHelper)),
                     GetMetadataReference(typeof(object)),
                     GetMetadataReference(typeof(DynamicAttribute)),
-                    GetMetadataReference(typeof(EmbeddedPageRenderer)),
+                    GetMetadataReference(typeof(EmbeddedViewRenderer)),
                     GetMetadataReference(typeof(Microsoft.AspNetCore.Http.HttpContext)),
                     GetMetadataReference(typeof(IHeaderDictionary)),
                     GetMetadataReference(typeof(Microsoft.Extensions.Primitives.StringValues)),
                     GetMetadataReference(typeof(System.Net.IPAddress)),
                     GetMetadataReference(typeof(System.Security.Cryptography.X509Certificates.X509Certificate2)),
-                    
+
                     GetMetadataReference(typeof(System.Security.Claims.ClaimsPrincipal)),
                     
                     //tadataReference.CreateFromFile(typeof(object).Assembly.Location), // include corlib
@@ -71,43 +78,52 @@ namespace Debug4MvcNetCore
 
                     // as found out by @Isantipov, for some other reason on .NET Core for Mac and Linux, we need to add this... this is not needed with .NET framework
                     MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location), "netstandard.dll")),
-                })
-                .ToArray();
+                    })
+                    .ToArray();
 
 
-            const string dllName = "Debug4MvcNetCore.Dynamic";
-            var compilation = CSharpCompilation.Create(dllName, new[] { pageTree},
-                metadataReferences,
-                //new[]
-                //{
-                //    //GetMetadataReference(typeof(InputTagHelper)),
-                //    GetMetadataReference(typeof(UrlResolutionTagHelper)),
-                //    GetMetadataReference(typeof(RazorCompiledItemAttribute)),
-                //    GetMetadataReference(typeof(IModelExpressionProvider)),
-                //    GetMetadataReference(typeof(IUrlHelper)),
-                //    GetMetadataReference(typeof(object)),
-                //    GetMetadataReference(typeof(DynamicAttribute)),
-                //    GetMetadataReference(typeof(EmbeddedPageRenderer)),
-                //    GetMetadataReference(typeof(Microsoft.AspNetCore.Http.HttpContext)),
-                //    GetMetadataReference(typeof(IHeaderDictionary)),
+                const string dllName = "Debug4MvcNetCore.Dynamic";
+                var compilation = CSharpCompilation.Create(dllName, new[] { pageTree },
+                    metadataReferences,
+                    //new[]
+                    //{
+                    //    //GetMetadataReference(typeof(InputTagHelper)),
+                    //    GetMetadataReference(typeof(UrlResolutionTagHelper)),
+                    //    GetMetadataReference(typeof(RazorCompiledItemAttribute)),
+                    //    GetMetadataReference(typeof(IModelExpressionProvider)),
+                    //    GetMetadataReference(typeof(IUrlHelper)),
+                    //    GetMetadataReference(typeof(object)),
+                    //    GetMetadataReference(typeof(DynamicAttribute)),
+                    //    GetMetadataReference(typeof(EmbeddedPageRenderer)),
+                    //    GetMetadataReference(typeof(Microsoft.AspNetCore.Http.HttpContext)),
+                    //    GetMetadataReference(typeof(IHeaderDictionary)),
 
 
-                //    //tadataReference.CreateFromFile(typeof(object).Assembly.Location), // include corlib
-                //    //MetadataReference.CreateFromFile(typeof(RazorCompiledItemAttribute).Assembly.Location), // include Microsoft.AspNetCore.Razor.Runtime
-                //    //MetadataReference.CreateFromFile(Assembly.GetExecutingAssembly().Location), // this file (that contains the MyTemplate base class)
+                    //    //tadataReference.CreateFromFile(typeof(object).Assembly.Location), // include corlib
+                    //    //MetadataReference.CreateFromFile(typeof(RazorCompiledItemAttribute).Assembly.Location), // include Microsoft.AspNetCore.Razor.Runtime
+                    //    //MetadataReference.CreateFromFile(Assembly.GetExecutingAssembly().Location), // this file (that contains the MyTemplate base class)
 
-                //    // for some reason on .NET core, I need to add this... this is not needed with .NET framework
-                //    MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location), "System.Runtime.dll")),
+                    //    // for some reason on .NET core, I need to add this... this is not needed with .NET framework
+                    //    MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location), "System.Runtime.dll")),
 
-                //    // as found out by @Isantipov, for some other reason on .NET Core for Mac and Linux, we need to add this... this is not needed with .NET framework
-                //    MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location), "netstandard.dll")),
+                    //    // as found out by @Isantipov, for some other reason on .NET Core for Mac and Linux, we need to add this... this is not needed with .NET framework
+                    //    MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location), "netstandard.dll")),
 
-                //},
-                new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)); // we want a dll
+                    //},
+                    new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)); // we want a dll
 
 
-            var assembly = LoadAssembly(compilation);
-            await RunAsync(assembly, httpContext);
+                var assembly = LoadAssembly(compilation);
+                await RunAsync(assembly, httpContext, model);
+            } catch(Exception ex)
+            {
+                while (ex != null)
+                {
+                    await httpContext.Response.WriteAsync(ex.Message);
+                    await httpContext.Response.WriteAsync(ex.StackTrace);
+                    ex = ex.InnerException;
+                }
+            }
         }
 
         public Assembly LoadAssembly(CSharpCompilation compilation)
@@ -155,14 +171,16 @@ namespace Debug4MvcNetCore
             return assembly;
         }
 
-        public async Task RunAsync(Assembly assembly, HttpContext httpContext)
+        public async Task RunAsync(Assembly assembly, HttpContext httpContext, object model)
         {
             RazorCompiledItemLoader loader = new RazorCompiledItemLoader();
             RazorCompiledItem item = loader.LoadItems(assembly).SingleOrDefault();
-            EmbeddedPageModel page = (EmbeddedPageModel)Activator.CreateInstance(item.Type);
-            page.HttpContext = httpContext;
-            await page.InitPage();
-            await page.ExecuteAsync();
+            EmbeddedViewModel view = (EmbeddedViewModel)Activator.CreateInstance(item.Type);
+            view.HttpContext = httpContext;
+            if (model != null)
+                item.Type.GetProperty("Model").SetValue(view, model);
+            await view.InitView();
+            await view.ExecuteAsync();
         }
 
         private static MetadataReference GetMetadataReference(Type type) =>

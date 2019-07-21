@@ -6,23 +6,25 @@
 
   <ItemGroup>
     <None Remove="Pages\EntityFrameworkCore.cshtml" />
+    <None Remove="Pages\Environment.cshtml" />
     <None Remove="Pages\Index.cshtml" />
     <None Remove="Pages\Logs.cshtml" />
     <None Remove="Pages\Request.cshtml" />
     <None Remove="Pages\Requests.cshtml" />
-    <None Remove="Pages\ServerInfo.cshtml" />
     <None Remove="Pages\_Layout.cshtml" />
+    <None Remove="Pages\_Request.cshtml" />
     <None Remove="wwwroot\bootstrap.min.css" />
     <None Remove="wwwroot\bootstrap.min.js" />
     <None Remove="wwwroot\jquery.min.js" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Pages\_Request.cshtml" />
     <EmbeddedResource Include="Pages\Request.cshtml" />
     <EmbeddedResource Include="Pages\Requests.cshtml" />
     <EmbeddedResource Include="Pages\Logs.cshtml" />
     <EmbeddedResource Include="Pages\EntityFrameworkCore.cshtml" />
-    <EmbeddedResource Include="Pages\ServerInfo.cshtml" />
+    <EmbeddedResource Include="Pages\Environment.cshtml" />
     <EmbeddedResource Include="Pages\_Layout.cshtml" />
     <EmbeddedResource Include="Pages\Index.cshtml" />
     <EmbeddedResource Include="wwwroot\bootstrap.min.css" />

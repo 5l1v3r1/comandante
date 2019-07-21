@@ -9,13 +9,13 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Debug4MvcNetCore
+namespace Debug4MvcNetCore.PagesRenderer
 {
-    public abstract class EmbeddedPageModel
+    public abstract class EmbeddedViewModel
     {
         public HttpContext HttpContext { get; set; }
 
-        public abstract Task InitPage();
+        public abstract Task InitView();
 
 
         private string AttributeEnding { get; set; }
@@ -64,20 +64,29 @@ namespace Debug4MvcNetCore
 
         public object RenderResource(string resource)
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            Assembly assembly = Assembly.GetExecutingAssembly();
             if (resource.EndsWith(".js"))
             {
-                Stream resourceStream = assembly.GetManifestResourceStream("Debug4MvcNetCore.wwwroot." + resource);
-                string resourceContent = new StreamReader(resourceStream).ReadToEnd();
-                return "<script>" + resourceContent + "</script>";
+                using (Stream resourceStream = assembly.GetManifestResourceStream("Debug4MvcNetCore.wwwroot." + resource))
+                {
+                    string resourceContent = new StreamReader(resourceStream).ReadToEnd();
+                    return "<script>" + resourceContent + "</script>";
+                }
             }
             if (resource.EndsWith(".css"))
             {
-                Stream resourceStream = assembly.GetManifestResourceStream("Debug4MvcNetCore.wwwroot." + resource);
-                string resourceContent = new StreamReader(resourceStream).ReadToEnd();
-                return "<style>" + resourceContent + "</style>";
+                using (Stream resourceStream = assembly.GetManifestResourceStream("Debug4MvcNetCore.wwwroot." + resource))
+                {
+                    string resourceContent = new StreamReader(resourceStream).ReadToEnd();
+                    return "<style>" + resourceContent + "</style>";
+                }
             }
             return "";
+        }
+
+        public async Task RenderPartialView(string viewName, object model)
+        {
+            await new EmbeddedViewRenderer().RenderView(viewName, this.HttpContext, model);
         }
 
         public async virtual Task ExecuteAsync()

@@ -43,12 +43,6 @@ namespace Debug4MvcNetCore
             get { return _logs; }
         }
 
-        private static Dictionary<string, DebugInfo> _requests = new Dictionary<string, DebugInfo>();
-        public IEnumerable<DebugInfo> Requests
-        {
-            get { return _requests.Select(x => x.Value).OrderByDescending(x => x.Created); }
-        }
-
         public void AddLog<TState>(string loggerName, LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             var httpContext = new HttpContextService().HttpContext;
@@ -61,12 +55,6 @@ namespace Debug4MvcNetCore
                 LoggerName = loggerName,
                 Details = formatter(state, exception)
             });
-        }
-
-        public void AddRequest(HttpContext httpContext)
-        {
-            if (_requests.ContainsKey(httpContext.TraceIdentifier) == false)
-                _requests.Add(httpContext.TraceIdentifier, new DebugInfoService().Create(httpContext));
         }
     }
 }
