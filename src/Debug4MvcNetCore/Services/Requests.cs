@@ -15,10 +15,20 @@ namespace Debug4MvcNetCore
             get { return _requests.Select(x => x.Value).OrderByDescending(x => x.Created); }
         }
 
+        private static RequestLevel _requestLevel = Debug4MvcNetCore.RequestLevel.OnlyIfError;
+        public RequestLevel RequestLevel
+        {
+            get { return _requestLevel; }
+            set { _requestLevel = value; }
+        }
+
         public void AddRequest(HttpContext httpContext)
         {
             if (_requests.ContainsKey(httpContext.TraceIdentifier) == false)
                 _requests.Add(httpContext.TraceIdentifier, Create(httpContext));
+
+            //Keep only 2000 requests
+            _requests = _requests.Take(2000).ToDictionary(x => x.Key, x => x.Value);
         }
 
         public RequestInfo Create(HttpContext httpContext)
@@ -101,6 +111,24 @@ namespace Debug4MvcNetCore
 
             return requestInfo;
         }
+
+        public void ClearRequests()
+        {
+            _requests.Clear();
+        }
+
+        public void CleanUp(HttpContext context)
+        {
+            
+        }
+    }
+
+    public enum RequestLevel : int
+    {
+        OnlyIfError = 3,
+        OnlyMvc = 2,
+        Everything = 1,
+        Node = 0
     }
 
     public class RequestInfo

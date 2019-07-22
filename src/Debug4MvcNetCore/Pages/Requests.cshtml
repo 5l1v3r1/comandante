@@ -1,6 +1,23 @@
 ﻿<div class="row">
     <div class="col-md-12">
         <h2 class="mt-5">Requests</h2>
+        <div class="card-body">
+            <h6 class="card-subtitle mb-2 text-muted">Configuration</h6>
+            <div>
+                @*<form id="RequestLevelForm" method="post" class="mt-4 mb-4 mr-4">
+                    <label for="logLevel">Log Level</label>
+                    <select id="logLevel" name="LogLevel" class="form-control form-control-sm" style="width:auto; display: inline-block;" onchange="getElementById('RequestLevelForm').submit()">
+                        <option value="3" @(Model.RequestLevel == Debug4MvcNetCore.RequestLevel.OnlyIfError ? "selected" : "")>Only if an error occurs</option>
+                        <option value="2" @(Model.RequestLevel == Debug4MvcNetCore.RequestLevel.OnlyMvc ? "selected" : "")>Only if mvc reqeust</option>
+                        <option value="1" @(Model.RequestLevel == Debug4MvcNetCore.RequestLevel.Everything ? "selected" : "")>Everything</option>
+                        <option value="0" @(Model.RequestLevel == Debug4MvcNetCore.RequestLevel.Node ? "selected" : "")>Node</option>
+                    </select>
+                </form>*@
+                <form method="post" class="mt-4 mb-4">
+                    <button name="ClearRequests" value="ClearRequests" class="btn btn-default btn-sm" type="submit">Clear requests</button>
+                </form>
+            </div>
+        </div>
         <table class="table-sm">
             <thead>
                 <tr>
@@ -13,12 +30,12 @@
             <tbody>
                 @foreach (var request in Model.Requests)
                 {
-                <tr>
-                    <td>@request.RequestMethod @request.RequestPath</td>
-                    <td>@request.DateTime.NowUtc</td>
-                    <td>@request.Identity?.Name</td>
-                    <td><a href="/debug/Request?TraceIdentifier=@(request.TraceIdentifier)">@request.TraceIdentifier</a></td>
-                </tr>
+                    <tr>
+                        <td>@request.RequestMethod @request.RequestPath</td>
+                        <td>@request.DateTime.NowUtc</td>
+                        <td>@request.Identity?.Name</td>
+                        <td><a href="/debug/Request?TraceIdentifier=@(request.TraceIdentifier)">@request.TraceIdentifier</a></td>
+                    </tr>
                 }
             </tbody>
         </table>

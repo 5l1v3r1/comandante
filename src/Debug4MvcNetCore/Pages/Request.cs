@@ -17,10 +17,12 @@ namespace Debug4MvcNetCore.Pages
         {
             var logsService = new LogsService();
             Model = new RequestModel();
+
+
             if (this.HttpContext.Request.Query.ContainsKey("TraceIdentifier"))
             {
                 var traceIdentifier = this.HttpContext.Request.Query["TraceIdentifier"].ToString().Trim();
-                Model.Logs = new LogsService().Logs.Where(x => x.TraceIdentifier == traceIdentifier);
+                Model.Logs = new LogsService().Logs.Where(x => x?.TraceIdentifier == traceIdentifier).ToList();
                 Model.Request = new RequestsService().Requests.FirstOrDefault(x => x.TraceIdentifier == traceIdentifier);
             }
         }

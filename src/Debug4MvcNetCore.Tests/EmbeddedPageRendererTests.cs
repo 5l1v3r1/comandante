@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using System;
 using Debug4MvcNetCore;
+using Debug4MvcNetCore.PagesRenderer;
 
 namespace Debug4MvcNetCore.Tests
 {

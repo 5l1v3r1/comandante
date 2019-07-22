@@ -180,7 +180,8 @@ namespace Debug4MvcNetCore.PagesRenderer
             if (model != null)
                 item.Type.GetProperty("Model").SetValue(view, model);
             await view.InitView();
-            await view.ExecuteAsync();
+            if (httpContext.Response.StatusCode == 200)
+                await view.ExecuteAsync();
         }
 
         private static MetadataReference GetMetadataReference(Type type) =>

@@ -19,22 +19,14 @@ namespace Debug4MvcNetCore
             return null;
         }
 
-        public bool IsEnabled(LogLevel logLevel)
+        public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel)
         {
-            return logLevel == _logsService.LogLevel;
+            return true;
         }
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(Microsoft.Extensions.Logging.LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            if (!IsEnabled(logLevel))
-            {
-                return;
-            }
-
-            if (_logsService.EventId == 0 || _logsService.EventId == eventId.Id)
-            {
-                _logsService.AddLog(_name, logLevel, eventId, state, exception, formatter);
-            }
+            _logsService.AddLog(_name, (LogLevel)(int)logLevel, eventId, state, exception, formatter);
         }
     }
 
