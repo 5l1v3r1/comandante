@@ -2,31 +2,31 @@
     <div class="col-md-12">
         <h2 class="mt-5">Logs</h2>
         <table class="table-sm">
-            <thead>
+            <thead  class="small">
                 <tr>
-                    <th class="small">LoggerName</th>
-                    <th class="small">EventId</th>
-                    <th class="small">LogLevel</th>
-                    <th class="small">Details</th>
-                    <th class="small">IdentityName</th>
-                    <th class="small">TraceIdentifier</th>
+                    <th>DateTime</th>
+                    <th>LogLevel</th>
+                    <th>Details</th>
+                    <th>IdentityName</th>
+                    <th>TraceIdentifier</th>
+                    <th>LoggerName</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var log in Model.Logs)
                 {
                 <tr>
-                    <td>@log.LoggerName</td>
-                    <td>@log.EventId</td>
+                    <td>@log.Created</td>
                     <td>@log.LogLevel</td>
                     <td>@log.Details</td>
                     <td>@log.IdentityName</td>
-                    <td>
-                    @if (log.TraceIdentifier != null)
-                    {
-                        <a href="/debug/Request?TraceIdentifier=@(log.TraceIdentifier)">@log.TraceIdentifier</a>
-                    }
+                    <td class="text-nowrap">
+                        @if (log.TraceIdentifier != null)
+                        {
+                            <a href="/debug/Request?TraceIdentifier=@(log.TraceIdentifier)">@log.TraceIdentifier</a>
+                        }
                     </td>
+                    <td>@log.LoggerName</td>
                 </tr>
                 }
             </tbody>

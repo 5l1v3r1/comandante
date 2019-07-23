@@ -4,27 +4,27 @@
     <div class="col-md-12">
         <h2 class="mt-5">Logs</h2>
         <table class="table-sm">
-            <thead>
+            <thead class="small">
                 <tr>
-                    <th class="small">LoggerName</th>
-                    <th class="small">EventId</th>
-                    <th class="small">LogLevel</th>
-                    <th class="small">Details</th>
-                    <th class="small">IdentityName</th>
-                    <th class="small">TraceIdentifier</th>
+                    <th>DateTime</th>
+                    <th>LogLevel</th>
+                    <th>Details</th>
+                    <th>StackTrace</th>
+                    <th>IdentityName</th>
+                    <th>LoggerName</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var log in Model.Request.Logs)
                 {
-                    <tr>
-                        <td>@log.LoggerName</td>
-                        <td>@log.EventId</td>
-                        <td>@log.LogLevel</td>
-                        <td>@log.Details</td>
-                        <td>@log.IdentityName</td>
-                        <td>@log.TraceIdentifier</td>
-                    </tr>
+                <tr>
+                    <td class="text-nowrap">@log.Created</td>
+                    <td class="text-nowrap">@log.LogLevel</td>
+                    <td class="text-nowrap">@log.Details</td>
+                    <td class="text-nowrap">@log.StackTrace</td>
+                    <td class="text-nowrap">@log.IdentityName</td>
+                    <td class="text-nowrap">@log.LoggerName</td>
+                </tr>
                 }
             </tbody>
         </table>

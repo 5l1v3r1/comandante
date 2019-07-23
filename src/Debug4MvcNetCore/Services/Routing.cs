@@ -15,7 +15,7 @@ namespace Debug4MvcNetCore.Services
 
         public List<RouteInfo> GetRoutes()
         {
-            var httpContext = new HttpContextService().HttpContext;
+            var httpContext = new HttpContextHelper().HttpContext;
             var actionDescriptorCollectionProvider = httpContext.RequestServices.GetService(typeof(IActionDescriptorCollectionProvider)) as IActionDescriptorCollectionProvider;
             if (actionDescriptorCollectionProvider == null)
                 return null;

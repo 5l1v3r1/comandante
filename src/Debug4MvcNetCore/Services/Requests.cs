@@ -1,4 +1,5 @@
 ﻿using Debug4MvcNetCore.Services;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
@@ -30,13 +31,15 @@ namespace Debug4MvcNetCore
 
             var requestResponseInfo = CreateRequestResponseInfo(httpContext);
             httpContext.Items["Debug4MvcNetCore_Request"] = requestResponseInfo;
-            _requests.Add(requestResponseInfo);
+            _requests.Insert(0, requestResponseInfo);
         }
 
         public void EndRequest(HttpContext httpContext)
         {
             if (ConfigurationInfo.RequestLogLevel == RequestLogLevel.Node)
                 return;
+
+            LogUnhandledException(httpContext);
 
             var request = ((RequestResponseInfo)httpContext.Items["Debug4MvcNetCore_Request"]);
             request.Response = CreateResponseInfo(httpContext);
@@ -48,7 +51,18 @@ namespace Debug4MvcNetCore
 
             if (ConfigurationInfo.RequestLogLevel == RequestLogLevel.OnlyIfError)
             {
-                _requests = _requests.Where(x => x.LogLevel >= LogLevel.Error).Take(ConfigurationInfo.MaxNumberOfRequests).ToList();
+                _requests = _requests.Where(x => x.HasError).Take(ConfigurationInfo.MaxNumberOfRequests).ToList();
+            }
+        }
+
+        private static void LogUnhandledException(HttpContext httpContext)
+        {
+            var exceptionHandlerPathFeature = httpContext.Features.Get<IExceptionHandlerPathFeature>();
+            if (exceptionHandlerPathFeature?.Error != null)
+            {
+                var logger = (ILogger<Debug4MvcNetCoreLoggerMiddleware>)httpContext.RequestServices.GetService(typeof(ILogger<Debug4MvcNetCoreLoggerMiddleware>));
+                if (logger != null)
+                    logger.LogError(exceptionHandlerPathFeature.Error.Message, exceptionHandlerPathFeature.Error);
             }
         }
 
@@ -63,6 +77,15 @@ namespace Debug4MvcNetCore
             if (isWebHostLog && ConfigurationInfo.KeepWebHostLogs == false)
                 return;
 
+            var description = "";
+            var stackTrace = "";
+            while (exception != null)
+            {
+                description += formatter(state, exception) + " \n " + exception.Message;
+                stackTrace += (exception.Message + " \n " + exception.StackTrace);
+                exception = exception.InnerException;
+            }
+
             var logEntry = new LogEntry
             {
                 IdentityName = httpContext?.User?.Identity?.Name,
@@ -70,7 +93,8 @@ namespace Debug4MvcNetCore
                 LogLevel = logLevel,
                 EventId = eventId.Id,
                 LoggerName = loggerName,
-                Details = formatter(state, exception),
+                Details = description,
+                StackTrace = stackTrace,
                 Created = DateTime.UtcNow,
                 IsWebHostLog = isWebHostLog,
             };
@@ -83,7 +107,7 @@ namespace Debug4MvcNetCore
             else
             {
                 var request = ((RequestResponseInfo)httpContext.Items["Debug4MvcNetCore_Request"]);
-                request.Logs.Add(logEntry);
+                request.Logs.Insert(0, logEntry);
                 request.LogLevel = request.Logs.Max(x => x.LogLevel);
             }
         }
@@ -194,29 +218,34 @@ namespace Debug4MvcNetCore
         public ConnectionDebugInfo Connection = new ConnectionDebugInfo();
         public IdentityDebugInfo[] Identities = new IdentityDebugInfo[0];
         public IdentityDebugInfo Identity => Identities.FirstOrDefault();
-
-        public LogLevel LogLevel { get; internal set; }
-
         public TimeZoneDebugInfo LocalTimeZone = new TimeZoneDebugInfo();
         public TimeZoneDebugInfo UtcTimeZone = new TimeZoneDebugInfo();
         public CultureDebugInfo CurrentCulture = new CultureDebugInfo();
         public CultureDebugInfo CurrentUICulture = new CultureDebugInfo();
+        public LogLevel LogLevel;
         public DateTime Created;
         public List<LogEntry> Logs = new List<LogEntry>();
+
+        public bool HasError
+        {
+            get { return LogLevel >= LogLevel.Error || Response?.StatusCode == 500;  }
+        }
     }
 
     public class LogEntry
     {
         public bool IsWebHostLog;
 
-        public LogLevel LogLevel { get; set; }
-        public int EventId { get; set; }
-        public object LoggerName { get; set; }
-        public string Details { get; set; }
-        public string IdentityName { get; set; }
-        public string TraceIdentifier { get; set; }
-        public DateTime Created { get; set; }
+        public LogLevel LogLevel;
+        public int EventId;
+        public object LoggerName;
+        public string Details;
+        public string IdentityName;
+        public string TraceIdentifier;
+        public DateTime Created;
+        public string StackTrace;
     }
+
     public class RequestInfo
     {
         public string QueryString;
