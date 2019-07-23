@@ -34,7 +34,8 @@ namespace Debug4MvcNetCore.PagesRenderer
                 AttributeValues = new List<string>();
             }
 
-            AttributeValues.Add(value.ToString());
+            if (value != null)
+                AttributeValues.Add(value.ToString());
         }
 
         public void EndWriteAttribute()
@@ -60,6 +61,18 @@ namespace Debug4MvcNetCore.PagesRenderer
         {
             if (obj != null)
                 HttpContext?.Response.WriteAsync(obj.ToString());
+        }
+
+        private Stack<TextWriter> TextWriters { get; set; } = new Stack<TextWriter>();
+
+        public void PushWriter(TextWriter writer)
+        {
+            TextWriters.Push(writer);
+        }
+
+        public TextWriter PopWriter()
+        {
+            return TextWriters.Pop();
         }
 
         public object RenderResource(string resource)

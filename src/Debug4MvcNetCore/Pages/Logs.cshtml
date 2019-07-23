@@ -21,7 +21,12 @@
                     <td>@log.LogLevel</td>
                     <td>@log.Details</td>
                     <td>@log.IdentityName</td>
-                    <td>@log.TraceIdentifier</td>
+                    <td>
+                    @if (log.TraceIdentifier != null)
+                    {
+                        <a href="/debug/Request?TraceIdentifier=@(log.TraceIdentifier)">@log.TraceIdentifier</a>
+                    }
+                    </td>
                 </tr>
                 }
             </tbody>

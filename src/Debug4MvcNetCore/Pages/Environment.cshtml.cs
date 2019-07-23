@@ -16,12 +16,14 @@ namespace Debug4MvcNetCore.Pages
         {
             Model = new ServerInfoModel();
             Model.Environment = new EnvironmentService().Create();
+            Model.Process = new ProcessService().GetProcessInfo();
         }
     }
 
     public class ServerInfoModel
     {
         public Environments Environment;
+        public ProcessInfo Process;
     }
 
 }

@@ -1,0 +1,38 @@
+﻿<div class="row">
+    <div class="col-md-12">
+        <h2 class="mt-5">Routing</h2>
+        @if (Model.Routes != null)
+        {
+        <table class="table-sm">
+            <thead>
+                <tr class="small">
+                    <th>Route Template</th>
+                    <th>Controller</th>
+                    <th>Action</th>
+                    <th>Constraints/Verbs</th>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var route in Model.Routes)
+                {
+
+                    <tr>
+                        <td>@route.Template</td>
+                        <td>@route.Controller</td>
+                        <td>@route.Action</td>
+                        <td>@route.Constraint</td>
+                        <td>@route.Name</td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+        }
+        else
+        {
+        <div>Sorry, cannot get service IActionDescriptorCollectionProvider, that provides routing information.</div>
+        }
+    </div>
+</div>
+
