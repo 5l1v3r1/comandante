@@ -15,12 +15,12 @@ namespace Debug4MvcNetCore.Pages
 
         public override async Task InitView()
         {
-            var logsService = new LogsService();
+            var logsService = new RequestsService();
             Model = new RequestModel();
+
             if (this.HttpContext.Request.Query.ContainsKey("TraceIdentifier"))
             {
                 var traceIdentifier = this.HttpContext.Request.Query["TraceIdentifier"].ToString().Trim();
-                Model.Logs = new LogsService().Logs.Where(x => x.TraceIdentifier == traceIdentifier);
                 Model.Request = new RequestsService().Requests.FirstOrDefault(x => x.TraceIdentifier == traceIdentifier);
             }
         }
@@ -28,8 +28,7 @@ namespace Debug4MvcNetCore.Pages
 
     public class RequestModel
     {
-        public RequestInfo Request { get; set; }
-        public IEnumerable<LogEntry> Logs { get; internal set; }
+        public RequestResponseInfo Request { get; set; }
     }
 
 }

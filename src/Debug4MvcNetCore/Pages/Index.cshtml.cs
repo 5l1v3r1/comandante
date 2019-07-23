@@ -20,13 +20,13 @@ namespace Debug4MvcNetCore.Pages
         public override async Task InitView()
         {
             Model = new IndexModel();
-            Model.Request = new RequestsService().Create(this.HttpContext);
+            Model.Request = new RequestsService().CreateRequestResponseInfo(this.HttpContext);
         }
     }
 
     public class IndexModel
     {
-        public Debug4MvcNetCore.RequestInfo Request = new Debug4MvcNetCore.RequestInfo();
+        public Debug4MvcNetCore.RequestResponseInfo Request = new Debug4MvcNetCore.RequestResponseInfo();
     }
 
 }

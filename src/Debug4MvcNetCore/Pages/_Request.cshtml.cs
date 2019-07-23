@@ -14,7 +14,7 @@ namespace Debug4MvcNetCore.Pages
 {
     public class _Request : EmbeddedViewModel
     {
-        public RequestInfo Model { get; set; }
+        public RequestResponseInfo Model { get; set; }
 
         public override Task InitView()
         {

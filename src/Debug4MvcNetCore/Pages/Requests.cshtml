@@ -13,12 +13,12 @@
             <tbody>
                 @foreach (var request in Model.Requests)
                 {
-                <tr>
-                    <td>@request.RequestMethod @request.RequestPath</td>
-                    <td>@request.DateTime.NowUtc</td>
-                    <td>@request.Identity?.Name</td>
-                    <td><a href="/debug/Request?TraceIdentifier=@(request.TraceIdentifier)">@request.TraceIdentifier</a></td>
-                </tr>
+                    <tr>
+                        <td>@request.Request.Method @request.Request.Path</td>
+                        <td>@request.DateTime.NowUtc</td>
+                        <td>@request.Identity?.Name</td>
+                        <td><a href="/debug/Request?TraceIdentifier=@(request.TraceIdentifier)">@request.TraceIdentifier</a></td>
+                    </tr>
                 }
             </tbody>
         </table>
