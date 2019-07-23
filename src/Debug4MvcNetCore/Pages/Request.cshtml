@@ -1,4 +1,4 @@
-﻿@if (Model.Logs != null)
+﻿@if (Model.Request?.Logs != null)
 {
 <div class="row">
     <div class="col-md-12">
@@ -15,7 +15,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var log in Model.Logs)
+                @foreach (var log in Model.Request.Logs)
                 {
                     <tr>
                         <td>@log.LoggerName</td>

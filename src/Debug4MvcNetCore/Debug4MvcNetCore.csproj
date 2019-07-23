@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Pages\Configuration.cshtml" />
     <None Remove="Pages\EntityFrameworkCore.cshtml" />
     <None Remove="Pages\Environment.cshtml" />
     <None Remove="Pages\Index.cshtml" />
@@ -19,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Pages\Configuration.cshtml" />
     <EmbeddedResource Include="Pages\_Request.cshtml" />
     <EmbeddedResource Include="Pages\Request.cshtml" />
     <EmbeddedResource Include="Pages\Requests.cshtml" />

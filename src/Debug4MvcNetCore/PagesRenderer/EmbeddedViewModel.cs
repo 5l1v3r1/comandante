@@ -30,10 +30,9 @@ namespace Debug4MvcNetCore.PagesRenderer
         public void WriteAttributeValue(string prefix, int prefixOffset, object value, int valueOffset, int valueLength, bool isLiteral)
         {
             if (value != null && AttributeValues == null)
-            {
                 AttributeValues = new List<string>();
-            }
 
+            if (value != null)
             AttributeValues.Add(value.ToString());
         }
 

@@ -8,27 +8,27 @@
             </tr>
             <tr>
                 <td>Host</td>
-                <td>@Model?.RequestHost</td>
+                <td>@Model?.Request?.Host</td>
             </tr>
             <tr>
                 <td>Method</td>
-                <td>@Model?.RequestMethod</td>
+                <td>@Model?.Request?.Method</td>
             </tr>
             <tr>
                 <td>Scheme</td>
-                <td>@Model?.RequestScheme</td>
+                <td>@Model?.Request?.Scheme</td>
             </tr>
             <tr>
                 <td>Protocol</td>
-                <td>@Model?.RequestProtocol</td>
+                <td>@Model?.Request?.Protocol</td>
             </tr>
             <tr>
                 <td>Path</td>
-                <td>@Model?.RequestPath</td>
+                <td>@Model?.Request?.Path</td>
             </tr>
             <tr>
                 <td>PathBase</td>
-                <td>@Model?.RequestPathBase</td>
+                <td>@Model?.Request?.PathBase</td>
             </tr>
         </table>
 
@@ -41,9 +41,9 @@
                 </tr>
             </thead>
             <tbody>
-                @if (Model?.RequestHeaders != null)
+                @if (Model?.Request?.Headers != null)
                 {
-                    foreach (var header in Model.RequestHeaders)
+                    foreach (var header in Model.Request.Headers)
                     {
                         <tr>
                             <td class="text-nowrap">@header.Key</td>
@@ -64,9 +64,9 @@
                 </tr>
             </thead>
             <tbody>
-                @if (Model?.RequestCookies != null)
+                @if (Model?.Request?.Cookies != null)
                 {
-                    foreach (var cookie in @Model.RequestCookies)
+                    foreach (var cookie in @Model.Request.Cookies)
                     {
                         <tr>
                             <td class="text-nowrap">@cookie.Key</td>
@@ -78,7 +78,7 @@
         </table>
 
         <h2 class="mt-5">Request.QueryString</h2>
-        @Model?.RequestQueryString
+        @Model?.Request.QueryString
 
         <h2 class="mt-5">Request.Form</h2>
         <table class="table-sm">
@@ -89,13 +89,44 @@
                 </tr>
             </thead>
             <tbody>
-                @if (Model?.RequestForm != null)
+                @if (Model?.Request?.Form != null)
                 {
-                    foreach (var formItem in @Model.RequestForm)
+                    foreach (var formItem in @Model.Request.Form)
                     {
                         <tr>
                             <td class="text-nowrap">@formItem.Key</td>
                             <td>@System.String.Join(", ", formItem.Value)</td>
+                        </tr>
+
+                    }
+                }
+            </tbody>
+        </table>
+
+        <h2 class="mt-5">Response</h2>
+        <table class="table-sm">
+            <tr>
+                <td>StatusCode</td>
+                <td>@Model?.Response?.StatusCode</td>
+            </tr>
+        </table>
+
+        <h2 class="mt-5">Response.Headers</h2>
+        <table class="table-sm">
+            <thead class="small">
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model?.Response?.Headers != null)
+                {
+                    foreach (var header in Model.Response.Headers)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@header.Key</td>
+                            <td>@System.String.Join(", ", @header.Value)</td>
                         </tr>
 
                     }

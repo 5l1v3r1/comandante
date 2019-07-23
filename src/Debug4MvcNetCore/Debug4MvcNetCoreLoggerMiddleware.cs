@@ -22,7 +22,7 @@ namespace Debug4MvcNetCore
         private readonly RequestDelegate _next;
         private HttpContextHelper _httpContextHelper = new HttpContextHelper();
         private RequestsService _requestsService = new RequestsService();
-        private LogsService _logsService = new LogsService();
+        private RequestsService _logsService = new RequestsService();
 
         public Debug4MvcNetCoreLoggerMiddleware(RequestDelegate next)
         {
@@ -44,12 +44,11 @@ namespace Debug4MvcNetCore
                     return;
                 }
 
-                _requestsService.AddRequest(context);
+                _requestsService.StartRequest(context);
 
                 await _next(context);
 
-                _logsService.CleanUp(context);
-                _requestsService.CleanUp(context);
+                _requestsService.EndRequest(context);
 
             } catch (Exception ex)
             {

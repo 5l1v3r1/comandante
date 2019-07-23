@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Debug4MvcNetCore.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,79 +11,121 @@ namespace Debug4MvcNetCore
 {
     public class RequestsService
     {
-        private static Dictionary<string, RequestInfo> _requests = new Dictionary<string, RequestInfo>();
-        public IEnumerable<RequestInfo> Requests
+        private static List<RequestResponseInfo> _requests = new List<RequestResponseInfo>();
+        public IEnumerable<RequestResponseInfo> Requests
         {
-            get { return _requests.Select(x => x.Value).OrderByDescending(x => x.Created); }
+            get { return _requests; }
         }
 
-        private static RequestLevel _requestLevel = Debug4MvcNetCore.RequestLevel.OnlyIfError;
-        public RequestLevel RequestLevel
+        private static List<LogEntry> _webHostlogs = new List<LogEntry>();
+        public IEnumerable<LogEntry> Logs
         {
-            get { return _requestLevel; }
-            set { _requestLevel = value; }
+            get { return _requests.SelectMany(x => x.Logs).ToList().Union(_webHostlogs).ToList().OrderByDescending(x => x.Created).ToList(); }
         }
 
-        public void AddRequest(HttpContext httpContext)
+        public void StartRequest(HttpContext httpContext)
         {
-            if (_requests.ContainsKey(httpContext.TraceIdentifier) == false)
-                _requests.Add(httpContext.TraceIdentifier, Create(httpContext));
+            if (ConfigurationInfo.RequestLogLevel == RequestLogLevel.Node)
+                return;
 
-            //Keep only 2000 requests
-            _requests = _requests.Take(2000).ToDictionary(x => x.Key, x => x.Value);
+            var requestResponseInfo = CreateRequestResponseInfo(httpContext);
+            httpContext.Items["Debug4MvcNetCore_Request"] = requestResponseInfo;
+            _requests.Add(requestResponseInfo);
         }
 
-        public RequestInfo Create(HttpContext httpContext)
+        public void EndRequest(HttpContext httpContext)
+        {
+            if (ConfigurationInfo.RequestLogLevel == RequestLogLevel.Node)
+                return;
+
+            var request = ((RequestResponseInfo)httpContext.Items["Debug4MvcNetCore_Request"]);
+            request.Response = CreateResponseInfo(httpContext);
+
+            if (ConfigurationInfo.RequestLogLevel == RequestLogLevel.All)
+            {
+                _requests = _requests.Take(ConfigurationInfo.MaxNumberOfRequests).ToList();
+            }
+
+            if (ConfigurationInfo.RequestLogLevel == RequestLogLevel.OnlyIfError)
+            {
+                _requests = _requests.Where(x => x.LogLevel >= LogLevel.Error).Take(ConfigurationInfo.MaxNumberOfRequests).ToList();
+            }
+        }
+
+        public void AddLog<TState>(string loggerName, LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            if (ConfigurationInfo.RequestLogLevel == RequestLogLevel.Node)
+                return;
+
+            var httpContext = new HttpContextHelper().HttpContext;
+
+            bool isWebHostLog = httpContext == null;
+            if (isWebHostLog && ConfigurationInfo.KeepWebHostLogs == false)
+                return;
+
+            var logEntry = new LogEntry
+            {
+                IdentityName = httpContext?.User?.Identity?.Name,
+                TraceIdentifier = httpContext?.TraceIdentifier,
+                LogLevel = logLevel,
+                EventId = eventId.Id,
+                LoggerName = loggerName,
+                Details = formatter(state, exception),
+                Created = DateTime.UtcNow,
+                IsWebHostLog = isWebHostLog,
+            };
+
+            if (isWebHostLog)
+            {
+                _webHostlogs.Insert(0, logEntry);
+                _webHostlogs = _webHostlogs.Take(ConfigurationInfo.MaxNumberOfWebHostLogs).ToList();
+            }
+            else
+            {
+                var request = ((RequestResponseInfo)httpContext.Items["Debug4MvcNetCore_Request"]);
+                request.Logs.Add(logEntry);
+                request.LogLevel = request.Logs.Max(x => x.LogLevel);
+            }
+        }
+
+        public RequestResponseInfo CreateRequestResponseInfo(HttpContext httpContext)
         {
             var now = DateTime.Now;
             var nowUtc = now.ToUniversalTime();
-            RequestInfo requestInfo = new RequestInfo();
-            requestInfo.Created = now;
-            requestInfo.TraceIdentifier = httpContext.TraceIdentifier;
-            requestInfo.RequestQueryString = httpContext.Request.QueryString.Value;
-            requestInfo.RequestHost = httpContext.Request.Host.ToString();
-            requestInfo.RequestMethod = httpContext.Request.Method;
-            requestInfo.RequestScheme = httpContext.Request.Scheme;
-            requestInfo.RequestProtocol = httpContext.Request.Protocol;
-            requestInfo.RequestPath = httpContext.Request.Path;
-            requestInfo.RequestPathBase = httpContext.Request.PathBase;
-            
-            try
-            {
-                requestInfo.RequestForm = httpContext.Request.Form.ToDictionary(x => x.Key, x => x.Value.ToArray());
-            }
-            catch { }
-            requestInfo.RequestHeaders = httpContext.Request.Headers.ToDictionary(x => x.Key, x => x.Value.Select(v => v).ToArray());
-            requestInfo.RequestCookies = httpContext.Request.Cookies.ToDictionary(x => x.Key, x => x.Value.ToString());
-            requestInfo.DateTime.Now = now.ToString("yyyy-MM-ddTHH:mm:sszzz");
-            requestInfo.DateTime.NowUtc = nowUtc.ToString("yyyy-MM-ddTHH:mm:sszzz");
-            requestInfo.LocalTimeZone.Id = TimeZoneInfo.Local.Id;
-            requestInfo.LocalTimeZone.DisplayName = TimeZoneInfo.Local.DisplayName;
-            requestInfo.LocalTimeZone.StandardName = TimeZoneInfo.Local.StandardName;
-            requestInfo.LocalTimeZone.BaseUtcOffset = TimeZoneInfo.Local.BaseUtcOffset.ToString();
-            requestInfo.LocalTimeZone.NowUtcOffset = TimeZoneInfo.Local.GetUtcOffset(now).ToString();
-            requestInfo.LocalTimeZone.SupportsDaylightSavingTime = TimeZoneInfo.Local.SupportsDaylightSavingTime;
-            requestInfo.UtcTimeZone.Id = TimeZoneInfo.Utc.Id;
-            requestInfo.UtcTimeZone.DisplayName = TimeZoneInfo.Utc.DisplayName;
-            requestInfo.UtcTimeZone.StandardName = TimeZoneInfo.Utc.StandardName;
-            requestInfo.UtcTimeZone.BaseUtcOffset = TimeZoneInfo.Utc.BaseUtcOffset.ToString();
-            requestInfo.UtcTimeZone.NowUtcOffset = TimeZoneInfo.Utc.GetUtcOffset(now).ToString();
-            requestInfo.UtcTimeZone.SupportsDaylightSavingTime = TimeZoneInfo.Utc.SupportsDaylightSavingTime;
-            requestInfo.CurrentCulture.Name = Thread.CurrentThread.CurrentCulture?.Name;
-            requestInfo.CurrentCulture.DisplayName = Thread.CurrentThread.CurrentCulture?.DisplayName;
-            requestInfo.CurrentCulture.EnglishName = Thread.CurrentThread.CurrentCulture?.EnglishName;
-            requestInfo.CurrentCulture.DateTimeFormat = Thread.CurrentThread.CurrentCulture?.DateTimeFormat?.ShortDatePattern + " " + Thread.CurrentThread.CurrentCulture?.DateTimeFormat?.ShortTimePattern;
-            requestInfo.CurrentUICulture.Name = Thread.CurrentThread.CurrentUICulture?.Name;
-            requestInfo.CurrentUICulture.DisplayName = Thread.CurrentThread.CurrentUICulture?.DisplayName;
-            requestInfo.CurrentUICulture.EnglishName = Thread.CurrentThread.CurrentUICulture?.EnglishName;
-            requestInfo.CurrentUICulture.DateTimeFormat = Thread.CurrentThread.CurrentUICulture?.DateTimeFormat?.ShortDatePattern + " " + Thread.CurrentThread.CurrentUICulture?.DateTimeFormat?.ShortTimePattern;
-            requestInfo.Connection.Id = httpContext.Connection.Id;
-            requestInfo.Connection.LocalIpAddress = httpContext.Connection.LocalIpAddress?.ToString();
-            requestInfo.Connection.LocalPort = httpContext.Connection.LocalPort;
-            requestInfo.Connection.RemoteIpAddress = httpContext.Connection.RemoteIpAddress?.ToString();
-            requestInfo.Connection.RemotePort = httpContext.Connection.RemotePort;
-            requestInfo.Connection.ClientCertificate = httpContext.Connection.ClientCertificate?.ToString();
-            requestInfo.Identities =
+            RequestResponseInfo requestResponseInfo = new RequestResponseInfo();
+            requestResponseInfo.Request = CreateRequestInfo(httpContext);
+            requestResponseInfo.Response = CreateResponseInfo(httpContext);
+            requestResponseInfo.Created = now;
+            requestResponseInfo.TraceIdentifier = httpContext.TraceIdentifier;
+            requestResponseInfo.DateTime.Now = now.ToString("yyyy-MM-ddTHH:mm:sszzz");
+            requestResponseInfo.DateTime.NowUtc = nowUtc.ToString("yyyy-MM-ddTHH:mm:sszzz");
+            requestResponseInfo.LocalTimeZone.Id = TimeZoneInfo.Local.Id;
+            requestResponseInfo.LocalTimeZone.DisplayName = TimeZoneInfo.Local.DisplayName;
+            requestResponseInfo.LocalTimeZone.StandardName = TimeZoneInfo.Local.StandardName;
+            requestResponseInfo.LocalTimeZone.BaseUtcOffset = TimeZoneInfo.Local.BaseUtcOffset.ToString();
+            requestResponseInfo.LocalTimeZone.NowUtcOffset = TimeZoneInfo.Local.GetUtcOffset(now).ToString();
+            requestResponseInfo.LocalTimeZone.SupportsDaylightSavingTime = TimeZoneInfo.Local.SupportsDaylightSavingTime;
+            requestResponseInfo.UtcTimeZone.Id = TimeZoneInfo.Utc.Id;
+            requestResponseInfo.UtcTimeZone.DisplayName = TimeZoneInfo.Utc.DisplayName;
+            requestResponseInfo.UtcTimeZone.StandardName = TimeZoneInfo.Utc.StandardName;
+            requestResponseInfo.UtcTimeZone.BaseUtcOffset = TimeZoneInfo.Utc.BaseUtcOffset.ToString();
+            requestResponseInfo.UtcTimeZone.NowUtcOffset = TimeZoneInfo.Utc.GetUtcOffset(now).ToString();
+            requestResponseInfo.UtcTimeZone.SupportsDaylightSavingTime = TimeZoneInfo.Utc.SupportsDaylightSavingTime;
+            requestResponseInfo.CurrentCulture.Name = Thread.CurrentThread.CurrentCulture?.Name;
+            requestResponseInfo.CurrentCulture.DisplayName = Thread.CurrentThread.CurrentCulture?.DisplayName;
+            requestResponseInfo.CurrentCulture.EnglishName = Thread.CurrentThread.CurrentCulture?.EnglishName;
+            requestResponseInfo.CurrentCulture.DateTimeFormat = Thread.CurrentThread.CurrentCulture?.DateTimeFormat?.ShortDatePattern + " " + Thread.CurrentThread.CurrentCulture?.DateTimeFormat?.ShortTimePattern;
+            requestResponseInfo.CurrentUICulture.Name = Thread.CurrentThread.CurrentUICulture?.Name;
+            requestResponseInfo.CurrentUICulture.DisplayName = Thread.CurrentThread.CurrentUICulture?.DisplayName;
+            requestResponseInfo.CurrentUICulture.EnglishName = Thread.CurrentThread.CurrentUICulture?.EnglishName;
+            requestResponseInfo.CurrentUICulture.DateTimeFormat = Thread.CurrentThread.CurrentUICulture?.DateTimeFormat?.ShortDatePattern + " " + Thread.CurrentThread.CurrentUICulture?.DateTimeFormat?.ShortTimePattern;
+            requestResponseInfo.Connection.Id = httpContext.Connection.Id;
+            requestResponseInfo.Connection.LocalIpAddress = httpContext.Connection.LocalIpAddress?.ToString();
+            requestResponseInfo.Connection.LocalPort = httpContext.Connection.LocalPort;
+            requestResponseInfo.Connection.RemoteIpAddress = httpContext.Connection.RemoteIpAddress?.ToString();
+            requestResponseInfo.Connection.RemotePort = httpContext.Connection.RemotePort;
+            requestResponseInfo.Connection.ClientCertificate = httpContext.Connection.ClientCertificate?.ToString();
+            requestResponseInfo.Identities =
                 httpContext
                 .User
                 .Identities
@@ -109,53 +153,88 @@ namespace Debug4MvcNetCore
                     })
                 .ToArray();
 
+            return requestResponseInfo;
+        }
+
+        public RequestInfo CreateRequestInfo(HttpContext httpContext)
+        {
+            RequestInfo requestInfo = new RequestInfo();
+            requestInfo.QueryString = httpContext.Request.QueryString.Value;
+            requestInfo.Host = httpContext.Request.Host.ToString();
+            requestInfo.Method = httpContext.Request.Method;
+            requestInfo.Scheme = httpContext.Request.Scheme;
+            requestInfo.Protocol = httpContext.Request.Protocol;
+            requestInfo.Path = httpContext.Request.Path;
+            requestInfo.PathBase = httpContext.Request.PathBase;
+            try
+            {
+                requestInfo.Form = httpContext.Request.Form.ToDictionary(x => x.Key, x => x.Value.ToArray());
+            }
+            catch { }
+            requestInfo.Headers = httpContext.Request.Headers.ToDictionary(x => x.Key, x => x.Value.Select(v => v).ToArray());
+            requestInfo.Cookies = httpContext.Request.Cookies.ToDictionary(x => x.Key, x => x.Value.ToString());
             return requestInfo;
         }
 
-        public void ClearRequests()
+        public ResponseInfo CreateResponseInfo(HttpContext httpContext)
         {
-            _requests.Clear();
-        }
-
-        public void CleanUp(HttpContext context)
-        {
-            
+            ResponseInfo responseInfo = new ResponseInfo();
+            responseInfo.StatusCode = httpContext.Response.StatusCode;
+            responseInfo.Headers = httpContext.Response.Headers.ToDictionary(x => x.Key, x => x.Value.Select(v => v).ToArray());
+            return responseInfo;
         }
     }
 
-    public enum RequestLevel : int
-    {
-        OnlyIfError = 3,
-        OnlyMvc = 2,
-        Everything = 1,
-        Node = 0
-    }
-
-    public class RequestInfo
+    public class RequestResponseInfo
     {
         public string TraceIdentifier;
-        public string RequestQueryString;
-        public string RequestHost;
-        public string RequestMethod;
-        public string RequestScheme;
-        public string RequestProtocol;
-        public string RequestPath;
-        public string RequestPathBase;
-        public Dictionary<string, string[]> RequestHeaders = new Dictionary<string, string[]>();
-        public Dictionary<string, string> RequestCookies = new Dictionary<string, string>();
-        public Dictionary<string, string[]> RequestForm = new Dictionary<string, string[]>();
+        public RequestInfo Request = new RequestInfo();
+        public ResponseInfo Response = new ResponseInfo();
         public DateTimeDebugInfo DateTime = new DateTimeDebugInfo();
         public ConnectionDebugInfo Connection = new ConnectionDebugInfo();
         public IdentityDebugInfo[] Identities = new IdentityDebugInfo[0];
         public IdentityDebugInfo Identity => Identities.FirstOrDefault();
 
-        public DateTime Created { get; internal set; }
+        public LogLevel LogLevel { get; internal set; }
 
         public TimeZoneDebugInfo LocalTimeZone = new TimeZoneDebugInfo();
         public TimeZoneDebugInfo UtcTimeZone = new TimeZoneDebugInfo();
         public CultureDebugInfo CurrentCulture = new CultureDebugInfo();
         public CultureDebugInfo CurrentUICulture = new CultureDebugInfo();
-        
+        public DateTime Created;
+        public List<LogEntry> Logs = new List<LogEntry>();
+    }
+
+    public class LogEntry
+    {
+        public bool IsWebHostLog;
+
+        public LogLevel LogLevel { get; set; }
+        public int EventId { get; set; }
+        public object LoggerName { get; set; }
+        public string Details { get; set; }
+        public string IdentityName { get; set; }
+        public string TraceIdentifier { get; set; }
+        public DateTime Created { get; set; }
+    }
+    public class RequestInfo
+    {
+        public string QueryString;
+        public string Host;
+        public string Method;
+        public string Scheme;
+        public string Protocol;
+        public string Path;
+        public string PathBase;
+        public Dictionary<string, string[]> Headers = new Dictionary<string, string[]>();
+        public Dictionary<string, string> Cookies = new Dictionary<string, string>();
+        public Dictionary<string, string[]> Form = new Dictionary<string, string[]>();
+    }
+
+    public class ResponseInfo
+    {
+        public int StatusCode;
+        public Dictionary<string, string[]> Headers;
     }
 
     public class DateTimeDebugInfo

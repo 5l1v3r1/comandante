@@ -1,35 +1,6 @@
 ﻿<div class="row">
     <div class="col-md-12">
         <h2 class="mt-5">Logs</h2>
-        <div class="card">
-            <div class="card-body">
-                <h6 class="card-subtitle mb-2 text-muted">Configuration</h6>
-                <div>
-                    <form id="LogLevelForm" method="post" class="mt-4 mb-4 mr-4">
-                        <label for="logLevel">Log Level</label>
-                        <select id="logLevel" name="LogLevel" class="form-control form-control-sm" style="width:auto; display: inline-block;" onchange="getElementById('LogLevelForm').submit()">
-                            <option value="-1" @(Model.LogLevel == Debug4MvcNetCore.LogLevel.EverythingIfError ? "selected" : "")>Everything only if an error occurs</option>
-                            <option value="6" @(Model.LogLevel == Debug4MvcNetCore.LogLevel.None ? "selected" : "")>None</option>
-                            <option value="5" @(Model.LogLevel == Debug4MvcNetCore.LogLevel.Critical ? "selected" : "")>Critical</option>
-                            <option value="4" @(Model.LogLevel == Debug4MvcNetCore.LogLevel.Error ? "selected" : "")>Error</option>
-                            <option value="3" @(Model.LogLevel == Debug4MvcNetCore.LogLevel.Warning ? "selected" : "")>Warning</option>
-                            <option value="2" @(Model.LogLevel == Debug4MvcNetCore.LogLevel.Information ? "selected" : "")>Information</option>
-                            <option value="1" @(Model.LogLevel == Debug4MvcNetCore.LogLevel.Debug ? "selected" : "")>Debug</option>
-                            <option value="0" @(Model.LogLevel == Debug4MvcNetCore.LogLevel.Trace ? "selected" : "")>Trace (Everything)</option>
-                        </select>
-                    </form>
-                    <form id="IgnoreWebHostForm" method="post" class="mt-4 mb-4">
-                        <input name="IgnoreWebHost" type="hidden" value="@(!Model.IgnoreWebHost)">
-                        <input id="IgnoreWebHost" type="checkbox" @(Model.IgnoreWebHost ? "checked" : "") onclick="getElementById('IgnoreWebHostForm').submit()" />
-                        <label for="IgnoreWebHost">Ignore logs from Microsoft.AspNetCore.Hosting.Internal.WebHost</label>
-                    </form>
-                    <form method="post" class="mt-4 mb-4">
-                        <button name="ClearLogs" value="ClearLogs" class="btn btn-default btn-sm" type="submit">Clear logs</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <table class="table-sm">
             <thead>
                 <tr>
