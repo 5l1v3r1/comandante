@@ -1,6 +1,11 @@
 # Debug4MvcNetCore
 
 ASP Mvc .Net Core debugging tool.
+* Logs requests details
+* Logs all messages
+* Displays server information
+* Display routing information
+
 
 ## Instalation
  ```cs
@@ -26,3 +31,17 @@ public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider,
 ```
 Run the app and navigate to http://localhost/debug
 
+## Screenshots
+![Debug4Mvc Home](Debug4Mvc_Home.PNG)
+
+![Debug4Mvc Logs](Debug4Mvc_Logs.PNG)
+
+![Debug4Mvc Log](Debug4Mvc_Log.PNG)
+
+![Debug4Mvc Requests](Debug4Mvc_Requests.PNG)
+
+![Debug4Mvc Request](Debug4Mvc_Request.PNG)
+
+![Debug4Mvc Hosting](Debug4Mvc_Hosting.PNG)
+
+![Debug4Mvc Routing](Debug4Mvc_Routing.PNG)
