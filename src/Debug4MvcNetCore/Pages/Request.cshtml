@@ -1,15 +1,42 @@
-﻿@if (Model.Request?.Logs != null)
+﻿<div class="row">
+    <div class="col-md-12">
+        <h2 class="mt-5 mb-3">Request Details</h2>
+        <table class="table-sm">
+            <tr>
+                <td>TraceIdentifier</td>
+                <td>@Model?.TraceIdentifier</td>
+            </tr>
+            <tr>
+                <td>Log</td>
+                <td>@Model?.Request?.DateTime?.NowUtc</td>
+            </tr>
+            <tr>
+                <td>Path</td>
+                <td>@Model?.Request?.Request?.Method @Model?.Request?.Request?.Path</td>
+            </tr>
+            <tr>
+                <td>StatusCode</td>
+                <td>@Model?.Request?.Response.StatusCode</td>
+            </tr>
+            <tr>
+                <td>MaxLogLevel</td>
+                <td>@Model?.Request?.MaxLogLevel</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+@if (Model.Request?.Logs != null)
 {
 <div class="row">
     <div class="col-md-12">
-        <h2 class="mt-5">Logs</h2>
+        <h5 class="mt-5">Logs</h5>
         <table class="table-sm">
             <thead class="small">
                 <tr>
-                    <th>DateTime</th>
+                    <th>Log</th>
                     <th>LogLevel</th>
                     <th>Details</th>
-                    <th>StackTrace</th>
                     <th>IdentityName</th>
                     <th>LoggerName</th>
                 </tr>
@@ -18,12 +45,11 @@
                 @foreach (var log in Model.Request.Logs)
                 {
                 <tr>
-                    <td class="text-nowrap">@log.Created</td>
+                    <td class="text-nowrap"><a href="/debug/Log?Id=@(log.Id)">@log.Created.ToString("yyyy-MM-ddTHH:mm:sszzz")</a></td>
                     <td class="text-nowrap">@log.LogLevel</td>
-                    <td class="text-nowrap">@log.Details</td>
-                    <td class="text-nowrap">@log.StackTrace</td>
-                    <td class="text-nowrap">@log.IdentityName</td>
-                    <td class="text-nowrap">@log.LoggerName</td>
+                    <td>@log.Details</td>
+                    <td>@log.IdentityName</td>
+                    <td>@log.LoggerName</td>
                 </tr>
                 }
             </tbody>

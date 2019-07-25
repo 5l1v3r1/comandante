@@ -1,6 +1,6 @@
 ﻿<div class="row">
     <div class="col-md-12">
-        <h2 class="mt-5">Request</h2>
+        <h5 class="mt-5">Request</h5>
         <table class="table-sm">
             <tr>
                 <td>TraceIdentifier</td>
@@ -32,7 +32,7 @@
             </tr>
         </table>
 
-        <h2 class="mt-5">Request.Headers</h2>
+        <h5 class="mt-5">Request.Headers</h5>
         <table class="table-sm">
             <thead class="small">
                 <tr>
@@ -55,7 +55,7 @@
             </tbody>
         </table>
 
-        <h2 class="mt-5">Request.Cookies</h2>
+        <h5 class="mt-5">Request.Cookies</h5>
         <table class="table-sm">
             <thead class="small">
                 <tr>
@@ -77,10 +77,10 @@
             </tbody>
         </table>
 
-        <h2 class="mt-5">Request.QueryString</h2>
+        <h5 class="mt-5">Request.QueryString</h5>
         @Model?.Request.QueryString
 
-        <h2 class="mt-5">Request.Form</h2>
+        <h5 class="mt-5">Request.Form</h5>
         <table class="table-sm">
             <thead class="small">
                 <tr>
@@ -103,7 +103,7 @@
             </tbody>
         </table>
 
-        <h2 class="mt-5">Response</h2>
+        <h5 class="mt-5">Response</h5>
         <table class="table-sm">
             <tr>
                 <td>StatusCode</td>
@@ -111,7 +111,7 @@
             </tr>
         </table>
 
-        <h2 class="mt-5">Response.Headers</h2>
+        <h5 class="mt-5">Response.Headers</h5>
         <table class="table-sm">
             <thead class="small">
                 <tr>
@@ -134,7 +134,7 @@
             </tbody>
         </table>
 
-        <h2 class="mt-5">DateTime</h2>
+        <h5 class="mt-5">DateTime</h5>
         <table class="table-sm">
             <tr>
                 <td>Now</td>
@@ -146,7 +146,7 @@
             </tr>
         </table>
 
-        <h2 class="mt-5">TimeZoneInfo.Local</h2>
+        <h5 class="mt-5">TimeZoneInfo.Local</h5>
         <table class="table-sm">
             <tr>
                 <td>Id</td>
@@ -174,7 +174,7 @@
             </tr>
         </table>
 
-        <h2 class="mt-5">TimeZoneInfo.Utc</h2>
+        <h5 class="mt-5">TimeZoneInfo.Utc</h5>
         <table class="table-sm">
             <tr>
                 <td>Id</td>
@@ -202,7 +202,7 @@
             </tr>
         </table>
 
-        <h2 class="mt-5">CurrentThread.CultureInfo</h2>
+        <h5 class="mt-5">CurrentThread.CultureInfo</h5>
         <table class="table-sm">
             <tr>
                 <td>Name</td>
@@ -222,7 +222,7 @@
             </tr>
         </table>
 
-        <h2 class="mt-5">CurrentThread.UICultureInfo</h2>
+        <h5 class="mt-5">CurrentThread.UICultureInfo</h5>
         <table class="table-sm">
             <tr>
                 <td>Name</td>
@@ -242,7 +242,7 @@
             </tr>
         </table>
 
-        <h2 class="mt-5">User.Identities</h2>
+        <h5 class="mt-5">User.Identities</h5>
         @if (Model?.Identities != null)
         {
             foreach (var identity in @Model?.Identities)
@@ -320,7 +320,7 @@
             }
         }
 
-        <h2 class="mt-5">Connection</h2>
+        <h5 class="mt-5">Connection</h5>
         <table class="table-sm">
             <tr>
                 <td>Id</td>

@@ -8,19 +8,20 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Debug4MvcNetCore.Pages
 {
-    public class Environment : EmbeddedViewModel
+    public class Hosting : EmbeddedViewModel
     {
-        public ServerInfoModel Model { get; set; }
+        public HostingModel Model { get; set; }
 
         public override async Task InitView()
         {
-            Model = new ServerInfoModel();
+            Model = new HostingModel();
             Model.Environment = new EnvironmentService().Create();
             Model.Process = new ProcessService().GetProcessInfo();
+            await Task.CompletedTask;
         }
     }
 
-    public class ServerInfoModel
+    public class HostingModel
     {
         public Environments Environment;
         public ProcessInfo Process;

@@ -18,6 +18,7 @@ namespace Debug4MvcNetCore.Pages
         {
             Model = new RequestsModel();
             Model.Requests = _requestsService.Requests;
+            await Task.CompletedTask;
         }
     }
 

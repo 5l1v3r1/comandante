@@ -15,7 +15,7 @@ namespace Debug4MvcNetCore.Pages
         public override async Task InitView()
         {
             Model = new EntityFrameworkCoreModel();
-
+            await Task.CompletedTask;
         }
     }
 

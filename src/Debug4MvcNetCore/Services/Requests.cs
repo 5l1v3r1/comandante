@@ -26,33 +26,33 @@ namespace Debug4MvcNetCore
 
         public void StartRequest(HttpContext httpContext)
         {
-            if (ConfigurationInfo.RequestLogLevel == RequestLogLevel.Node)
+            if (ConfigurationInfo.EnableRequestLogs == false)
                 return;
 
             var requestResponseInfo = CreateRequestResponseInfo(httpContext);
             httpContext.Items["Debug4MvcNetCore_Request"] = requestResponseInfo;
-            _requests.Insert(0, requestResponseInfo);
         }
 
         public void EndRequest(HttpContext httpContext)
         {
-            if (ConfigurationInfo.RequestLogLevel == RequestLogLevel.Node)
+            if (ConfigurationInfo.EnableRequestLogs == false)
                 return;
 
             LogUnhandledException(httpContext);
 
             var request = ((RequestResponseInfo)httpContext.Items["Debug4MvcNetCore_Request"]);
             request.Response = CreateResponseInfo(httpContext);
+            request.Identities = CreateIdentityInfo(httpContext);
+            request.Completed = DateTime.UtcNow;
+            _requests.Insert(0, request);
 
-            if (ConfigurationInfo.RequestLogLevel == RequestLogLevel.All)
-            {
-                _requests = _requests.Take(ConfigurationInfo.MaxNumberOfRequests).ToList();
-            }
+            if (ConfigurationInfo.EnableRequestLogsOnlyIfError)
+                _requests = _requests.Where(x => x.IsError).OrderByDescending(x => x.Created).Take(ConfigurationInfo.MaxNumberOfRequestsLogs).ToList();
 
-            if (ConfigurationInfo.RequestLogLevel == RequestLogLevel.OnlyIfError)
-            {
-                _requests = _requests.Where(x => x.HasError).Take(ConfigurationInfo.MaxNumberOfRequests).ToList();
-            }
+            if (ConfigurationInfo.EnableRequestLogsOnlyIfAspMvc)
+                _requests = _requests.Where(x => x.IsAspNetCore).OrderByDescending(x => x.Created).Take(ConfigurationInfo.MaxNumberOfRequestsLogs).ToList();
+            
+            _requests = _requests.OrderByDescending(x => x.Created).Take(ConfigurationInfo.MaxNumberOfRequestsLogs).ToList();
         }
 
         private static void LogUnhandledException(HttpContext httpContext)
@@ -68,35 +68,41 @@ namespace Debug4MvcNetCore
 
         public void AddLog<TState>(string loggerName, LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            if (ConfigurationInfo.RequestLogLevel == RequestLogLevel.Node)
-                return;
-
             var httpContext = new HttpContextHelper().HttpContext;
-
             bool isWebHostLog = httpContext == null;
-            if (isWebHostLog && ConfigurationInfo.KeepWebHostLogs == false)
-                return;
 
-            var description = "";
-            var stackTrace = "";
+            if (isWebHostLog)
+            {
+                if (ConfigurationInfo.EnableWebHostLogs == false)
+                    return;
+            }
+            else
+            {
+                if (ConfigurationInfo.EnableRequestLogs == false)
+                    return;
+            }
+
+            var details = formatter(state, exception);
+            var exceptionDetails = "";
             while (exception != null)
             {
-                description += formatter(state, exception) + " \n " + exception.Message;
-                stackTrace += (exception.Message + " \n " + exception.StackTrace);
+                details = details + " \n " + exception.Message;
+                exceptionDetails = exceptionDetails + (exception.Message + " \n " + exception.StackTrace);
                 exception = exception.InnerException;
             }
 
             var logEntry = new LogEntry
             {
+                Id = Guid.NewGuid().ToString(),
                 IdentityName = httpContext?.User?.Identity?.Name,
                 TraceIdentifier = httpContext?.TraceIdentifier,
                 LogLevel = logLevel,
                 EventId = eventId.Id,
                 LoggerName = loggerName,
-                Details = description,
-                StackTrace = stackTrace,
+                Details = details,
+                Exception = exceptionDetails,
                 Created = DateTime.UtcNow,
-                IsWebHostLog = isWebHostLog,
+                RequestUrl = string.Concat(httpContext?.Request?.Method, " ", httpContext?.Request?.Path),
             };
 
             if (isWebHostLog)
@@ -108,8 +114,13 @@ namespace Debug4MvcNetCore
             {
                 var request = ((RequestResponseInfo)httpContext.Items["Debug4MvcNetCore_Request"]);
                 request.Logs.Insert(0, logEntry);
-                request.LogLevel = request.Logs.Max(x => x.LogLevel);
             }
+        }
+
+        public void ClearLogs()
+        {
+            _webHostlogs.Clear();
+            _requests.Clear();
         }
 
         public RequestResponseInfo CreateRequestResponseInfo(HttpContext httpContext)
@@ -149,33 +160,7 @@ namespace Debug4MvcNetCore
             requestResponseInfo.Connection.RemoteIpAddress = httpContext.Connection.RemoteIpAddress?.ToString();
             requestResponseInfo.Connection.RemotePort = httpContext.Connection.RemotePort;
             requestResponseInfo.Connection.ClientCertificate = httpContext.Connection.ClientCertificate?.ToString();
-            requestResponseInfo.Identities =
-                httpContext
-                .User
-                .Identities
-                .Select(i =>
-                    new IdentityDebugInfo
-                    {
-                        Name = i.Name,
-                        AuthenticationType = i.AuthenticationType,
-                        IsAuthenticated = i.IsAuthenticated,
-                        Label = i.Label,
-                        Actor = i.Name,
-                        NameClaimType = i.NameClaimType,
-                        RoleClaimType = i.RoleClaimType,
-                        Claims = i.Claims.Select(c =>
-                            new IdentityClaimDebugInfo
-                            {
-                                Issuer = c.Issuer,
-                                OriginalIssuer = c.OriginalIssuer,
-                                Subject = c.Subject?.ToString(),
-                                Type = c.Type,
-                                Value = c.Value,
-                                ValueType = c.ValueType,
-                                Properties = c.Properties.ToDictionary(p => p.Key, p => p.Value),
-                            }).ToArray()
-                    })
-                .ToArray();
+            requestResponseInfo.Identities = CreateIdentityInfo(httpContext);
 
             return requestResponseInfo;
         }
@@ -207,6 +192,36 @@ namespace Debug4MvcNetCore
             responseInfo.Headers = httpContext.Response.Headers.ToDictionary(x => x.Key, x => x.Value.Select(v => v).ToArray());
             return responseInfo;
         }
+
+        public IdentityDebugInfo[] CreateIdentityInfo(HttpContext httpContext)
+        {
+            return httpContext
+                            .User
+                            .Identities
+                            .Select(i =>
+                                new IdentityDebugInfo
+                                {
+                                    Name = i.Name,
+                                    AuthenticationType = i.AuthenticationType,
+                                    IsAuthenticated = i.IsAuthenticated,
+                                    Label = i.Label,
+                                    Actor = i.Name,
+                                    NameClaimType = i.NameClaimType,
+                                    RoleClaimType = i.RoleClaimType,
+                                    Claims = i.Claims.Select(c =>
+                                        new IdentityClaimDebugInfo
+                                        {
+                                            Issuer = c.Issuer,
+                                            OriginalIssuer = c.OriginalIssuer,
+                                            Subject = c.Subject?.ToString(),
+                                            Type = c.Type,
+                                            Value = c.Value,
+                                            ValueType = c.ValueType,
+                                            Properties = c.Properties.ToDictionary(p => p.Key, p => p.Value),
+                                        }).ToArray()
+                                })
+                            .ToArray();
+        }
     }
 
     public class RequestResponseInfo
@@ -222,28 +237,39 @@ namespace Debug4MvcNetCore
         public TimeZoneDebugInfo UtcTimeZone = new TimeZoneDebugInfo();
         public CultureDebugInfo CurrentCulture = new CultureDebugInfo();
         public CultureDebugInfo CurrentUICulture = new CultureDebugInfo();
-        public LogLevel LogLevel;
         public DateTime Created;
         public List<LogEntry> Logs = new List<LogEntry>();
 
-        public bool HasError
+        public bool IsError
         {
-            get { return LogLevel >= LogLevel.Error || Response?.StatusCode == 500;  }
+            get { return MaxLogLevel >= LogLevel.Error || Response?.StatusCode == 500;  }
         }
+
+        public bool IsAspNetCore
+        {
+            get { return Logs.Any(x => x.LoggerName != null && (x.LoggerName.StartsWith("Microsoft.AspNetCore.Mvc.") || x.LoggerName.StartsWith("	Microsoft.AspNetCore.Routing."))); }
+        }
+
+        public LogLevel MaxLogLevel
+        {
+            get { return Logs.Count > 0 ? Logs.Max(x => x.LogLevel) : LogLevel.None; }
+        }
+
+        public DateTime Completed { get; internal set; }
     }
 
     public class LogEntry
     {
-        public bool IsWebHostLog;
-
+        public string Id { get; set; }
         public LogLevel LogLevel;
         public int EventId;
-        public object LoggerName;
+        public string LoggerName;
         public string Details;
         public string IdentityName;
         public string TraceIdentifier;
         public DateTime Created;
-        public string StackTrace;
+        public string Exception;
+        public string RequestUrl;
     }
 
     public class RequestInfo

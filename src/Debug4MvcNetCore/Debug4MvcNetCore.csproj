@@ -2,13 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryUrl>https://github.com/golabek-io/Debug4MvcNetCore</RepositoryUrl>
+    <Description>ASP Mvc dotNet Core Debug Tool</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Pages\Configuration.cshtml" />
     <None Remove="Pages\EntityFrameworkCore.cshtml" />
-    <None Remove="Pages\Environment.cshtml" />
+    <None Remove="Pages\Hosting.cshtml" />
     <None Remove="Pages\Index.cshtml" />
+    <None Remove="Pages\Log.cshtml" />
     <None Remove="Pages\Logs.cshtml" />
     <None Remove="Pages\Request.cshtml" />
     <None Remove="Pages\Requests.cshtml" />
@@ -18,22 +21,24 @@
     <None Remove="wwwroot\bootstrap.min.css" />
     <None Remove="wwwroot\bootstrap.min.js" />
     <None Remove="wwwroot\jquery.min.js" />
+    <None Remove="wwwroot\styles.css" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Pages\Log.cshtml" />
     <EmbeddedResource Include="Pages\Routing.cshtml" />
-    <EmbeddedResource Include="Pages\Configuration.cshtml" />
     <EmbeddedResource Include="Pages\_Request.cshtml" />
     <EmbeddedResource Include="Pages\Request.cshtml" />
     <EmbeddedResource Include="Pages\Requests.cshtml" />
     <EmbeddedResource Include="Pages\Logs.cshtml" />
     <EmbeddedResource Include="Pages\EntityFrameworkCore.cshtml" />
-    <EmbeddedResource Include="Pages\Environment.cshtml" />
+    <EmbeddedResource Include="Pages\Hosting.cshtml" />
     <EmbeddedResource Include="Pages\_Layout.cshtml" />
     <EmbeddedResource Include="Pages\Index.cshtml" />
     <EmbeddedResource Include="wwwroot\bootstrap.min.css" />
     <EmbeddedResource Include="wwwroot\bootstrap.min.js" />
     <EmbeddedResource Include="wwwroot\jquery.min.js" />
+    <EmbeddedResource Include="wwwroot\styles.css" />
   </ItemGroup>
 
   <ItemGroup>

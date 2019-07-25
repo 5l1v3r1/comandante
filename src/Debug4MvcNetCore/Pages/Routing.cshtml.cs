@@ -20,9 +20,9 @@ namespace Debug4MvcNetCore.Pages
 
         public override async Task InitView()
         {
-            
             Model = new RoutingModel();
             Model.Routes = new RoutingService().GetRoutes();
+            await Task.CompletedTask;
         }
     }
 

@@ -14,6 +14,7 @@ namespace Debug4MvcNetCore.PagesRenderer
     public abstract class EmbeddedViewModel
     {
         public HttpContext HttpContext { get; set; }
+        public string ViewName { get; set; }
 
         public abstract Task InitView();
 

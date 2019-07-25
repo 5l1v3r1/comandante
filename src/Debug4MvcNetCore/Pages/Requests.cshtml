@@ -1,24 +1,32 @@
 ﻿<div class="row">
     <div class="col-md-12">
-        <h2 class="mt-5">Requests</h2>
+        <h2 class="mt-5 mb-3">Requests</h2>
         <table class="table-sm">
             <thead class="small">
                 <tr>
+                    <th>Log</th>
                     <th>Request</th>
-                    <th>TimeUtc</th>
-                    <th>User</th>
+                    <th>UserIdentity</th>
+                    <th>StatusCode</th>
+                    <th>MaxLogLevel</th>
                     <th>TraceIdentifier</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var request in Model.Requests)
                 {
-                    <tr>
-                        <td>@request.Request.Method @request.Request.Path</td>
-                        <td>@request.DateTime.NowUtc</td>
-                        <td>@request.Identity?.Name</td>
-                        <td><a href="/debug/Request?TraceIdentifier=@(request.TraceIdentifier)">@request.TraceIdentifier</a></td>
-                    </tr>
+                <tr>
+                    <td>@request.DateTime.NowUtc</td>
+                    <td>
+                        <a href="/debug/Request?TraceIdentifier=@(request.TraceIdentifier)">
+                            @request.Request.Method @request.Request.Path
+                        </a>
+                    </td>
+                    <td>@request.Identity?.Name</td>
+                    <td>@request?.Response.StatusCode</td>
+                    <td>@request?.MaxLogLevel</td>
+                    <td>@request.TraceIdentifier</td>
+                </tr>
                 }
             </tbody>
         </table>

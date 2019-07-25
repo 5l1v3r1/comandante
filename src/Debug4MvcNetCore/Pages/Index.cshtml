@@ -1,1 +1,82 @@
-﻿@RenderPartialView("_Request", Model.Request)
+﻿<div class="row">
+    <div class="col-md-12">
+        <h2 class="mt-5 mb-3">Home</h2>
+
+        <div class="card">
+            <div class="card-header">
+                Configuration
+            </div>
+            <div class="card-body">
+                <script>
+                    function enableWebHostLogsChanged() {
+                        var checked = document.getElementById('EnableWebHostLogs').checked;
+                        if (checked)
+                            document.getElementById('EnableWebHostLogsSection').removeAttribute("disabled");
+                        else
+                            document.getElementById('EnableWebHostLogsSection').setAttribute("disabled", "disabled");
+                    }
+                    function enableRequestsLogsChanged() {
+                        var checked = document.getElementById('EnableRequestsLogs').checked;
+                        if (checked)
+                            document.getElementById('EnableRequestsLogsSection').removeAttribute("disabled");
+                        else
+                            document.getElementById('EnableRequestsLogsSection').setAttribute("disabled", "disabled");
+                    }
+                </script>
+
+                <form method="post" autocomplete="off">
+                    <small class="form-text text-muted">Logs are kept in memory of the server.</small>
+
+                    <fieldset id="EnableRequestsLogsSection" class="pt-4" @(Model.EnableRequestsLogs ? "" : "disabled")>
+                        <legend>
+                            <input id="EnableRequestsLogs" name="EnableRequestsLogs" type="checkbox" @(Model.EnableRequestsLogs ? "checked" : "") onclick="enableRequestsLogsChanged()" />
+                            <label for="EnableRequestsLogs" class="pb-0 mb-0">Enable Requests Logs</label>
+                        </legend>
+                        <div class="form-group ml-4">
+                            <label for="MaxNumberOfRequestsLogs" class="pb-0 mb-0">Max number of requests kept in memory:</label>
+                            <input id="MaxNumberOfRequestsLogs" name="MaxNumberOfRequestsLogs" class="form-control form-control-sm d-inline-block" value="@(Model.MaxNumberOfRequestsLogs)" style="width: 100px" />
+                            <small class="form-text text-muted">Requests are kept with logs.</small>
+                        </div>
+                        <div class="form-group ml-4">
+                            <input id="EnableRequestsLogsOnlyIfError" name="EnableRequestsLogsOnlyIfError" type="checkbox" @(Model.EnableRequestsLogsOnlyIfError ? "checked" : "") />
+                            <label for="EnableRequestsLogsOnlyIfError" class="pb-0 mb-0"> Log only requests with errors</label>
+                        </div>
+                        <div class="form-group ml-4">
+                            <input id="EnableRequestsLogsOnlyIfAspMvc" name="EnableRequestsLogsOnlyIfAspMvc" type="checkbox" @(Model.EnableRequestsLogsOnlyIfAspMvc ? "checked" : "") />
+                            <label for="EnableRequestsLogsOnlyIfAspMvc" class="pb-0 mb-0"> Log only Asp Mvc requests</label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset id="EnableWebHostLogsSection" class="pt-4" @(Model.EnableWebHostLogs ? "" : "disabled")>
+                        <legend>
+                            <input id="EnableWebHostLogs" name="EnableWebHostLogs" type="checkbox" @(Model.EnableWebHostLogs ? "checked" : "") onclick="enableWebHostLogsChanged()" />
+                            <label for="EnableWebHostLogs" class="pb-0 mb-0">Enable WebHost Logs</label>
+                        </legend>
+                        <small class="form-text text-muted ml-4 mb-4">Logs for which HttpContext does not exist. For example: Request starting HTTP/1.1 GET http://localhost:63790/debug".</small>
+                        <div class="form-group ml-4">
+                            <label for="MaxNumberOfWebHostLogs">Max number of WebHost logs kept in memory:</label>
+                            <input id="MaxNumberOfWebHostLogs" name="MaxNumberOfWebHostLogs" class="form-control form-control-sm d-inline-block" value="@(Model.MaxNumberOfWebHostLogs)" style="width: 100px;" />
+                        </div>
+                    </fieldset>
+
+                    <div class="text-danger">@(Model.Error)</div>
+
+                    <button type="submit" name="UpdateLogsConfiguration" class="btn btn-primary mt-3 mb-1">Update</button>
+                </form>
+
+                <script>
+                    enableWebHostLogsChanged();
+                    enableRequestsLogsChanged();
+                </script>
+
+            </div>
+        </div>
+
+        <div>
+            <form method="post">
+                <button type="submit" name="ClearLogs" class="btn btn-primary mt-3 mb-3">Clear Logs</button>
+            </form>
+        </div>
+
+    </div>
+</div>

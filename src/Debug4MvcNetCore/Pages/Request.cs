@@ -22,12 +22,15 @@ namespace Debug4MvcNetCore.Pages
             {
                 var traceIdentifier = this.HttpContext.Request.Query["TraceIdentifier"].ToString().Trim();
                 Model.Request = new RequestsService().Requests.FirstOrDefault(x => x.TraceIdentifier == traceIdentifier);
+                Model.TraceIdentifier = traceIdentifier;
             }
+            await Task.CompletedTask;
         }
     }
 
     public class RequestModel
     {
+        public string TraceIdentifier { get; set; }
         public RequestResponseInfo Request { get; set; }
     }
 

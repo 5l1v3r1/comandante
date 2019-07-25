@@ -34,31 +34,63 @@ namespace Debug4MvcNetCore
             try
             {
                 _httpContextHelper.HttpContext = context;
-
                 var isDebugRequest = _httpContextHelper.IsDebug4MvcNetCoreRequest(context);
                 if (isDebugRequest.IsDebug4MvcNetCoreRequest)
                 {
-                    DisableCache(context);
-                    var renderer = new EmbeddedViewRenderer();
-                    await renderer.RenderView(isDebugRequest.ViewName, context);
+                    await RenderDebug4MvcNetCoreView(context, isDebugRequest.ViewName);
                     return;
                 }
-
-                _requestsService.StartRequest(context);
-
-                await _next(context);
-
-                _requestsService.EndRequest(context);
-
-            } catch (Exception ex)
-            {
-                try
-                {
-                    var logger = (ILogger<Debug4MvcNetCoreLoggerMiddleware>)context.RequestServices.GetService(typeof(ILogger<Debug4MvcNetCoreLoggerMiddleware>));
-                    logger.LogError(ex.Message, ex);
-                }
-                catch { }
             }
+            catch (Exception ex)
+            {
+                LogException(context, ex);
+            }
+
+            try
+            {
+                StartRequest(context);
+                await _next(context);
+            }
+            catch (Exception ex)
+            {
+                LogException(context, ex);
+                throw;
+            }
+            finally
+            {
+                EndRequest(context);
+            }
+        }
+
+        public void StartRequest(HttpContext context)
+        {
+            try
+            {
+                _requestsService.StartRequest(context);
+            }
+            catch (Exception ex)
+            {
+                LogException(context, ex);
+            }
+        }
+
+        public void EndRequest(HttpContext context)
+        {
+            try
+            {
+                _requestsService.EndRequest(context);
+            }
+            catch (Exception ex)
+            {
+                LogException(context, ex);
+            }
+        }
+
+        public async Task RenderDebug4MvcNetCoreView(HttpContext context, string ViewName)
+        {
+            DisableCache(context);
+            var renderer = new EmbeddedViewRenderer();
+            await renderer.RenderView(ViewName, context);
         }
 
         public void DisableCache(HttpContext httpContext)
@@ -66,6 +98,16 @@ namespace Debug4MvcNetCore
             httpContext.Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
             httpContext.Response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
             httpContext.Response.Headers.Add("Expires", "0"); // Proxies.
+        }
+        
+        public void LogException(HttpContext context, Exception ex)
+        {
+            try
+            {
+                var logger = (ILogger<Debug4MvcNetCoreLoggerMiddleware>)context.RequestServices.GetService(typeof(ILogger<Debug4MvcNetCoreLoggerMiddleware>));
+                logger.LogError(ex.Message, ex);
+            }
+            catch { }
         }
     }
 

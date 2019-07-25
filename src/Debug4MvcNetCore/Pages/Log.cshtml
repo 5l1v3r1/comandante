@@ -1,0 +1,52 @@
+﻿
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mt-5 mb-3">Log Details</h2>
+        <table class="table-sm">
+            <tr>
+                <td>Id</td>
+                <td>@Model.Id</td>
+            </tr>
+            <tr>
+                <td>DateTime</td>
+                <td>@Model.Log?.Created</td>
+            </tr>
+            <tr>
+                <td>Details</td>
+                <td>@Model.Log?.Details</td>
+            </tr>
+            <tr>
+                <td>Exception</td>
+                <td>@Model.Log?.Exception</td>
+            </tr>
+            <tr>
+                <td>LoggerName</td>
+                <td>@Model.Log?.LoggerName</td>
+            </tr>
+            <tr>
+                <td>EventId</td>
+                <td>@Model.Log?.EventId</td>
+            </tr>
+            <tr>
+                <td>IdentityName</td>
+                <td>@Model.Log?.IdentityName</td>
+            </tr>
+            <tr>
+                <td>Request</td>
+                <td>
+                    @if (@Model.Log?.TraceIdentifier != null)
+                    {
+                    <a href="/debug/Request?TraceIdentifier=@Model.Log?.TraceIdentifier">
+                        @(@Model.Log?.RequestUrl)
+                    </a>
+                    }
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+@if (Model.Request != null)
+{
+    @RenderPartialView("_Request", Model.Request)
+}

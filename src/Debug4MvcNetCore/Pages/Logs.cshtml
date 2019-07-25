@@ -1,14 +1,14 @@
 ﻿<div class="row">
     <div class="col-md-12">
-        <h2 class="mt-5">Logs</h2>
+        <h2 class="mt-5 mb-3">Logs</h2>
         <table class="table-sm">
             <thead  class="small">
                 <tr>
-                    <th>DateTime</th>
+                    <th>Log</th>
                     <th>LogLevel</th>
                     <th>Details</th>
+                    <th>Request</th>
                     <th>IdentityName</th>
-                    <th>TraceIdentifier</th>
                     <th>LoggerName</th>
                 </tr>
             </thead>
@@ -16,16 +16,20 @@
                 @foreach (var log in Model.Logs)
                 {
                 <tr>
-                    <td>@log.Created</td>
-                    <td>@log.LogLevel</td>
+                    <td class="text-nowrap"><a href="/debug/Log?Id=@(log.Id)">@log.Created.ToString("yyyy-MM-ddTHH:mm:sszzz")</a></td>
+                    <td class="text-nowrap">@log.LogLevel</td>
                     <td>@log.Details</td>
-                    <td>@log.IdentityName</td>
-                    <td class="text-nowrap">
+                    <td>
                         @if (log.TraceIdentifier != null)
                         {
-                            <a href="/debug/Request?TraceIdentifier=@(log.TraceIdentifier)">@log.TraceIdentifier</a>
+                            <br /><a href="/debug/Request?TraceIdentifier=@(log.TraceIdentifier)">@log.RequestUrl</a>
+                        }
+                        else
+                        {
+                            @log.RequestUrl
                         }
                     </td>
+                    <td>@log.IdentityName</td>
                     <td>@log.LoggerName</td>
                 </tr>
                 }

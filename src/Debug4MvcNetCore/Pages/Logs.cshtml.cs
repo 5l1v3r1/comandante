@@ -19,6 +19,7 @@ namespace Debug4MvcNetCore.Pages
         {
             Model = new LogsModel();
             Model.Logs = _requestsService.Logs.Take(1000).ToList();
+            await Task.CompletedTask;
         }
     }
 

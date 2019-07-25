@@ -85,36 +85,11 @@ namespace Debug4MvcNetCore.PagesRenderer
                 const string dllName = "Debug4MvcNetCore.Dynamic";
                 var compilation = CSharpCompilation.Create(dllName, new[] { pageTree },
                     metadataReferences,
-                    //new[]
-                    //{
-                    //    //GetMetadataReference(typeof(InputTagHelper)),
-                    //    GetMetadataReference(typeof(UrlResolutionTagHelper)),
-                    //    GetMetadataReference(typeof(RazorCompiledItemAttribute)),
-                    //    GetMetadataReference(typeof(IModelExpressionProvider)),
-                    //    GetMetadataReference(typeof(IUrlHelper)),
-                    //    GetMetadataReference(typeof(object)),
-                    //    GetMetadataReference(typeof(DynamicAttribute)),
-                    //    GetMetadataReference(typeof(EmbeddedPageRenderer)),
-                    //    GetMetadataReference(typeof(Microsoft.AspNetCore.Http.HttpContext)),
-                    //    GetMetadataReference(typeof(IHeaderDictionary)),
-
-
-                    //    //tadataReference.CreateFromFile(typeof(object).Assembly.Location), // include corlib
-                    //    //MetadataReference.CreateFromFile(typeof(RazorCompiledItemAttribute).Assembly.Location), // include Microsoft.AspNetCore.Razor.Runtime
-                    //    //MetadataReference.CreateFromFile(Assembly.GetExecutingAssembly().Location), // this file (that contains the MyTemplate base class)
-
-                    //    // for some reason on .NET core, I need to add this... this is not needed with .NET framework
-                    //    MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location), "System.Runtime.dll")),
-
-                    //    // as found out by @Isantipov, for some other reason on .NET Core for Mac and Linux, we need to add this... this is not needed with .NET framework
-                    //    MetadataReference.CreateFromFile(Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location), "netstandard.dll")),
-
-                    //},
                     new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)); // we want a dll
 
 
                 var assembly = LoadAssembly(compilation);
-                await RunAsync(assembly, httpContext, model);
+                await RunAsync(assembly, httpContext, view, model);
             } catch(Exception ex)
             {
                 while (ex != null)
@@ -171,12 +146,13 @@ namespace Debug4MvcNetCore.PagesRenderer
             return assembly;
         }
 
-        public async Task RunAsync(Assembly assembly, HttpContext httpContext, object model)
+        public async Task RunAsync(Assembly assembly, HttpContext httpContext, string viewName, object model)
         {
             RazorCompiledItemLoader loader = new RazorCompiledItemLoader();
             RazorCompiledItem item = loader.LoadItems(assembly).SingleOrDefault();
             EmbeddedViewModel view = (EmbeddedViewModel)Activator.CreateInstance(item.Type);
             view.HttpContext = httpContext;
+            view.ViewName = viewName;
             if (model != null)
                 item.Type.GetProperty("Model").SetValue(view, model);
             await view.InitView();
