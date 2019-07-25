@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Debug4MvcNetCore.TestsWeb.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,7 +37,7 @@ namespace Debug4MvcNetCore.TestsWeb
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
         {
             app.UseDebug4MvcNetCore();
 
@@ -56,6 +58,15 @@ namespace Debug4MvcNetCore.TestsWeb
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            using (var scope = serviceProvider.CreateScope())
+            {
+                using (Debug4MvcNetCoreTestsWebContext dbContext = scope.ServiceProvider.GetService<Debug4MvcNetCoreTestsWebContext>())
+                {
+                    dbContext.Database.Migrate();
+                }
+            }
+
         }
     }
 }

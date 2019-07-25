@@ -112,8 +112,16 @@ namespace Debug4MvcNetCore
             }
             else
             {
-                var request = ((RequestResponseInfo)httpContext.Items["Debug4MvcNetCore_Request"]);
-                request.Logs.Insert(0, logEntry);
+                if (httpContext.Items.ContainsKey("Debug4MvcNetCore_Request"))
+                {
+                    var request = ((RequestResponseInfo)httpContext.Items["Debug4MvcNetCore_Request"]);
+                    request.Logs.Insert(0, logEntry);
+                }
+                else
+                {
+                    _webHostlogs.Insert(0, logEntry);
+                    _webHostlogs = _webHostlogs.Take(ConfigurationInfo.MaxNumberOfWebHostLogs).ToList();
+                }
             }
         }
 
