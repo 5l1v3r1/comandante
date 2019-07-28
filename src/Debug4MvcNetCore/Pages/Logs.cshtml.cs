@@ -15,11 +15,11 @@ namespace Debug4MvcNetCore.Pages
 
         public LogsModel Model { get; set; }
 
-        public override async Task InitView()
+        public override async Task<EmbededViewResult> InitView()
         {
             Model = new LogsModel();
-            Model.Logs = _requestsService.Logs.Take(1000).ToList();
-            await Task.CompletedTask;
+            Model.Logs = _requestsService.AllLogs.Take(1000).ToList();
+            return await View();
         }
     }
 

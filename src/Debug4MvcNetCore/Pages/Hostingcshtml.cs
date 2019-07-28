@@ -12,12 +12,12 @@ namespace Debug4MvcNetCore.Pages
     {
         public HostingModel Model { get; set; }
 
-        public override async Task InitView()
+        public override async Task<EmbededViewResult> InitView()
         {
             Model = new HostingModel();
             Model.Environment = new EnvironmentService().Create();
             Model.Process = new ProcessService().GetProcessInfo();
-            await Task.CompletedTask;
+            return await View();
         }
     }
 

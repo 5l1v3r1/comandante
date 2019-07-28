@@ -14,23 +14,77 @@ namespace Debug4MvcNetCore.Services
 
         }
 
-        public string RunSql(string appDbContext)
+        public AppDbContextSqlResults RunSql(string sql, string appDbContextName, HttpContext httpContext, int maxRowsReads = 1000)
         {
-            //AppDbContextSqlResults;
-            //DbConnection dbConnection = new Debug4MvcNetCoreTestsWebContext().Database.GetDbConnection();
-            //dbConnection.Open();
-            //DbCommand command = dbConnection.CreateCommand();
-            //command.CommandText = "ssss a";
-            //command.CommandType = System.Data.CommandType.Text;
-            //DbDataReader reader = command.ExecuteReader();
-            //while(reader.Read())
-            //{
-            //    for (int i = 0; i < reader.FieldCount; i++)
-            //    {
-            //        columns.Add(reader.GetName(i));
-            //    }
-            //}
-            return null;
+            try {
+                Type addDbContextType = GetAppDbContextTypes().FirstOrDefault(x => x.Name == appDbContextName);
+                object addDbContext = httpContext?.RequestServices?.GetService(addDbContextType);
+                if (addDbContext != null)
+                {
+                    object database = addDbContext.GetPropertyValue("Database");
+                    List<string> columns = new List<string>();
+                    List<object[]> rows = new List<object[]>();
+                    int recordsAffected = -1;
+                    var relatoinDatabaseExtensionType = GetRelationalDatabaseExtensionTypes();
+                    using (var dbConnection = relatoinDatabaseExtensionType.InvokeStaticMethod("GetDbConnection", database) as IDisposable)
+                    {
+                        dbConnection.InvokeMethod("Open");
+                        object dbCommand = dbConnection.InvokeMethod("CreateCommand");
+                        dbCommand.SetPropertyValue("CommandText", sql);
+                        object reader = dbCommand.InvokeMethod("ExecuteReader");
+                        while ((bool)reader.InvokeMethod("Read"))
+                        {
+                            if (columns.Count == 0)
+                            {
+                                int fieldCount = (int)reader.GetPropertyValue("FieldCount");
+                                for (int i = 0; i < fieldCount; i++)
+                                {
+                                    columns.Add(reader.InvokeMethod("GetName", i)?.ToString());
+                                }
+                            }
+                            object[] row = new object[columns.Count];
+                            for (int i = 0; i < columns.Count; i++)
+                            {
+                                row[i] = reader.InvokeMethod("GetValue", i);
+                            }
+                            rows.Add(row);
+                            if (rows.Count >= maxRowsReads)
+                                break;
+                        }
+                        recordsAffected = (int)reader.GetPropertyValue("RecordsAffected");
+                    }
+                    return new AppDbContextSqlResults
+                    {
+                        Columns = columns,
+                        Rows = rows,
+                        AffectedRecords = recordsAffected
+                    };
+
+                }
+                return new AppDbContextSqlResults { Error = "Cannot find DbContext: " + appDbContextName };
+            }
+            catch (TargetInvocationException ex)
+            {
+                var exception = ex.InnerException;
+                var error = "";
+                while (exception != null)
+                {
+                    error = error + " " + exception.Message; ;
+                    exception = exception.InnerException;
+                }
+                return new AppDbContextSqlResults { Error = error };
+            }
+            catch (Exception ex)
+            {
+                var exception = ex;
+                var error = "";
+                while (exception != null)
+                {
+                    error = error + " " + exception.Message; ;
+                    exception = exception.InnerException;
+                }
+                return new AppDbContextSqlResults { Error = error };
+            }
         }
 
         public List<AppDbContextInfo> GetAppDbContexts(HttpContext httpContext)
@@ -41,7 +95,7 @@ namespace Debug4MvcNetCore.Services
                 AppDbContextInfo appDbContextInfo = new AppDbContextInfo();
                 appDbContexts.Add(appDbContextInfo);
                 appDbContextInfo.Type = addDbContextType;
-                appDbContextInfo.Name = addDbContextType.ToString();
+                appDbContextInfo.Name = addDbContextType.Name;
                 var addDbContext = httpContext?.RequestServices?.GetService(addDbContextType);
                 if (addDbContext != null)
                 {
@@ -138,7 +192,8 @@ namespace Debug4MvcNetCore.Services
     {
         public int AffectedRecords;
         public List<object[]> Rows = new List<object[]>();
-        public List<string> FieldsName = new List<string>();
+        public List<string> Columns = new List<string>();
+        public string Error;
     }
 
     public static class ObjectExtensions
@@ -148,6 +203,13 @@ namespace Debug4MvcNetCore.Services
             if (obj == null)
                 return null;
             return obj.GetType().GetProperty(propertyName)?.GetValue(obj);
+        }
+
+        public static void SetPropertyValue(this object obj, string propertyName, object propertyValue)
+        {
+            if (obj == null)
+                return;
+            obj.GetType().GetProperty(propertyName)?.SetValue(obj, propertyValue);
         }
 
         public static object InvokeMethod(this object obj, string methodName, params object[] methodParameters)

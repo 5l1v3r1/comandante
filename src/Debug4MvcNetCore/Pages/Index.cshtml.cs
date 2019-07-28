@@ -18,7 +18,7 @@ namespace Debug4MvcNetCore.Pages
     {
         public IndexModel Model { get; set; }
 
-        public override async Task InitView()
+        public override async Task<EmbededViewResult> InitView()
         {
             Model = new IndexModel();
 
@@ -33,7 +33,7 @@ namespace Debug4MvcNetCore.Pages
                 {
                     BindModel();
                     if (Model.IsValid() == false)
-                        return;
+                        return await View(); ;
 
                     ConfigurationInfo.EnableRequestLogs = Model.EnableRequestsLogs;
                     if (ConfigurationInfo.EnableRequestLogs)
@@ -61,7 +61,7 @@ namespace Debug4MvcNetCore.Pages
                 Model.EnableWebHostLogs = ConfigurationInfo.EnableWebHostLogs;
                 Model.MaxNumberOfWebHostLogs = ConfigurationInfo.MaxNumberOfWebHostLogs;
             }
-            await Task.CompletedTask;
+            return await View();
         }
 
         private void BindModel()

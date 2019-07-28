@@ -16,7 +16,7 @@ namespace Debug4MvcNetCore.PagesRenderer
         public HttpContext HttpContext { get; set; }
         public string ViewName { get; set; }
 
-        public abstract Task InitView();
+        public abstract Task<EmbededViewResult> InitView();
 
 
         private string AttributeEnding { get; set; }
@@ -104,6 +104,36 @@ namespace Debug4MvcNetCore.PagesRenderer
         public async virtual Task ExecuteAsync()
         {
             await Task.Yield();
+        }
+
+        public async Task<EmbededViewResult> View()
+        {
+            return await Task.FromResult(new EmbededViewViewResult());
+        }
+
+        public async Task<EmbededViewResult> Json(string json)
+        {
+            return await Task.FromResult(new EmbededViewJsonResult(json));
+        }
+    }
+
+    public class EmbededViewResult
+    {
+
+    }
+
+    public class EmbededViewViewResult : EmbededViewResult
+    {
+
+    }
+
+    public class EmbededViewJsonResult : EmbededViewResult
+    {
+        public string Json { get; }
+
+        public EmbededViewJsonResult(string json)
+        {
+            Json = json;
         }
     }
 }

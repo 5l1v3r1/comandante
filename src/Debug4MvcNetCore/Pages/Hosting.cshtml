@@ -1,210 +1,224 @@
-﻿<div class="row">
-    <div class="col-md-12">
-        <h2 class="mt-5 mb-3">Hosting</h2>
-    </div>
-</div>
+﻿<nav class="nav-breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active">Hosting</li>
+    </ol>
+</nav>
 <div class="row">
     <div class="col-md-12">
-        <h5 class="mb-3">Environment</h5>
-        <table class="table-sm">
-            <tr>
-                <td>CommandLine</td>
-                <td>@Model.Environment.CommandLine</td>
-            </tr>
-            <tr>
-                <td class="align-top">CommandLineArgs</td>
-                <td>
-                    @foreach (var arg in Model.Environment.CommandLineArgs)
-                    {
-                        <div>@arg</div>
-                    }
-                </td>
-            </tr>
-
-            <tr>
-                <td>MachineName</td>
-                <td>@Model.Environment.MachineName</td>
-            </tr>
-            <tr>
-                <td>OSVersion</td>
-                <td>@Model.Environment.OSVersion</td>
-            </tr>
-            <tr>
-                <td>ProcessorCount</td>
-                <td>@Model.Environment.ProcessorCount</td>
-            </tr>
-            <tr>
-                <td>WorkingSet</td>
-                <td>@Model.Environment.WorkingSet</td>
-            </tr>
-            <tr>
-                <td>Version</td>
-                <td>@Model.Environment.Version</td>
-            </tr>
-            <tr>
-                <td>SystemDirectory</td>
-                <td>@Model.Environment.SystemDirectory</td>
-            </tr>
-            <tr>
-                <td>SystemPageSize</td>
-                <td>@Model.Environment.SystemPageSize</td>
-            </tr>
-            <tr>
-                <td>UserName</td>
-                <td>@Model.Environment.UserName</td>
-            </tr>
-            <tr>
-                <td>UserInteractive</td>
-                <td>@Model.Environment.UserInteractive</td>
-            </tr>
-            <tr>
-                <td>UserDomainName</td>
-                <td>@Model.Environment.UserDomainName</td>
-            </tr>
-            <tr>
-                <td>CurrentDirectory</td>
-                <td>@Model.Environment.CurrentDirectory</td>
-            </tr>
-            <tr>
-                <td>Is64BitProcess</td>
-                <td>@Model.Environment.Is64BitProcess</td>
-            </tr>
-            <tr>
-                <td>Is64BitOperatingSystem</td>
-                <td>@Model.Environment.Is64BitOperatingSystem</td>
-            </tr>
-            <tr>
-                <td class="align-top">EnvironmentVariables</td>
-                <td>
-                    <table class="table-sm">
-                        <thead class="small">
-                            <tr>
-                                <th>Name</th>
-                                <th>Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in @Model.Environment.EnvironmentVariables)
+        
+        <div class="box">
+            <h6 class="mb-3">Environment</h6>
+            <div class="box-body">
+                <table class="table-sm">
+                    <tr>
+                        <td>CommandLine</td>
+                        <td>@Model.Environment.CommandLine</td>
+                    </tr>
+                    <tr>
+                        <td class="align-top">CommandLineArgs</td>
+                        <td>
+                            @foreach (var arg in Model.Environment.CommandLineArgs)
                             {
-                                <tr>
-                                    <td class="text-nowrap">@item.Key</td>
-                                    <td>@item.Value</td>
-                                </tr>
-
+                                <div>@arg</div>
                             }
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-        </table>
+                        </td>
+                    </tr>
 
-        <h5 class="mt-5">Process</h5>
-        <table class="table-sm">
-            <tr>
-                <td>Id</td>
-                <td>@Model.Process.Id</td>
-            </tr>
-            <tr>
-                <td>BasePriority</td>
-                <td>@Model.Process.BasePriority</td>
-            </tr>
-            <tr>
-                <td>MachineName</td>
-                <td>@Model.Process.MachineName</td>
-            </tr>
-            <tr>
-                <td>MainModuleFileName</td>
-                <td>@Model.Process.MainModuleFileName</td>
-            </tr>
+                    <tr>
+                        <td>MachineName</td>
+                        <td>@Model.Environment.MachineName</td>
+                    </tr>
+                    <tr>
+                        <td>OSVersion</td>
+                        <td>@Model.Environment.OSVersion</td>
+                    </tr>
+                    <tr>
+                        <td>ProcessorCount</td>
+                        <td>@Model.Environment.ProcessorCount</td>
+                    </tr>
+                    <tr>
+                        <td>WorkingSet</td>
+                        <td>@Model.Environment.WorkingSet</td>
+                    </tr>
+                    <tr>
+                        <td>Version</td>
+                        <td>@Model.Environment.Version</td>
+                    </tr>
+                    <tr>
+                        <td>SystemDirectory</td>
+                        <td>@Model.Environment.SystemDirectory</td>
+                    </tr>
+                    <tr>
+                        <td>SystemPageSize</td>
+                        <td>@Model.Environment.SystemPageSize</td>
+                    </tr>
+                    <tr>
+                        <td>UserName</td>
+                        <td>@Model.Environment.UserName</td>
+                    </tr>
+                    <tr>
+                        <td>UserInteractive</td>
+                        <td>@Model.Environment.UserInteractive</td>
+                    </tr>
+                    <tr>
+                        <td>UserDomainName</td>
+                        <td>@Model.Environment.UserDomainName</td>
+                    </tr>
+                    <tr>
+                        <td>CurrentDirectory</td>
+                        <td>@Model.Environment.CurrentDirectory</td>
+                    </tr>
+                    <tr>
+                        <td>Is64BitProcess</td>
+                        <td>@Model.Environment.Is64BitProcess</td>
+                    </tr>
+                    <tr>
+                        <td>Is64BitOperatingSystem</td>
+                        <td>@Model.Environment.Is64BitOperatingSystem</td>
+                    </tr>
+                    <tr>
+                        <td class="align-top">EnvironmentVariables</td>
+                        <td>
+                            <table class="table-sm">
+                                <thead class="small">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in @Model.Environment.EnvironmentVariables)
+                                    {
+                                        <tr>
+                                            <td class="text-nowrap">@item.Key</td>
+                                            <td>@item.Value</td>
+                                        </tr>
 
-            <tr>
-                <td>MainModuleFileVersionInfo</td>
-                <td>@Model.Process.MainModuleFileVersionInfo</td>
-            </tr>
-            <tr>
-                <td>MainModuleModuleName</td>
-                <td>@Model.Process.MainModuleModuleName</td>
-            </tr>
-            <tr>
-                <td>MainModuleModuleMemorySize</td>
-                <td>@Model.Process.MainModuleModuleMemorySize</td>
-            </tr>
-            <tr>
-                <td>ThreadsCount</td>
-                <td>@Model.Process.ThreadsCount</td>
-            </tr>
-            <tr>
-                <td>StartTime</td>
-                <td>@Model.Process.StartTime</td>
-            </tr>
-            <tr>
-                <td>TotalProcessorTime</td>
-                <td>@Model.Process.TotalProcessorTime</td>
-            </tr>
-            <tr>
-                <td>UserProcessorTime</td>
-                <td>@Model.Process.UserProcessorTime</td>
-            </tr>
-            <tr>
-                <td>PrivilegedProcessorTime</td>
-                <td>@Model.Process.PrivilegedProcessorTime</td>
-            </tr>
-            <tr>
-                <td>VirtualMemorySize</td>
-                <td>@Model.Process.VirtualMemorySize</td>
-            </tr>
-            <tr>
-                <td>VirtualMemorySize64</td>
-                <td>@Model.Process.VirtualMemorySize64</td>
-            </tr>
-            <tr>
-                <td>PeakVirtualMemorySize</td>
-                <td>@Model.Process.PeakVirtualMemorySize</td>
-            </tr>
-            <tr>
-                <td>PeakVirtualMemorySize64</td>
-                <td>@Model.Process.PeakVirtualMemorySize64</td>
-            </tr>
-            <tr>
-                <td>PrivateMemorySize</td>
-                <td>@Model.Process.PrivateMemorySize</td>
-            </tr>
-            <tr>
-                <td>PrivateMemorySize64</td>
-                <td>@Model.Process.PrivateMemorySize64</td>
-            </tr>
-            <tr>
-                <td>PagedMemorySize</td>
-                <td>@Model.Process.PagedMemorySize</td>
-            </tr>
-            <tr>
-                <td>PagedMemorySize64</td>
-                <td>@Model.Process.PagedMemorySize64</td>
-            </tr>
-            <tr>
-                <td>PeakPagedMemorySize</td>
-                <td>@Model.Process.PeakPagedMemorySize</td>
-            </tr>
-            <tr>
-                <td>PagedSystemMemorySize64</td>
-                <td>@Model.Process.PagedSystemMemorySize64</td>
-            </tr>
-            <tr>
-                <td>PagedSystemMemorySize</td>
-                <td>@Model.Process.PagedSystemMemorySize</td>
-            </tr>
-            <tr>
-                <td>PagedSystemMemorySize64</td>
-                <td>@Model.Process.PagedSystemMemorySize64</td>
-            </tr>
-            <tr>
-                <td>NonpagedSystemMemorySize</td>
-                <td>@Model.Process.NonpagedSystemMemorySize</td>
-            </tr>
-            <tr>
-                <td>NonpagedSystemMemorySize64</td>
-                <td>@Model.Process.NonpagedSystemMemorySize64</td>
-            </tr>
-        </table>
+                                    }
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+       
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="box">
+            <h6 class="mb-3">Process</h6>
+            <div class="box-body">
+                <table class="table-sm">
+                    <tr>
+                        <td>Id</td>
+                        <td>@Model.Process.Id</td>
+                    </tr>
+                    <tr>
+                        <td>BasePriority</td>
+                        <td>@Model.Process.BasePriority</td>
+                    </tr>
+                    <tr>
+                        <td>MachineName</td>
+                        <td>@Model.Process.MachineName</td>
+                    </tr>
+                    <tr>
+                        <td>MainModuleFileName</td>
+                        <td>@Model.Process.MainModuleFileName</td>
+                    </tr>
+
+                    <tr>
+                        <td>MainModuleFileVersionInfo</td>
+                        <td>@Model.Process.MainModuleFileVersionInfo</td>
+                    </tr>
+                    <tr>
+                        <td>MainModuleModuleName</td>
+                        <td>@Model.Process.MainModuleModuleName</td>
+                    </tr>
+                    <tr>
+                        <td>MainModuleModuleMemorySize</td>
+                        <td>@Model.Process.MainModuleModuleMemorySize</td>
+                    </tr>
+                    <tr>
+                        <td>ThreadsCount</td>
+                        <td>@Model.Process.ThreadsCount</td>
+                    </tr>
+                    <tr>
+                        <td>StartTime</td>
+                        <td>@Model.Process.StartTime</td>
+                    </tr>
+                    <tr>
+                        <td>TotalProcessorTime</td>
+                        <td>@Model.Process.TotalProcessorTime</td>
+                    </tr>
+                    <tr>
+                        <td>UserProcessorTime</td>
+                        <td>@Model.Process.UserProcessorTime</td>
+                    </tr>
+                    <tr>
+                        <td>PrivilegedProcessorTime</td>
+                        <td>@Model.Process.PrivilegedProcessorTime</td>
+                    </tr>
+                    <tr>
+                        <td>VirtualMemorySize</td>
+                        <td>@Model.Process.VirtualMemorySize</td>
+                    </tr>
+                    <tr>
+                        <td>VirtualMemorySize64</td>
+                        <td>@Model.Process.VirtualMemorySize64</td>
+                    </tr>
+                    <tr>
+                        <td>PeakVirtualMemorySize</td>
+                        <td>@Model.Process.PeakVirtualMemorySize</td>
+                    </tr>
+                    <tr>
+                        <td>PeakVirtualMemorySize64</td>
+                        <td>@Model.Process.PeakVirtualMemorySize64</td>
+                    </tr>
+                    <tr>
+                        <td>PrivateMemorySize</td>
+                        <td>@Model.Process.PrivateMemorySize</td>
+                    </tr>
+                    <tr>
+                        <td>PrivateMemorySize64</td>
+                        <td>@Model.Process.PrivateMemorySize64</td>
+                    </tr>
+                    <tr>
+                        <td>PagedMemorySize</td>
+                        <td>@Model.Process.PagedMemorySize</td>
+                    </tr>
+                    <tr>
+                        <td>PagedMemorySize64</td>
+                        <td>@Model.Process.PagedMemorySize64</td>
+                    </tr>
+                    <tr>
+                        <td>PeakPagedMemorySize</td>
+                        <td>@Model.Process.PeakPagedMemorySize</td>
+                    </tr>
+                    <tr>
+                        <td>PagedSystemMemorySize64</td>
+                        <td>@Model.Process.PagedSystemMemorySize64</td>
+                    </tr>
+                    <tr>
+                        <td>PagedSystemMemorySize</td>
+                        <td>@Model.Process.PagedSystemMemorySize</td>
+                    </tr>
+                    <tr>
+                        <td>PagedSystemMemorySize64</td>
+                        <td>@Model.Process.PagedSystemMemorySize64</td>
+                    </tr>
+                    <tr>
+                        <td>NonpagedSystemMemorySize</td>
+                        <td>@Model.Process.NonpagedSystemMemorySize</td>
+                    </tr>
+                    <tr>
+                        <td>NonpagedSystemMemorySize64</td>
+                        <td>@Model.Process.NonpagedSystemMemorySize64</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
     </div>
 </div>

@@ -1,34 +1,29 @@
-﻿<div class="row">
+﻿<nav class="nav-breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active">Requests</li>
+    </ol>
+</nav>
+<div class="row">
     <div class="col-md-12">
-        <h2 class="mt-5 mb-3">Requests</h2>
-        <table class="table-sm">
-            <thead class="small">
-                <tr>
-                    <th>Log</th>
-                    <th>Request</th>
-                    <th>UserIdentity</th>
-                    <th>StatusCode</th>
-                    <th>MaxLogLevel</th>
-                    <th>TraceIdentifier</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="box">
+            <h6 class="mb-3">Requests</h6>
+            <div class="box-body">
                 @foreach (var request in Model.Requests)
                 {
-                <tr>
-                    <td>@request.DateTime.NowUtc</td>
-                    <td>
-                        <a href="/debug/Request?TraceIdentifier=@(request.TraceIdentifier)">
-                            @request.Request.Method @request.Request.Path
-                        </a>
-                    </td>
-                    <td>@request.Identity?.Name</td>
-                    <td>@request?.Response.StatusCode</td>
-                    <td>@request?.MaxLogLevel</td>
-                    <td>@request.TraceIdentifier</td>
-                </tr>
+                    <div class="requests">
+                        <span>[<span class="requests-datetime">@request.DateTime.NowUtc</span>]</span>
+                        <span>[<span class="requests-status">@request?.Response.StatusCode @request?.MaxLogLevel]</span></span>
+                        <span>
+                            <span class="requests-path">
+                                <a href="/debug/Request?TraceIdentifier=@(request.TraceIdentifier)">
+                                    @request.Request.Method @request.Request.Path
+                                </a>
+                            </span>
+                        </span>
+                        <span class="requests-identity">@request.Identity?.Name</span>
+                    </div>
                 }
-            </tbody>
-        </table>
+            </div>
+        </div>
     </div>
 </div>

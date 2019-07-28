@@ -1,7 +1,11 @@
-﻿
+﻿<nav class="nav-breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">Logs</li>
+        <li class="breadcrumb-item active">Log Details</li>
+    </ol>
+</nav>
 <div class="row">
     <div class="col-md-12">
-        <h2 class="mt-5 mb-3">Log Details</h2>
         <table class="table-sm">
             <tr>
                 <td>Id</td>
@@ -36,9 +40,9 @@
                 <td>
                     @if (@Model.Log?.TraceIdentifier != null)
                     {
-                    <a href="/debug/Request?TraceIdentifier=@Model.Log?.TraceIdentifier">
-                        @(@Model.Log?.RequestUrl)
-                    </a>
+                        <a href="/debug/Request?TraceIdentifier=@Model.Log?.TraceIdentifier">
+                            @(@Model.Log?.RequestUrl)
+                        </a>
                     }
                 </td>
             </tr>

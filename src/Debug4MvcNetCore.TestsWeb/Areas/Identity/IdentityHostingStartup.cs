@@ -32,13 +32,14 @@ namespace Debug4MvcNetCore.TestsWeb.Areas.Identity
             //command.CommandText = "ssss a";
             //command.CommandType = System.Data.CommandType.Text;
             //DbDataReader reader = command.ExecuteReader();
-            //while(reader.Read())
+            //while (reader.Read())
             //{
             //    for (int i = 0; i < reader.FieldCount; i++)
             //    {
             //        columns.Add(reader.GetName(i));
             //    }
             //}
+            
             //new Debug4MvcNetCoreTestsWebContext().Model.GetEntityTypes()[0].
             //Database.ProviderName
             //IEntityType a;

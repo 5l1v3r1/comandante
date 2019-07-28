@@ -1,82 +1,85 @@
-﻿<div class="row">
-    <div class="col-md-12">
-        <h2 class="mt-5 mb-3">EntityFrameworkCore</h2>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <h5 class="mb-3">App DbContext Types</h5>
-        <ul>
-            @foreach (var appDbContext in Model.AppDbContexts)
-            {
-            <li>
-                <b>@(appDbContext?.Type?.ToString())</b> <br />
-                <table class="table-sm">
-                    <tr>
-                        <td class="pt-3">ProviderName</td>
-                        <td class="pt-3">@(appDbContext?.ProviderName)</td>
-                    </tr>
-                    <tr>
-                        <td class="align-top pt-3">Migrations</td>
-                        <td class="pt-3">
-                            <table>
-                                <thead class="small">
-                                    <tr>
-                                        <td>AppliedMigrations</td>
-                                        <td>PendingMigrations</td>
-                                        <td>Migrations</td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            @foreach (var migration in appDbContext.AppliedMigrations)
-                                            {
-                                                @migration <br />
-                                            }
-                                        </td>
-                                        <td>
-                                            @foreach (var migration in appDbContext.PendingMigrations)
-                                            {
-                                                @migration <br />
-                                            }
-                                        </td>
-                                        <td>
-                                            @foreach (var migration in appDbContext.Migrations)
-                                            {
-                                                @migration <br />
-                                            }
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="align-top pt-3">Entities</td>
-                        <td class="pt-3">
-                            <table class="table-sm">
-                                <thead class="small">
-                                    <tr>
-                                        <td>Name</td>
-                                        <td>ClrType</td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var entity in appDbContext.Entities)
-                                    {
-                                    <tr>
-                                        <td>@entity.NavigationName</td>
-                                        <td>@entity.ClrTypeName</td>
-                                    </tr>
-                                    }
+﻿<nav class="nav-breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active">Entity Framework Core</li>
+    </ol>
+</nav>
+
+@foreach (var appDbContext in Model.AppDbContexts)
+{
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="box">
+                <h6 class="d-inline">@(appDbContext?.Name)</h6>
+                <a class="btn btn-primary btn-sm m-2" href="/debug/EntityFrameworkCoreRunSql?AppDbContext=@(appDbContext?.Name)">Run Sql</a>
+                <div class="box-body">
+
+                    <table class="table-sm">
+                        <tr>
+                            <td class="pt-3">ProviderName</td>
+                            <td class="pt-3">@(appDbContext?.ProviderName)</td>
+                        </tr>
+                        <tr>
+                            <td class="align-top pt-3">Migrations</td>
+                            <td class="pt-3">
+                                <table>
+                                    <thead class="small">
+                                        <tr>
+                                            <td>AppliedMigrations</td>
+                                            <td>PendingMigrations</td>
+                                            <td>Migrations</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                @foreach (var migration in appDbContext.AppliedMigrations)
+                                                {
+                                                    @migration <br />
+                                                }
+                                            </td>
+                                            <td>
+                                                @foreach (var migration in appDbContext.PendingMigrations)
+                                                {
+                                                    @migration <br />
+                                                }
+                                            </td>
+                                            <td>
+                                                @foreach (var migration in appDbContext.Migrations)
+                                                {
+                                                    @migration <br />
+                                                }
+                                            </td>
+                                        </tr>
                                     </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </li>
-            }
-        </ul>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="align-top pt-3">Entities</td>
+                            <td class="pt-3">
+                                <table class="table-sm">
+                                    <thead class="small">
+                                        <tr>
+                                            <td>Name</td>
+                                            <td>ClrType</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var entity in appDbContext.Entities)
+                                        {
+                                            <tr>
+                                                <td>@entity.NavigationName</td>
+                                                <td>@entity.ClrTypeName</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+}
+

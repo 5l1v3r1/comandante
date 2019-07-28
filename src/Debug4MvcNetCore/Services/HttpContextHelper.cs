@@ -40,6 +40,38 @@ namespace Debug4MvcNetCore
             public HttpContext Context;
         }
 
+        private static AsyncLocal<RequestResponseInfotHolder> _requestResponseInfoHolder = new AsyncLocal<RequestResponseInfotHolder>();
+
+        public RequestResponseInfo RequestResponseInfo
+        {
+            get
+            {
+                return _requestResponseInfoHolder.Value?.Info;
+            }
+            set
+            {
+                var holder = _requestResponseInfoHolder.Value;
+                if (holder != null)
+                {
+                    // Clear current HttpContext trapped in the AsyncLocals, as its done.
+                    holder.Info = null;
+                }
+
+                if (value != null)
+                {
+                    // Use an object indirection to hold the HttpContext in the AsyncLocal,
+                    // so it can be cleared in all ExecutionContexts when its cleared.
+                    _requestResponseInfoHolder.Value = new RequestResponseInfotHolder { Info = value };
+                }
+            }
+        }
+
+        private class RequestResponseInfotHolder
+        {
+            public RequestResponseInfo Info;
+        }
+
+
         public (bool IsDebug4MvcNetCoreRequest, string ViewName) IsDebug4MvcNetCoreRequest(HttpContext context)
         {
             var matchSubPage = Regex.Match(context.Request.Path, "/debug/([A-Za-z0-9]*).*");

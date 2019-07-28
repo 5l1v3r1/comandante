@@ -14,11 +14,11 @@ namespace Debug4MvcNetCore.Pages
         private RequestsService _requestsService = new RequestsService();
         public RequestsModel Model { get; set; }
 
-        public override async Task InitView()
+        public override async Task<EmbededViewResult> InitView()
         {
             Model = new RequestsModel();
-            Model.Requests = _requestsService.Requests;
-            await Task.CompletedTask;
+            Model.Requests = _requestsService.RequestsEnded;
+            return await View();
         }
     }
 

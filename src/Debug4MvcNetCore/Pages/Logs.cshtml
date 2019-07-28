@@ -1,39 +1,37 @@
-﻿<div class="row">
+﻿<nav class="nav-breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active">Logs</li>
+    </ol>
+</nav>
+<div class="row">
     <div class="col-md-12">
-        <h2 class="mt-5 mb-3">Logs</h2>
-        <table class="table-sm">
-            <thead  class="small">
-                <tr>
-                    <th>Log</th>
-                    <th>LogLevel</th>
-                    <th>Details</th>
-                    <th>Request</th>
-                    <th>IdentityName</th>
-                    <th>LoggerName</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="box">
+            <h6 class="mb-3">Logs</h6>
+            <div class="box-body">
                 @foreach (var log in Model.Logs)
                 {
-                <tr>
-                    <td class="text-nowrap"><a href="/debug/Log?Id=@(log.Id)">@log.Created.ToString("yyyy-MM-ddTHH:mm:sszzz")</a></td>
-                    <td class="text-nowrap">@log.LogLevel</td>
-                    <td>@log.Details</td>
-                    <td>
-                        @if (log.TraceIdentifier != null)
-                        {
-                            <br /><a href="/debug/Request?TraceIdentifier=@(log.TraceIdentifier)">@log.RequestUrl</a>
-                        }
-                        else
-                        {
-                            @log.RequestUrl
-                        }
-                    </td>
-                    <td>@log.IdentityName</td>
-                    <td>@log.LoggerName</td>
-                </tr>
+                    <div class="mt-1">
+                        <span>[<span class="logs-status"><a href="/debug/Log?Id=@(log.Id)">@log.Created.ToString("yyyy-MM-ddTHH:mm:sszzz")</a></span>]</span>
+                        <span>[<span class="class=" logs-level"">@log.LogLevel]</span></span>
+                        <span><span class="logs-logger">[@log.LoggerName]</span></span>
+                        <span>@(log.IdentityName != null ? "@" + log.IdentityName : "")</span>
+                        <span class="logs-request">
+                            #
+                            @if (log.TraceIdentifier != null)
+                            {
+                                <a href="/debug/Request?TraceIdentifier=@(log.TraceIdentifier)">@log.RequestUrl</a>
+                            }
+                            else
+                            {
+                                @log.RequestUrl
+                            }
+                        </span>
+                        <div>
+                            <span>@log.Details</span>
+                        </div>
+                    </div>
                 }
-            </tbody>
-        </table>
+            </div>
+        </div>
     </div>
 </div>

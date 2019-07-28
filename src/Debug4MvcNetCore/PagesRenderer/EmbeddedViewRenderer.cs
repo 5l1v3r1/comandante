@@ -155,9 +155,14 @@ namespace Debug4MvcNetCore.PagesRenderer
             view.ViewName = viewName;
             if (model != null)
                 item.Type.GetProperty("Model").SetValue(view, model);
-            await view.InitView();
-            if (httpContext.Response.StatusCode == 200)
+            var result = await view.InitView();
+            if (httpContext.Response.StatusCode == 200 && result is EmbededViewViewResult)
                 await view.ExecuteAsync();
+            if (httpContext.Response.StatusCode == 200 && result is EmbededViewJsonResult)
+            {
+                httpContext.Response.ContentType = "application/json";
+                await httpContext.Response.WriteAsync(((EmbededViewJsonResult)result).Json);
+            }
         }
 
         private static MetadataReference GetMetadataReference(Type type) =>

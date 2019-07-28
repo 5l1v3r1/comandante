@@ -18,11 +18,11 @@ namespace Debug4MvcNetCore.Pages
     {
         public RoutingModel Model { get; set; }
 
-        public override async Task InitView()
+        public override async Task<EmbededViewResult> InitView()
         {
             Model = new RoutingModel();
             Model.Routes = new RoutingService().GetRoutes();
-            await Task.CompletedTask;
+            return await View();
         }
     }
 

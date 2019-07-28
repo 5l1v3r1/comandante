@@ -16,9 +16,9 @@ namespace Debug4MvcNetCore.Pages
     {
         public RequestResponseInfo Model { get; set; }
 
-        public override Task InitView()
+        public async override Task<EmbededViewResult> InitView()
         {
-            return Task.CompletedTask;
+            return await View();
         }
     }
 }

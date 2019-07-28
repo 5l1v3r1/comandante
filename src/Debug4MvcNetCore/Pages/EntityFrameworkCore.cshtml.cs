@@ -13,12 +13,12 @@ namespace Debug4MvcNetCore.Pages
     {
         public EntityFrameworkCoreModel Model { get; set; }
 
-        public override async Task InitView()
+        public override async Task<EmbededViewResult> InitView()
         {
             Model = new EntityFrameworkCoreModel();
 
             Model.AppDbContexts = new EntityFrameworkCoreService().GetAppDbContexts(this.HttpContext);
-            await Task.CompletedTask;
+            return await View();
         }
     }
 

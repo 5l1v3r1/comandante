@@ -13,7 +13,7 @@ namespace Debug4MvcNetCore.Pages
     {
         public RequestModel Model { get; set; }
 
-        public override async Task InitView()
+        public override async Task<EmbededViewResult> InitView()
         {
             var logsService = new RequestsService();
             Model = new RequestModel();
@@ -21,10 +21,10 @@ namespace Debug4MvcNetCore.Pages
             if (this.HttpContext.Request.Query.ContainsKey("TraceIdentifier"))
             {
                 var traceIdentifier = this.HttpContext.Request.Query["TraceIdentifier"].ToString().Trim();
-                Model.Request = new RequestsService().Requests.FirstOrDefault(x => x.TraceIdentifier == traceIdentifier);
+                Model.Request = new RequestsService().RequestsEnded.FirstOrDefault(x => x.TraceIdentifier == traceIdentifier);
                 Model.TraceIdentifier = traceIdentifier;
             }
-            await Task.CompletedTask;
+            return await View();
         }
     }
 

@@ -1,0 +1,92 @@
+﻿<nav class="nav-breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">Entity Framework Core</li>
+        <li class="breadcrumb-item active">Run Sql</li>
+    </ol>
+</nav>
+<script>
+    window.onload = function () {
+        var sql = new URL(document.location).searchParams.get("sql");
+        document.getElementById("sql").value = sql;
+    }
+    function sql_onchange(value) {
+        if (history.pushState) {
+            var url = new URL(document.location);
+            url.searchParams.set("sql", value);
+            window.history.replaceState({ path: String(url) }, '', String(url));
+        }
+    }
+    function sql_run() {
+        document.getElementById("sql_error").innerHTML = null;
+        document.getElementById("sql_affectedRecords").innerHTML = null;
+        document.getElementById("sql_results").innerHTML = null;
+        var sql = document.getElementById("sql").value
+
+        xhr = new XMLHttpRequest();
+        xhr.open('POST', window.location.href);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onload = function () {
+            document.getElementById("sql_isRunning").innerHTML = null;
+            if (xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+
+                if (response.Error) {
+                    document.getElementById("sql_error").innerHTML = response.Error;
+                    return;
+                }
+
+                var table = "<table><thead><tr>"
+                for (i = 0; i < response.Columns.length; i++) {
+                    table = table + "<td>" + escape(response.Columns[i]) + "</td>";
+                }
+                table = table + "</tr></thead><tbody>";
+                for (i = 0; i < response.Rows.length; i++) {
+                    table = table + "<tr>";
+                    for (j = 0; j < response.Rows[i].length; j++) {
+                        table = table + "<td>" + escape(response.Columns[i][j]) + "</td>";
+                    }
+                    table = table + "</tr>";
+                }
+                table = table + "</tbody></html>";
+
+                document.getElementById("sql_results").innerHTML = table;
+                document.getElementById("sql_affectedRecords").innerHTML = "AffectedRecords: " + response.AffectedRecords;
+
+            }
+            else if (xhr.status !== 200) {
+                getElementById("sql_error").innerHTML = "Request failed.  Returned status of " + xhr.status;
+            }
+        };
+        xhr.send(encodeURI('sql=' + sql));
+    }
+</script>
+<div class="row">
+    <div class="col-md-12">
+        <div></div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="box">
+            <h6>@Model.AppDbContext</h6>
+            <div class="box-body">
+                <form onsubmit="event.preventDefault(); sql_run(); return true;">
+                    <div class="form-group">
+                        <label for="sql">Sql</label>
+                        <textarea class="form-control" id="sql" rows="12" onchange="sql_onchange(value)"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-sm btn-primary">Run</button>
+                        <div id="sql_isRunning" class="text-warning"></div>
+                    </div>
+                </form>
+                <div class="mt-2">
+                    <div class="text-danger" id="sql_error"></div><br /><br />
+                    <div id="sql_affectedRecords"></div><br /><br />
+                    <div id="sql_results"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

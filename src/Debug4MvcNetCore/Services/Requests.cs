@@ -3,25 +3,46 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Debug4MvcNetCore
 {
     public class RequestsService
     {
-        private static List<RequestResponseInfo> _requests = new List<RequestResponseInfo>();
-        public IEnumerable<RequestResponseInfo> Requests
+        private static ConcurrentDictionary<RequestResponseInfo, RequestResponseInfo> _requestsEnded = new ConcurrentDictionary<RequestResponseInfo, RequestResponseInfo>();
+        public IEnumerable<RequestResponseInfo> RequestsEnded
         {
-            get { return _requests; }
+            get { return _requestsEnded.ToArray().Select(x => x.Key); }
         }
 
-        private static List<LogEntry> _webHostlogs = new List<LogEntry>();
-        public IEnumerable<LogEntry> Logs
+        private static ConcurrentDictionary<RequestResponseInfo, RequestResponseInfo> _requestsActive = new ConcurrentDictionary<RequestResponseInfo, RequestResponseInfo>();
+        public IEnumerable<RequestResponseInfo> RequestsActive
         {
-            get { return _requests.SelectMany(x => x.Logs).ToList().Union(_webHostlogs).ToList().OrderByDescending(x => x.Created).ToList(); }
+            get { return _requestsActive.ToArray().Select(x => x.Key); }
+        }
+
+        private static ConcurrentQueue<LogEntry> _webHostlogs = new ConcurrentQueue<LogEntry>();
+        public IEnumerable<LogEntry> WebHostlogs
+        {
+            get { return _webHostlogs.ToArray(); }
+        }
+
+        public IEnumerable<LogEntry> AllLogs
+        {
+            get
+            {
+                return
+                  WebHostlogs
+                  .Union(RequestsActive.SelectMany(x => x.Logs.ToArray().Where(y => y != null)))
+                  .Union(RequestsEnded.SelectMany(x => x.Logs.ToArray().Where(y => y != null)))
+                  .OrderBy(x => x.Created)
+                  .ToList();
+            }
         }
 
         public void StartRequest(HttpContext httpContext)
@@ -29,8 +50,9 @@ namespace Debug4MvcNetCore
             if (ConfigurationInfo.EnableRequestLogs == false)
                 return;
 
-            var requestResponseInfo = CreateRequestResponseInfo(httpContext);
-            httpContext.Items["Debug4MvcNetCore_Request"] = requestResponseInfo;
+            var request = CreateRequestResponseInfo(httpContext);
+            new HttpContextHelper().RequestResponseInfo = request;
+            _requestsActive.TryAdd(request, request);
         }
 
         public void EndRequest(HttpContext httpContext)
@@ -40,22 +62,57 @@ namespace Debug4MvcNetCore
 
             LogUnhandledException(httpContext);
 
-            var request = ((RequestResponseInfo)httpContext.Items["Debug4MvcNetCore_Request"]);
+            var request = new HttpContextHelper().RequestResponseInfo;
             request.Response = CreateResponseInfo(httpContext);
             request.Identities = CreateIdentityInfo(httpContext);
             request.Completed = DateTime.UtcNow;
-            _requests.Insert(0, request);
 
-            if (ConfigurationInfo.EnableRequestLogsOnlyIfError)
-                _requests = _requests.Where(x => x.IsError).OrderByDescending(x => x.Created).Take(ConfigurationInfo.MaxNumberOfRequestsLogs).ToList();
+            if (ConfigurationInfo.EnableRequestLogsOnlyIfAspMvc && request.IsAspNetCore == false)
+            {
+                _requestsActive.TryRemove(request, out RequestResponseInfo removeingItem1);
+                return;
+            }
+            if (ConfigurationInfo.EnableRequestLogsOnlyIfError && request.IsError == false)
+            {
+                _requestsActive.TryRemove(request, out RequestResponseInfo removeingItem2);
+                return;
+            }
 
-            if (ConfigurationInfo.EnableRequestLogsOnlyIfAspMvc)
-                _requests = _requests.Where(x => x.IsAspNetCore).OrderByDescending(x => x.Created).Take(ConfigurationInfo.MaxNumberOfRequestsLogs).ToList();
-            
-            _requests = _requests.OrderByDescending(x => x.Created).Take(ConfigurationInfo.MaxNumberOfRequestsLogs).ToList();
+            _requestsEnded.TryAdd(request, request);
+            _requestsActive.TryRemove(request, out RequestResponseInfo removeingItem3);
+            CleanUpRequests();
         }
 
-        private static void LogUnhandledException(HttpContext httpContext)
+        private static object _cleanUpRequestsMonitor = new object();
+        private static bool _cleanUpRequestsMonitorLocked = false;
+        public void CleanUpRequests()
+        {
+            if (_cleanUpRequestsMonitorLocked)
+                return;
+
+            Task.Run(() =>
+            {
+                if (Monitor.TryEnter(_cleanUpRequestsMonitor))
+                {
+                    try
+                    {
+                        _cleanUpRequestsMonitorLocked = true;
+                        if (_requestsEnded.Count > ConfigurationInfo.MaxNumberOfRequestsLogs)
+                        {
+                            foreach (var request in _requestsEnded.OrderByDescending(x => x.Key.Created).Skip(ConfigurationInfo.MaxNumberOfRequestsLogs))
+                                _requestsEnded.TryRemove(request.Key, out RequestResponseInfo removingItem);
+                        }
+                    }
+                    finally
+                    {
+                        _cleanUpRequestsMonitorLocked = false;
+                        Monitor.Exit(_cleanUpRequestsMonitor);
+                    }
+                }
+            });
+        }
+
+        public void LogUnhandledException(HttpContext httpContext)
         {
             var exceptionHandlerPathFeature = httpContext.Features.Get<IExceptionHandlerPathFeature>();
             if (exceptionHandlerPathFeature?.Error != null)
@@ -71,16 +128,8 @@ namespace Debug4MvcNetCore
             var httpContext = new HttpContextHelper().HttpContext;
             bool isWebHostLog = httpContext == null;
 
-            if (isWebHostLog)
-            {
-                if (ConfigurationInfo.EnableWebHostLogs == false)
-                    return;
-            }
-            else
-            {
-                if (ConfigurationInfo.EnableRequestLogs == false)
-                    return;
-            }
+            if (isWebHostLog && ConfigurationInfo.EnableWebHostLogs == false)
+                return;
 
             var details = formatter(state, exception);
             var exceptionDetails = "";
@@ -107,20 +156,22 @@ namespace Debug4MvcNetCore
 
             if (isWebHostLog)
             {
-                _webHostlogs.Insert(0, logEntry);
-                _webHostlogs = _webHostlogs.Take(ConfigurationInfo.MaxNumberOfWebHostLogs).ToList();
+                if (_webHostlogs.Count > ConfigurationInfo.MaxNumberOfWebHostLogs)
+                    _webHostlogs.TryDequeue(out LogEntry remove);
+                _webHostlogs.Enqueue(logEntry);
             }
             else
             {
-                if (httpContext.Items.ContainsKey("Debug4MvcNetCore_Request"))
+                var requestInfo = new HttpContextHelper().RequestResponseInfo;
+                if (requestInfo != null)
                 {
-                    var request = ((RequestResponseInfo)httpContext.Items["Debug4MvcNetCore_Request"]);
-                    request.Logs.Insert(0, logEntry);
+                    requestInfo.Logs.Insert(0, logEntry);
                 }
                 else
                 {
-                    _webHostlogs.Insert(0, logEntry);
-                    _webHostlogs = _webHostlogs.Take(ConfigurationInfo.MaxNumberOfWebHostLogs).ToList();
+                    if (_webHostlogs.Count > ConfigurationInfo.MaxNumberOfWebHostLogs)
+                        _webHostlogs.TryDequeue(out LogEntry remove);
+                    _webHostlogs.Enqueue(logEntry);
                 }
             }
         }
@@ -128,7 +179,7 @@ namespace Debug4MvcNetCore
         public void ClearLogs()
         {
             _webHostlogs.Clear();
-            _requests.Clear();
+            _requestsEnded.Clear();
         }
 
         public RequestResponseInfo CreateRequestResponseInfo(HttpContext httpContext)

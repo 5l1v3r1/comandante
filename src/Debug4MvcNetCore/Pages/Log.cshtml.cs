@@ -15,15 +15,15 @@ namespace Debug4MvcNetCore.Pages
 
         public LogModel Model { get; set; }
 
-        public override async Task InitView()
+        public override async Task<EmbededViewResult> InitView()
         {
             Model = new LogModel();
             if (this.HttpContext.Request.Query.ContainsKey("Id"))
                 Model.Id = this.HttpContext.Request.Query["Id"].ToString().Trim();
-            Model.Log = new RequestsService().Logs.FirstOrDefault(x => x.Id == Model.Id);
+            Model.Log = new RequestsService().AllLogs.FirstOrDefault(x => x.Id == Model.Id);
             if (Model.Log?.TraceIdentifier != null)
-                Model.Request = new RequestsService().Requests.FirstOrDefault(x => x.TraceIdentifier == Model.Log.TraceIdentifier);
-            await Task.CompletedTask;
+                Model.Request = new RequestsService().RequestsEnded.FirstOrDefault(x => x.TraceIdentifier == Model.Log.TraceIdentifier);
+            return await View();
         }
     }
 
