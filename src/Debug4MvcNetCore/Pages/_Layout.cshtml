@@ -7,47 +7,21 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Debug4MvcNetCore</title>
-    @RenderResource("jquery.min.js")
-    @RenderResource("bootstrap.min.css")
-    @RenderResource("bootstrap.min.js")
     @RenderResource("styles.css")
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <div class="container">
-                <a class="navbar-brand" href="/debug">
-                    &nbsp;&nbsp;&nbsp;debug<br />
-                    4 mvc net core
-                </a>
-                <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#navbarMenu" aria-controls="navbarMenu" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse" id="navbarMenu" style="">
-                    <ul class="navbar-nav mr-auto">
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewName == "Index" ? "active" : "")" href="/debug">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewName == "Logs" || ViewName == "Log" ? "active" : "")" href="/debug/Logs">Logs</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewName == "Requests" || ViewName == "Request" ? "active" : "")" href="/debug/Requests">Requests</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewName == "Hosting" ? "active" : "")" href="/debug/Hosting">Hosting</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewName == "Routing" ? "active" : "")" href="/debug/Routing">Routing</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link @(ViewName == "EntityFrameworkCore" ? "active" : "")" href="/debug/EntityFrameworkCore">EntityFrameworkCore</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
+    <div class="nav">
+        <a class="nav-link nav-brand" href="/debug">
+            &nbsp;&nbsp;&nbsp;debug<br />
+            4 mvc net core
+        </a>
+            <a class="nav-link @(ViewName == "Index" ? "active" : "")" href="/debug">Home</a>
+            <a class="nav-link @(ViewName == "Logs" || ViewName == "Log" ? "active" : "")" href="/debug/Logs">Logs</a>
+            <a class="nav-link @(ViewName == "Requests" || ViewName == "Request" ? "active" : "")" href="/debug/Requests">Requests</a>
+            <a class="nav-link @(ViewName == "Hosting" ? "active" : "")" href="/debug/Hosting">Hosting</a>
+            <a class="nav-link @(ViewName == "Routing" ? "active" : "")" href="/debug/Routing">Routing</a>
+            <a class="nav-link @(ViewName == "EntityFrameworkCore" ? "active" : "")" href="/debug/EntityFrameworkCore">EntityFrameworkCore</a>
+    </div>
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()

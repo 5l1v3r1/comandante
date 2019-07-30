@@ -1,35 +1,26 @@
-﻿<nav class="nav-breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">Requests</li>
-        <li class="breadcrumb-item active">Request Details</li>
-    </ol>
-</nav>
-<div class="row">
-    <div class="col-md-12">
-        <table class="table-sm">
-            <tr>
-                <td>TraceIdentifier</td>
-                <td>@Model?.TraceIdentifier</td>
-            </tr>
-            <tr>
-                <td>Log</td>
-                <td>@Model?.Request?.DateTime?.NowUtc</td>
-            </tr>
-            <tr>
-                <td>Path</td>
-                <td>@Model?.Request?.Request?.Method @Model?.Request?.Request?.Path</td>
-            </tr>
-            <tr>
-                <td>StatusCode</td>
-                <td>@Model?.Request?.Response.StatusCode</td>
-            </tr>
-            <tr>
-                <td>MaxLogLevel</td>
-                <td>@Model?.Request?.MaxLogLevel</td>
-            </tr>
-        </table>
-    </div>
-</div>
+﻿<h2>Request</h2>
+<table class="table-sm">
+    <tr>
+        <td>TraceIdentifier</td>
+        <td>@Model?.TraceIdentifier</td>
+    </tr>
+    <tr>
+        <td>Log</td>
+        <td>@Model?.Request?.DateTime?.NowUtc</td>
+    </tr>
+    <tr>
+        <td>Path</td>
+        <td>@Model?.Request?.Request?.Method @Model?.Request?.Request?.Path</td>
+    </tr>
+    <tr>
+        <td>StatusCode</td>
+        <td>@Model?.Request?.Response.StatusCode</td>
+    </tr>
+    <tr>
+        <td>MaxLogLevel</td>
+        <td>@Model?.Request?.MaxLogLevel</td>
+    </tr>
+</table>
 
 @if (Model.Request?.Logs != null)
 {

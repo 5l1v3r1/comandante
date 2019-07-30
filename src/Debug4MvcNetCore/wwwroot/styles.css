@@ -1,11 +1,26 @@
 ﻿
 * {
     word-break: keep-all;
-    color: rgb(251, 252, 254);
 }
 
 body {
-    background-color: #3A3F44
+}
+
+.nav-link,
+.nav-link.active {
+    margin: 5px;
+    margin-left: 20px;
+    color: black;
+}
+
+.nav-brand,
+.nav-brand.active {
+    text-align:left;
+    text-decoration:none;
+}
+
+table tr th {
+    text-align:left;
 }
 
 fieldset {
@@ -24,32 +39,7 @@ fieldset legend label{
     font-size: 1rem;
 }
 
-.navbar-brand {
-    font-size: 1rem;
-    line-height: 1rem;
-}
-.navbar {
-    font-size: 1rem;
-}
-
-.breadcrumb,
-.breadcrumb-item,
-.breadcrumb-item a,
-.breadcrumb-item.active {
-    background-color: inherit;
-    color: white;
-    font-size: 18px;
-}
-
-.breadcrumb {
-    padding-left: 0px;
-}
-
-.card {
-    background-color: #3A3F44
-}
-
-.requests-datetime {
+/*.requests-datetime {
 }
 .requests-status {
     vertical-align: top;
@@ -57,9 +47,9 @@ fieldset legend label{
     display: inline-block;
     overflow: hidden;
     width: 100px;
-}
+}*/
 
-.requests-path {
+/*.requests-path {
 }
 
 .logs-datetime {
@@ -75,9 +65,9 @@ fieldset legend label{
 .logs-request,
 .logs-request a {
     color: #6c757d !important;
-}
+}*/
 
-.form-control,
+/*.form-control,
 .form-control[readonly],
 .form-control[readonly] a,
 .form-control[readonly] a:active,
@@ -89,83 +79,9 @@ fieldset legend label{
     border: none;
     color: black;
     font-size: 16px;
-}
+}*/
 
-.text-secondary {
-    color: #7A8288 !important;
-}
-
-a.text-secondary:hover, a.text-secondary:focus {
-    color: #565b60 !important;
-}
-
-.text-success {
-    color: #62c462 !important;
-}
-
-a.text-success:hover, a.text-success:focus {
-    color: #3b9e3b !important;
-}
-
-.text-info {
-    color: #5bc0de !important;
-}
-
-a.text-info:hover, a.text-info:focus {
-    color: #28a1c5 !important;
-}
-
-.text-warning {
-    color: #f89406 !important;
-}
-
-a.text-warning:hover, a.text-warning:focus {
-    color: #ad6704 !important;
-}
-
-.text-danger {
-    color: #ee5f5b !important;
-}
-
-a.text-danger:hover, a.text-danger:focus {
-    color: #e51d18 !important;
-}
-
-.text-light {
-    color: #e9ecef !important;
-}
-
-a.text-light:hover, a.text-light:focus {
-    color: #bdc6cf !important;
-}
-
-.text-dark {
-    color: #272B30 !important;
-}
-
-a.text-dark:hover, a.text-dark:focus {
-    color: #050506 !important;
-}
-
-.box {
-    background-color: rgb(99,110,114);
-    padding: 15px;
-}
-
-.box-body {
-    background-color: rgb(69,78,83);
-    padding: 10px;
-    padding-top: 15px;
-    margin-bottom: 15px;
-}
-
-.box-body-plain {
-    background-color: transparent;
-    padding-top: 0px;
-    margin-bottom: 15px;
-}
-
-.table {
+/*.table {
     border-collapse: separate;
     border-spacing: 0px 5px;
     margin-bottom: 0px;
@@ -190,4 +106,4 @@ a.text-dark:hover, a.text-dark:focus {
 
 .table tbody tr td a {
     color: white;
-}
+}*/

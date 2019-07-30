@@ -1,29 +1,16 @@
-﻿<nav class="nav-breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item active">Requests</li>
-    </ol>
-</nav>
-<div class="row">
-    <div class="col-md-12">
-        <div class="box">
-            <h6 class="mb-3">Requests</h6>
-            <div class="box-body">
-                @foreach (var request in Model.Requests)
-                {
-                    <div class="requests">
-                        <span>[<span class="requests-datetime">@request.DateTime.NowUtc</span>]</span>
-                        <span>[<span class="requests-status">@request?.Response.StatusCode @request?.MaxLogLevel]</span></span>
-                        <span>
-                            <span class="requests-path">
-                                <a href="/debug/Request?TraceIdentifier=@(request.TraceIdentifier)">
-                                    @request.Request.Method @request.Request.Path
-                                </a>
-                            </span>
-                        </span>
-                        <span class="requests-identity">@request.Identity?.Name</span>
-                    </div>
-                }
-            </div>
-        </div>
+﻿<h2>Requests</h2>
+@foreach (var request in Model.Requests)
+{
+    <div class="requests">
+        <span>[<span class="requests-datetime">@request.DateTime.NowUtc</span>]</span>
+        <span>[<span class="requests-status">@request?.Response.StatusCode @request?.MaxLogLevel]</span></span>
+        <span>
+            <span class="requests-path">
+                <a href="/debug/Request?TraceIdentifier=@(request.TraceIdentifier)">
+                    @request.Request.Method @request.Request.Path
+                </a>
+            </span>
+        </span>
+        <span class="requests-identity">@request.Identity?.Name</span>
     </div>
-</div>
+}

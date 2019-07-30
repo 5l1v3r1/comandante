@@ -1,47 +1,36 @@
-﻿<nav class="nav-breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item active">Routing</li>
-    </ol>
-</nav>
-<div class="row">
-    <div class="col-md-12">
-        <div class="box">
-            <div class="box-body-plain">
-                @if (Model.Routes != null)
-                {
-                    <table class="table table-sm">
-                        <thead class="small">
-                            <tr>
-                                <td>Route Template</td>
-                                <td>Controller</td>
-                                <td>Action</td>
-                                <td>Constraints/Verbs</td>
-                                <td>Name</td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var route in Model.Routes)
-                            {
+﻿<h2>Routing</h2>
 
-                                <tr>
-                                    <td>@route.Template</td>
-                                    <td>@route.Controller</td>
-                                    <td>@route.Action</td>
-                                    <td>@route.Constraint</td>
-                                    <td>@route.Name</td>
-                                </tr>
+@if (Model.Routes != null)
+{
+    <table>
+        <thead class="small">
+            <tr>
+                <td>Route Template</td>
+                <td>Controller</td>
+                <td>Action</td>
+                <td>Constraints/Verbs</td>
+                <td>Name</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var route in Model.Routes)
+            {
 
-                            }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <div>Sorry, cannot get service IActionDescriptorCollectionProvider, that provides routing information.</div>
-                }
-            </div>
-        </div>
+                <tr>
+                    <td>@route.Template</td>
+                    <td>@route.Controller</td>
+                    <td>@route.Action</td>
+                    <td>@route.Constraint</td>
+                    <td>@route.Name</td>
+                </tr>
 
-    </div>
-</div>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div>Sorry, cannot get service IActionDescriptorCollectionProvider, that provides routing information.</div>
+}
+
 
