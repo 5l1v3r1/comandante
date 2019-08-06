@@ -1,5 +1,10 @@
-﻿<h2>Entity Framework Core</h2>
-<h4>Run Sql</h4>
+﻿<h2>Entity Framework Core - Run Sql</h2>
+<table class="form">
+    <tr>
+        <td>AppDbContext</td>
+        <td>@Model.AppDbContext</td>
+    </tr>
+</table>
 <script>
     window.onload = function () {
         var sql = new URL(document.location).searchParams.get("sql");
@@ -31,15 +36,15 @@
                     return;
                 }
 
-                var table = "<table><thead><tr>"
+                var table = "<table><thead class='small'><tr>"
                 for (i = 0; i < response.Columns.length; i++) {
-                    table = table + "<td>" + escape(response.Columns[i]) + "</td>";
+                    table = table + "<th>" + escape(response.Columns[i]) + "</th>";
                 }
                 table = table + "</tr></thead><tbody>";
                 for (i = 0; i < response.Rows.length; i++) {
                     table = table + "<tr>";
                     for (j = 0; j < response.Rows[i].length; j++) {
-                        table = table + "<td>" + escape(response.Columns[i][j]) + "</td>";
+                        table = table + "<td>" + escape(response.Rows[i][j]) + "</td>";
                     }
                     table = table + "</tr>";
                 }
@@ -56,33 +61,20 @@
         xhr.send(encodeURI('sql=' + sql));
     }
 </script>
-<div class="row">
-    <div class="col-md-12">
-        <div></div>
-    </div>
-</div>
-<div class="row">
-    <div class="col-md-12">
-        <div class="box">
-            <h6>@Model.AppDbContext</h6>
-            <div class="box-body">
-                <form onsubmit="event.preventDefault(); sql_run(); return true;">
-                    <div class="form-group">
-                        <label for="sql">Sql</label>
-                        <textarea class="form-control" id="sql" rows="12" onchange="sql_onchange(value)"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <button class="btn btn-sm btn-primary">Run</button>
-                        <div id="sql_isRunning" class="text-warning"></div>
-                    </div>
-                </form>
-                <div class="mt-2">
-                    <div class="text-danger" id="sql_error"></div><br /><br />
-                    <div id="sql_affectedRecords"></div><br /><br />
-                    <div id="sql_results"></div>
-                </div>
-            </div>
-        </div>
 
+<form onsubmit="event.preventDefault(); sql_run(); return true;">
+    <div class="mt-5">
+        <label for="sql" class="text-muted">Sql</label><br />
+        <textarea id="sql" rows="12" style="width: 100%;" onchange="sql_onchange(value)"></textarea>
     </div>
+    <div>
+        <button class="btn btn-sm btn-primary">Run</button>
+        <div id="sql_isRunning" class="text-warning"></div>
+    </div>
+</form>
+
+<div>
+    <div class="text-danger" id="sql_error"></div><br /><br />
+    <div id="sql_affectedRecords"></div><br /><br />
+    <div id="sql_results"></div>
 </div>

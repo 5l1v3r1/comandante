@@ -1,6 +1,6 @@
 ﻿<h2>Log</h2>
 
-<table>
+<table class="form">
     <tr>
         <td>Id</td>
         <td>@Model.Id</td>
@@ -11,11 +11,11 @@
     </tr>
     <tr>
         <td>Details</td>
-        <td>@Model.Log?.Details</td>
+        <td><pre>@Model.Log?.Details</pre></td>
     </tr>
     <tr>
         <td>Exception</td>
-        <td>@Model.Log?.Exception</td>
+        <td><pre>@Model.Log?.Exception</pre></td>
     </tr>
     <tr>
         <td>LoggerName</td>
@@ -41,6 +41,8 @@
         </td>
     </tr>
 </table>
+
+
 
 @if (Model.Request != null)
 {

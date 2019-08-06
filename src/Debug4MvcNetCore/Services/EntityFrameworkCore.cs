@@ -25,7 +25,7 @@ namespace Debug4MvcNetCore.Services
                     List<string> columns = new List<string>();
                     List<object[]> rows = new List<object[]>();
                     int recordsAffected = -1;
-                    var relatoinDatabaseExtensionType = GetRelationalDatabaseExtensionTypes();
+                    var relatoinDatabaseExtensionType = GetRelationalDatabaseExtensionType();
                     using (var dbConnection = relatoinDatabaseExtensionType.InvokeStaticMethod("GetDbConnection", database) as IDisposable)
                     {
                         dbConnection.InvokeMethod("Open");
@@ -100,15 +100,16 @@ namespace Debug4MvcNetCore.Services
                 if (addDbContext != null)
                 {
                     var database = addDbContext.GetPropertyValue("Database");
+                    var relationalDatabaseExtensionType = GetRelationalDatabaseExtensionType();
+                    var relationalMetadataExtensions = GetRelationalMetadataExtensionsType();
                     if (database != null)
                     {
                         appDbContextInfo.ProviderName = database.GetPropertyValue("ProviderName")?.ToString();
-                        var relatoinDatabaseExtensionType =  GetRelationalDatabaseExtensionTypes();
-                        if (relatoinDatabaseExtensionType != null)
+                        if (relationalDatabaseExtensionType != null)
                         {
-                            appDbContextInfo.Migrations = (relatoinDatabaseExtensionType.InvokeStaticMethod("GetMigrations", database) as IEnumerable<string>)?.ToList() ?? new List<string>();
-                            appDbContextInfo.PendingMigrations = (relatoinDatabaseExtensionType.InvokeStaticMethod("GetPendingMigrations", database) as IEnumerable<string>)?.ToList() ?? new List<string>();
-                            appDbContextInfo.AppliedMigrations = (relatoinDatabaseExtensionType.InvokeStaticMethod("GetAppliedMigrations", database) as IEnumerable<string>)?.ToList() ?? new List<string>();
+                            appDbContextInfo.Migrations = (relationalDatabaseExtensionType.InvokeStaticMethod("GetMigrations", database) as IEnumerable<string>)?.ToList() ?? new List<string>();
+                            appDbContextInfo.PendingMigrations = (relationalDatabaseExtensionType.InvokeStaticMethod("GetPendingMigrations", database) as IEnumerable<string>)?.ToList() ?? new List<string>();
+                            appDbContextInfo.AppliedMigrations = (relationalDatabaseExtensionType.InvokeStaticMethod("GetAppliedMigrations", database) as IEnumerable<string>)?.ToList() ?? new List<string>();
                         }
                     }
                     var model = addDbContextType.GetProperty("Model")?.GetValue(addDbContext);
@@ -117,10 +118,17 @@ namespace Debug4MvcNetCore.Services
                         var entitiesTypes = model.InvokeMethod("GetEntityTypes") as  System.Collections.IEnumerable;
                         foreach(var entityType in entitiesTypes)
                         {
+                            var relationalEntity = relationalMetadataExtensions.InvokeStaticMethod("Relational", entityType);
+                            var schema = relationalEntity.GetPropertyValue("Schema")?.ToString();
+                            var tableName = relationalEntity.GetPropertyValue("TableName")?.ToString();
+                            var schemaAndTableName = string.IsNullOrEmpty(schema) == false ? schema + "." + tableName : tableName;
                             appDbContextInfo.Entities.Add(new AppDbContextEntityInfo
                             {
                                 NavigationName = entityType.GetPropertyValue("DefiningNavigationName")?.ToString(),
                                 ClrTypeName = entityType.GetPropertyValue("ClrType")?.ToString(),
+                                Schema = schema,
+                                TableName = tableName,
+                                SchemaAndTableName = schemaAndTableName,
                             });
 
                         }
@@ -154,7 +162,7 @@ namespace Debug4MvcNetCore.Services
             return appDbCotexts;
         }
 
-        public Type GetRelationalDatabaseExtensionTypes()
+        public Type GetRelationalDatabaseExtensionType()
         {
             var entityFrameworkCoreAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.FullName.StartsWith("Microsoft.EntityFrameworkCore.Relational,"));
             if (entityFrameworkCoreAssembly == null)
@@ -162,6 +170,16 @@ namespace Debug4MvcNetCore.Services
             Type relationalDatabaseFacadeExtensionsType = entityFrameworkCoreAssembly.GetType("Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions");
             return relationalDatabaseFacadeExtensionsType;
         }
+
+        public Type GetRelationalMetadataExtensionsType()
+        {
+            var entityFrameworkCoreAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.FullName.StartsWith("Microsoft.EntityFrameworkCore.Relational,"));
+            if (entityFrameworkCoreAssembly == null)
+                return null;
+            Type relationalDatabaseFacadeExtensionsType = entityFrameworkCoreAssembly.GetType("Microsoft.EntityFrameworkCore.RelationalMetadataExtensions");
+            return relationalDatabaseFacadeExtensionsType;
+        }
+        
     }
 
     public class AppDbContextInfo
@@ -186,6 +204,10 @@ namespace Debug4MvcNetCore.Services
     {
         public string NavigationName;
         public string ClrTypeName;
+        public string Schema;
+        public string TableName;
+
+        public string SchemaAndTableName { get; internal set; }
     }
 
     public class AppDbContextSqlResults
@@ -216,16 +238,46 @@ namespace Debug4MvcNetCore.Services
         {
             if (obj == null)
                 return null;
-            int parametersCount = (methodParameters ?? new object[0]).Length;
-            return obj.GetType().GetMethods().FirstOrDefault(x => x.Name == methodName && x.GetParameters().Length == parametersCount).Invoke(obj, methodParameters);
+            MethodInfo method = FindMethod(obj.GetType(), methodName, methodParameters);
+            return method.Invoke(obj, methodParameters);
         }
 
         public static object InvokeStaticMethod(this Type type, string methodName, params object[] methodParameters)
         {
             if (type == null)
                 return null;
-            int parametersCount = (methodParameters ?? new object[0]).Length;
-            return type.GetMethods().FirstOrDefault(x => x.Name == methodName && x.GetParameters().Length == parametersCount).Invoke(null, methodParameters);
+            MethodInfo method = FindMethod(type, methodName, methodParameters);
+            return method.Invoke(null, methodParameters);
+        }
+
+        private static MethodInfo FindMethod(Type type, string methodName, object[] methodParameters)
+        {
+            MethodInfo method = null;
+            methodParameters = methodParameters ?? new object[0];
+            foreach (var typeMethod in type.GetMethods().Where(x => x.Name == methodName))
+            {
+                ParameterInfo[] typeMethodParameters = typeMethod.GetParameters();
+                if (methodParameters.Length != typeMethodParameters.Length)
+                    continue;
+
+                var allSame = true;
+                for (int i = 0; i < methodParameters.Length; i++)
+                {
+                    if (typeMethodParameters[i].ParameterType != methodParameters[i].GetType() &&
+                        typeMethodParameters[i].ParameterType.IsAssignableFrom(methodParameters[i].GetType()) == false)
+                    {
+                        allSame = false;
+                        break;
+                    }
+                }
+
+                if (allSame)
+                {
+                    method = typeMethod;
+                    break;
+                }
+            }
+            return method;
         }
     }
 }

@@ -1,24 +1,37 @@
 ﻿<h2>Logs</h2>
-@foreach (var log in Model.Logs)
-{
-    <div>
-        <span>[<span class="logs-status"><a href="/debug/Log?Id=@(log.Id)">@log.Created.ToString("yyyy-MM-ddTHH:mm:sszzz")</a></span>]</span>
-        <span>[<span class="class=" logs-level"">@log.LogLevel]</span></span>
-        <span><span class="logs-logger">[@log.LoggerName]</span></span>
-        <span>@(log.IdentityName != null ? "@" + log.IdentityName : "")</span>
-        <span class="logs-request">
-            #
-            @if (log.TraceIdentifier != null)
-            {
-                <a href="/debug/Request?TraceIdentifier=@(log.TraceIdentifier)">@log.RequestUrl</a>
-            }
-            else
-            {
-                @log.RequestUrl
-            }
-        </span>
-        <div>
-            <span>@log.Details</span>
-        </div>
-    </div>
-}
+<table>
+    @foreach (var log in Model.Logs)
+    {
+        <tr>
+            <td>
+                <div class="text-nowrap">
+                    <a href="/debug/Log?Id=@(log.Id)">
+                        <span>@log.Created.ToString("yyyy-MM-dd")</span><span class="text-muted">T</span><span>@log.Created.ToString("HH:mm:ss")</span><span class="text-muted">@log.Created.ToString("zzz")</span>
+                    </a>
+                </div>
+                <div>@(log.IdentityName != null ? "@" + log.IdentityName : "")</div>
+            </td>
+            <td>
+                <div class="@("text-" + log.LogLevel.ToString().ToLower())">@log.LogLevel</div>
+                <div class="text-muted small" title="@log.LoggerName">
+                    @log.LoggerName.Split('.').Last()
+                </div>
+            </td>
+            <td>
+                <pre>@log.Details</pre>
+            </td>
+            <td>
+                <div class="small">
+                    @if (log.TraceIdentifier != null)
+                    {
+                        <a href="/debug/Request?TraceIdentifier=@(log.TraceIdentifier)">@log.RequestUrl</a>
+                    }
+                    else
+                    {
+                        @log.RequestUrl
+                    }
+                    </div>
+            </td>
+        </tr>
+    }
+</table>

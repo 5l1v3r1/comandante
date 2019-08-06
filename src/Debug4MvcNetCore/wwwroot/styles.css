@@ -6,21 +6,52 @@
 body {
 }
 
+h2 {
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+h3 {
+    margin-top: 30px;
+}
+
+a {
+    text-decoration: none;
+}
+
+table td,
+table th {
+    padding: 3px;
+    padding-right: 5px;
+}
+
+table.form td:nth-child(1) {
+    color: #6c757d;
+}
+
 .nav-link,
 .nav-link.active {
     margin: 5px;
     margin-left: 20px;
     color: black;
+    text-decoration: underline;
 }
 
 .nav-brand,
 .nav-brand.active {
-    text-align:left;
-    text-decoration:none;
+    text-align: left;
+    text-decoration: none;
 }
 
-table tr th {
+table tr th,
+table tr td {
     text-align:left;
+    vertical-align: top;
+}
+
+pre {
+    margin: 0px;
+    white-space: pre-wrap;
 }
 
 fieldset {
@@ -39,71 +70,50 @@ fieldset legend label{
     font-size: 1rem;
 }
 
-/*.requests-datetime {
-}
-.requests-status {
-    vertical-align: top;
+.text-nowrap {
+    word-break: keep-all;
     white-space: nowrap;
-    display: inline-block;
-    overflow: hidden;
-    width: 100px;
-}*/
-
-/*.requests-path {
 }
 
-.logs-datetime {
+.text-muted {
+    color:#6c757d;
 }
 
-.logs-level {
-}
-
-.logs-logger {
-    color: #6c757d !important;
-}
-
-.logs-request,
-.logs-request a {
-    color: #6c757d !important;
-}*/
-
-/*.form-control,
-.form-control[readonly],
-.form-control[readonly] a,
-.form-control[readonly] a:active,
-.form-control[readonly] a:focus,
-.form-control[readonly] a:hover,
-.form-control:focus,
-.form-control:active {
-    background-color: rgb(177,191,194);
-    border: none;
-    color: black;
-    font-size: 16px;
-}*/
-
-/*.table {
-    border-collapse: separate;
-    border-spacing: 0px 5px;
-    margin-bottom: 0px;
-}
-
-.table tbody tr td {
-    background-color: rgb(69,78,83);
-    margin-bottom: 5px;
-    padding: 12px;
-    border: none;
-}
-
-.table thead tr th,
-.table thead tr td{
-    height: auto;
-    padding: 0px;
-    padding-left: 12px;
-    border: none;
+.small {
     font-size: 12px;
-    font-weight: 300;
 }
 
-.table tbody tr td a {
-    color: white;
-}*/
+.text-danger,
+.text-error,
+.text-critical {
+    color: #dc3545 !important;
+}
+
+.text-warning {
+    color: #ffc107 !important;
+}
+
+.text-info,
+.text-information {
+    color: #17a2b8 !important;
+}
+
+.mt-1 { 
+    margin-top: 10px;
+}
+
+.mt-2 {
+    margin-top: 20px;
+}
+
+.mt-3 {
+    margin-top: 30px;
+}
+
+.mt-4 {
+    margin-top: 40px;
+}
+
+.mt-5 {
+    margin-top: 50px;
+}

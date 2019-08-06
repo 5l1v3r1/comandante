@@ -64,6 +64,7 @@ namespace Debug4MvcNetCore.TestsWeb
                 using (Debug4MvcNetCoreTestsWebContext dbContext = scope.ServiceProvider.GetService<Debug4MvcNetCoreTestsWebContext>())
                 {
                     dbContext.Database.Migrate();
+                    
                 }
             }
 

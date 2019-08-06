@@ -26,6 +26,18 @@ namespace Debug4MvcNetCore
             get { return _requestsActive.ToArray().Select(x => x.Key); }
         }
 
+        public IEnumerable<RequestResponseInfo> AllRequests
+        {
+            get
+            {
+                return
+                  RequestsActive
+                  .Union(RequestsEnded)
+                  .OrderByDescending(x => x.Created)
+                  .ToList();
+            }
+        }
+
         private static ConcurrentQueue<LogEntry> _webHostlogs = new ConcurrentQueue<LogEntry>();
         public IEnumerable<LogEntry> WebHostlogs
         {
@@ -40,7 +52,7 @@ namespace Debug4MvcNetCore
                   WebHostlogs
                   .Union(RequestsActive.SelectMany(x => x.Logs.ToArray().Where(y => y != null)))
                   .Union(RequestsEnded.SelectMany(x => x.Logs.ToArray().Where(y => y != null)))
-                  .OrderBy(x => x.Created)
+                  .OrderByDescending(x => x.Created)
                   .ToList();
             }
         }
@@ -297,6 +309,7 @@ namespace Debug4MvcNetCore
         public CultureDebugInfo CurrentCulture = new CultureDebugInfo();
         public CultureDebugInfo CurrentUICulture = new CultureDebugInfo();
         public DateTime Created;
+        public DateTime Completed;
         public List<LogEntry> Logs = new List<LogEntry>();
 
         public bool IsError
@@ -314,7 +327,10 @@ namespace Debug4MvcNetCore
             get { return Logs.Count > 0 ? Logs.Max(x => x.LogLevel) : LogLevel.None; }
         }
 
-        public DateTime Completed { get; internal set; }
+        public string MaxLogDetails
+        {
+            get { return Logs.Where(x => x.LogLevel >= LogLevel.Warning).OrderByDescending(x => x.Created).FirstOrDefault()?.Details; }
+        }
     }
 
     public class LogEntry

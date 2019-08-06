@@ -1,57 +1,81 @@
 ﻿<h2>Request</h2>
-<table class="table-sm">
-    <tr>
-        <td>TraceIdentifier</td>
-        <td>@Model?.TraceIdentifier</td>
-    </tr>
-    <tr>
-        <td>Log</td>
-        <td>@Model?.Request?.DateTime?.NowUtc</td>
-    </tr>
-    <tr>
-        <td>Path</td>
-        <td>@Model?.Request?.Request?.Method @Model?.Request?.Request?.Path</td>
-    </tr>
-    <tr>
-        <td>StatusCode</td>
-        <td>@Model?.Request?.Response.StatusCode</td>
-    </tr>
-    <tr>
-        <td>MaxLogLevel</td>
-        <td>@Model?.Request?.MaxLogLevel</td>
-    </tr>
-</table>
-
-@if (Model.Request?.Logs != null)
+@if (Model?.Request != null)
 {
-<div class="row">
-    <div class="col-md-12">
-        <h5 class="mt-5">Logs</h5>
-        <table class="table-sm">
-            <thead class="small">
-                <tr>
-                    <th>Log</th>
-                    <th>LogLevel</th>
-                    <th>Details</th>
-                    <th>IdentityName</th>
-                    <th>LoggerName</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var log in Model.Request.Logs)
+    <table class="form">
+        <tr>
+            <td>TraceIdentifier</td>
+            <td>@Model?.TraceIdentifier</td>
+        </tr>
+        <tr>
+            <td>Created</td>
+            <td>
+                @if (Model.Request?.Created != null)
                 {
-                <tr>
-                    <td class="text-nowrap"><a href="/debug/Log?Id=@(log.Id)">@log.Created.ToString("yyyy-MM-ddTHH:mm:sszzz")</a></td>
-                    <td class="text-nowrap">@log.LogLevel</td>
-                    <td>@log.Details</td>
-                    <td>@log.IdentityName</td>
-                    <td>@log.LoggerName</td>
-                </tr>
+                    <span>@Model.Request?.Created.ToString("yyyy-MM-dd")</span><span class="text-muted">T</span><span>@Model.Request?.Created.ToString("HH:mm:ss")</span><span class="text-muted">@Model.Request?.Created.ToString("zzz")</span>
                 }
-            </tbody>
-        </table>
-    </div>
-</div>
+            </td>
+        </tr>
+        <tr>
+            <td>Completed</td>
+            <td>
+                @if (Model.Request?.Completed != null)
+                {
+                    <span>@Model.Request?.Completed.ToString("yyyy-MM-dd")</span><span class="text-muted">T</span><span>@Model.Request?.Completed.ToString("HH:mm:ss")</span><span class="text-muted">@Model.Request?.Completed.ToString("zzz")</span>
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>Path</td>
+            <td>@Model?.Request?.Request?.Method @Model?.Request?.Request?.Path</td>
+        </tr>
+        <tr>
+            <td>StatusCode</td>
+            <td>@Model?.Request?.Response.StatusCode</td>
+        </tr>
+        <tr>
+            <td>MaxLogLevel</td>
+            <td>@Model?.Request?.MaxLogLevel</td>
+        </tr>
+    </table>
+}
+else
+{
+    <div class="text-muted">Request not found.</div>
+}
+
+<h3>Logs</h3>
+@if (Model.Request?.Logs != null && Model.Request.Logs.Count > 0)
+{
+    <table>
+        <tbody>
+            @foreach (var log in Model.Request.Logs)
+            {
+                <tr>
+                    <td>
+                        <div class="text-nowrap">
+                            <a href="/debug/Log?Id=@(log.Id)">
+                                <span>@log.Created.ToString("yyyy-MM-dd")</span><span class="text-muted">T</span><span>@log.Created.ToString("HH:mm:ss")</span><span class="text-muted">@log.Created.ToString("zzz")</span>
+                            </a>
+                        </div>
+                        <div>@(log.IdentityName != null ? "@" + log.IdentityName : "")</div>
+                    </td>
+                    <td>
+                        <div class="@("text-" + log.LogLevel.ToString().ToLower())">@log.LogLevel</div>
+                        <div class="text-muted small" title="@log.LoggerName">
+                            @log.LoggerName.Split('.').Last()
+                        </div>
+                    </td>
+                    <td>
+                        <pre>@log.Details</pre>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="text-muted">No logs found.</div>
 }
 
 @if (Model.Request != null)

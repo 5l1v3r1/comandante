@@ -1,4 +1,5 @@
 ﻿@using System;
+@using System.Linq;
 @using  Debug4MvcNetCore;
 @using  Debug4MvcNetCore.Services;
 <!DOCTYPE html>
@@ -15,12 +16,12 @@
             &nbsp;&nbsp;&nbsp;debug<br />
             4 mvc net core
         </a>
-            <a class="nav-link @(ViewName == "Index" ? "active" : "")" href="/debug">Home</a>
-            <a class="nav-link @(ViewName == "Logs" || ViewName == "Log" ? "active" : "")" href="/debug/Logs">Logs</a>
-            <a class="nav-link @(ViewName == "Requests" || ViewName == "Request" ? "active" : "")" href="/debug/Requests">Requests</a>
-            <a class="nav-link @(ViewName == "Hosting" ? "active" : "")" href="/debug/Hosting">Hosting</a>
-            <a class="nav-link @(ViewName == "Routing" ? "active" : "")" href="/debug/Routing">Routing</a>
-            <a class="nav-link @(ViewName == "EntityFrameworkCore" ? "active" : "")" href="/debug/EntityFrameworkCore">EntityFrameworkCore</a>
+        <a class="nav-link @(ViewName == "Index" ? "active" : "")" href="/debug">Home</a>
+        <a class="nav-link @(ViewName == "Logs" || ViewName == "Log" ? "active" : "")" href="/debug/Logs">Logs</a>
+        <a class="nav-link @(ViewName == "Requests" || ViewName == "Request" ? "active" : "")" href="/debug/Requests">Requests</a>
+        <a class="nav-link @(ViewName == "Hosting" ? "active" : "")" href="/debug/Hosting">Hosting</a>
+        <a class="nav-link @(ViewName == "Routing" ? "active" : "")" href="/debug/Routing">Routing</a>
+        <a class="nav-link @(ViewName == "EntityFrameworkCore" ? "active" : "")" href="/debug/EntityFrameworkCore">EntityFrameworkCore</a>
     </div>
     <div class="container">
         <main role="main" class="pb-3">

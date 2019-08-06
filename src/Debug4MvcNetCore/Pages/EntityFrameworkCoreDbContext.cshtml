@@ -1,0 +1,78 @@
+﻿<h2>Entity Framework Core - Details</h2>
+
+<table class="form">
+    <tr>
+        <td>AppDbContext</td>
+        <td>@Model.AppDbContext?.Name</td>
+    </tr>
+    <tr>
+        <td>ProviderName</td>
+        <td>@Model.AppDbContext?.ProviderName</td>
+    </tr>
+</table>
+
+@if (Model.AppDbContext != null)
+{
+    <h3>Entities</h3>
+    <table>
+        <thead class="small">
+            <tr>
+                <th>DbTable</th>
+                <th>ClrType</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var entity in Model.AppDbContext.Entities)
+            {
+                <tr>
+                    <td>@(entity.SchemaAndTableName)</td>
+                    <td>@entity.ClrTypeName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (Model.AppDbContext.Entities.Count == 0)
+    {
+        <div class="text-muted">No Entities found.</div>
+    }
+}
+
+
+@if (Model.AppDbContext != null)
+{
+    <h3>Pending Migrations</h3>
+    @foreach (var migration in Model.AppDbContext.PendingMigrations)
+    {
+        @migration <br />
+    }
+    @if (Model.AppDbContext.PendingMigrations.Count == 0)
+    {
+        <div class="text-muted">No PendingMigrations found.</div>
+    }
+}
+
+@if (Model.AppDbContext != null)
+{
+    <h3>Applied Migrations</h3>
+    @foreach (var migration in Model.AppDbContext.AppliedMigrations)
+    {
+        @migration <br />
+    }
+    @if (Model.AppDbContext.AppliedMigrations.Count == 0)
+    {
+        <div class="text-muted">No AppliedMigrations found.</div>
+    }
+}
+
+@if (Model.AppDbContext != null)
+{
+    <h3>Migrations</h3>
+    @foreach (var migration in Model.AppDbContext.Migrations)
+    {
+        @migration <br />
+    }
+    @if (Model.AppDbContext.Migrations.Count == 0)
+    {
+        <div class="text-muted">No Migrations found.</div>
+    }
+}

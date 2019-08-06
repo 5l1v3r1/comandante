@@ -17,7 +17,7 @@ namespace Debug4MvcNetCore.Pages
         public override async Task<EmbededViewResult> InitView()
         {
             Model = new RequestsModel();
-            Model.Requests = _requestsService.RequestsEnded;
+            Model.Requests = _requestsService.AllRequests;
             return await View();
         }
     }
