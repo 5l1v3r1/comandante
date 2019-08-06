@@ -1,19 +1,13 @@
 ﻿<h2>Entity Framework Core - Run Sql</h2>
-<table class="form">
-    <tr>
-        <td>AppDbContext</td>
-        <td>@Model.AppDbContext</td>
-    </tr>
-</table>
 <script>
     window.onload = function () {
-        var sql = new URL(document.location).searchParams.get("sql");
+        var sql = new URL(document.location).searchParams.get("Sql");
         document.getElementById("sql").value = sql;
     }
     function sql_onchange(value) {
         if (history.pushState) {
             var url = new URL(document.location);
-            url.searchParams.set("sql", value);
+            url.searchParams.set("Sql", value);
             window.history.replaceState({ path: String(url) }, '', String(url));
         }
     }
@@ -22,6 +16,8 @@
         document.getElementById("sql_affectedRecords").innerHTML = null;
         document.getElementById("sql_results").innerHTML = null;
         var sql = document.getElementById("sql").value
+        var appDbContextSelect = document.getElementById("appDbContext");
+        var appDbContext = appDbContextSelect.options[appDbContextSelect.selectedIndex].value;
 
         xhr = new XMLHttpRequest();
         xhr.open('POST', window.location.href);
@@ -58,11 +54,26 @@
                 getElementById("sql_error").innerHTML = "Request failed.  Returned status of " + xhr.status;
             }
         };
-        xhr.send(encodeURI('sql=' + sql));
+        xhr.send(encodeURI('Sql=' + sql) + "&"+ encodeURI('AppDbContext=' + appDbContext));
     }
 </script>
 
 <form onsubmit="event.preventDefault(); sql_run(); return true;">
+    <div>
+        <table class="form">
+            <tr>
+                <td>AppDbContext</td>
+                <td>
+                    <select id="appDbContext">
+                        @foreach (var dbContext in Model.AppDbContexts)
+                        {
+                        <option value="@dbContext.Name">@dbContext.Name</option>
+                        }
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </div>
     <div class="mt-5">
         <label for="sql" class="text-muted">Sql</label><br />
         <textarea id="sql" rows="12" style="width: 100%;" onchange="sql_onchange(value)"></textarea>

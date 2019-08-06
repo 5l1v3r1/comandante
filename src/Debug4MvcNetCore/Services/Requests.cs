@@ -345,6 +345,7 @@ namespace Debug4MvcNetCore
         public DateTime Created;
         public string Exception;
         public string RequestUrl;
+        public bool IsEFExecutedDbCommand => LoggerName == "Microsoft.EntityFrameworkCore.Database.Command" && Details != null && Details.StartsWith("Executed DbCommand ");
     }
 
     public class RequestInfo

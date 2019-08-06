@@ -19,6 +19,10 @@
             </td>
             <td>
                 <pre>@log.Details</pre>
+                @if (log.IsEFExecutedDbCommand)
+                {
+                    <a class="small visited" href="/debug/EntityFrameworkCoreRunSql?EFExecutedDbCommand=@System.Net.WebUtility.UrlEncode(log.Details)">Run SQL</a>
+                }
             </td>
             <td>
                 <div class="small">

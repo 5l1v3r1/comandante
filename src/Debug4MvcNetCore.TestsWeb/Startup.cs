@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -61,6 +62,11 @@ namespace Debug4MvcNetCore.TestsWeb
 
             using (var scope = serviceProvider.CreateScope())
             {
+                //var efOptions = (Microsoft.EntityFrameworkCore.Internal.LoggingOptions)scope.ServiceProvider.GetService(typeof(Microsoft.EntityFrameworkCore.Diagnostics.ILoggingOptions));
+                //efOptions.IsSensitiveDataLoggingEnabled = true;
+                //efOptions.GetType().GetProperty("IsSensitiveDataLoggingEnabled").SetValue(efOptions, true);
+
+                //EntityFrameworkServicesBuilder.
                 using (Debug4MvcNetCoreTestsWebContext dbContext = scope.ServiceProvider.GetService<Debug4MvcNetCoreTestsWebContext>())
                 {
                     dbContext.Database.Migrate();

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Debug4MvcNetCore.Pages;
 using Debug4MvcNetCore.PagesRenderer;
@@ -13,12 +15,21 @@ namespace Debug4MvcNetCore.Pages
 {
     public class EntityFrameworkCoreRunSql : EmbeddedViewModel
     {
+        private EntityFrameworkCoreService _entityFrameworkCoreService = new EntityFrameworkCoreService();
         public EntityFrameworkCoreRunSqlModel Model { get; set; }
 
         public override async Task<EmbededViewResult> InitView()
         {
             Model = new EntityFrameworkCoreRunSqlModel();
-            
+            Model.AppDbContexts = _entityFrameworkCoreService.GetAppDbContexts(this.HttpContext);
+
+            if (this.HttpContext.Request.Query.ContainsKey("EFExecutedDbCommand"))
+            {
+                var efExecutedDbCommand = this.HttpContext.Request.Query["EFExecutedDbCommand"].ToString().Trim();
+                var decodedSql = _entityFrameworkCoreService.DecodeSqlFromLogEntry(efExecutedDbCommand);
+                return new EmbededViewRedirectResult("/debug/EntityFrameworkCoreRunSql?Sql=" + WebUtility.UrlEncode(decodedSql));
+            }
+
             string appDbContext = null;
             if (this.HttpContext.Request.Query.ContainsKey("AppDbContext"))
                 appDbContext = this.HttpContext.Request.Query["AppDbContext"].ToString().Trim();
@@ -29,6 +40,8 @@ namespace Debug4MvcNetCore.Pages
                 try
                 {
                     string sql = this.HttpContext.Request.Form["Sql"];
+                    appDbContext = this.HttpContext.Request.Form["AppDbContext"];
+                    
                     var results = new EntityFrameworkCoreService().RunSql(sql, appDbContext, this.HttpContext);
                     return await Json(JsonConvert.SerializeObject(results));
                 } catch(Exception ex)
@@ -45,6 +58,7 @@ namespace Debug4MvcNetCore.Pages
     public class EntityFrameworkCoreRunSqlModel
     {
         public string AppDbContext;
+        public List<AppDbContextInfo> AppDbContexts = new List<AppDbContextInfo>();
     }
 
 }

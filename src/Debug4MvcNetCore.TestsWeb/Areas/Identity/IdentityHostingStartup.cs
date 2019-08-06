@@ -19,9 +19,14 @@ namespace Debug4MvcNetCore.TestsWeb.Areas.Identity
         {
             builder.ConfigureServices((context, services) => {
                 services.AddDbContext<Debug4MvcNetCoreTestsWebContext>(options =>
+            {
                 
-                    options.UseSqlite(
-                        context.Configuration.GetConnectionString("Debug4MvcNetCoreTestsWebContextConnection")));
+                options.UseSqlite(
+                    context.Configuration.GetConnectionString("Debug4MvcNetCoreTestsWebContextConnection"));
+                options.EnableSensitiveDataLogging();
+
+              }          
+            );
 
                 
 
@@ -29,9 +34,8 @@ namespace Debug4MvcNetCore.TestsWeb.Areas.Identity
                     .AddEntityFrameworkStores<Debug4MvcNetCoreTestsWebContext>();
             });
 
-            IServiceCollection
 
-
+            
 
             //DbConnection dbConnection = new Debug4MvcNetCoreTestsWebContext().Database.GetDbConnection();
             //dbConnection.Open();
@@ -47,14 +51,14 @@ namespace Debug4MvcNetCore.TestsWeb.Areas.Identity
             //    }
             //}
 
-           // var e = new Debug4MvcNetCoreTestsWebContext().Model.GetEntityTypes().ToLIst();
+            // var e = new Debug4MvcNetCoreTestsWebContext().Model.GetEntityTypes().ToLIst();
             //Database.ProviderName
             //IEntityType a;
             //a.Relational();
             //a.Relational
             //IRelationalEntityTypeAnnotations b;
-            
-            
+
+
             //a.navi
             //a.Name;
             //a.ClrType.ToString();

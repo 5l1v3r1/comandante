@@ -163,6 +163,8 @@ namespace Debug4MvcNetCore.PagesRenderer
                 httpContext.Response.ContentType = "application/json";
                 await httpContext.Response.WriteAsync(((EmbededViewJsonResult)result).Json);
             }
+            if (httpContext.Response.StatusCode == 200 && result is EmbededViewRedirectResult)
+                httpContext.Response.Redirect(((EmbededViewRedirectResult)result).Url);
         }
 
         private static MetadataReference GetMetadataReference(Type type) =>

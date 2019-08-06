@@ -12,14 +12,20 @@ namespace Debug4MvcNetCore.TestsWeb.Controllers
     public class HomeController : Controller
     {
         public ILogger<HomeController> Logger { get; }
+        public Debug4MvcNetCoreTestsWebContext DbContext { get; }
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, Debug4MvcNetCoreTestsWebContext dbContext)
         {
             Logger = logger;
+            DbContext = dbContext;
         }
 
         public IActionResult Index()
         {
+            string name = "John";
+            bool isEnabled = true;
+            DbContext.Users.Where(x => x.UserName == name && x.LockoutEnabled == isEnabled).ToList();
+            DbContext.Users.Count();
             Logger.LogWarning("Index: test warning");
             return View();
         }

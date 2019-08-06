@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using System.Threading;
 using Debug4MvcNetCore.PagesRenderer;
+using Debug4MvcNetCore.Services;
 
 namespace Debug4MvcNetCore
 {
@@ -121,6 +122,8 @@ namespace Debug4MvcNetCore
             }
             var loggerFactory = (ILoggerFactory)builder.ApplicationServices.GetService(typeof(ILoggerFactory));
             loggerFactory.AddProvider(new Debug4MvcNetCoreLoggerProvider());
+
+            new EntityFrameworkCoreService().EnableSensitiveDataLogging(builder.ApplicationServices);
 
             return builder.UseMiddleware<Debug4MvcNetCoreLoggerMiddleware>();
         }

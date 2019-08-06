@@ -136,4 +136,14 @@ namespace Debug4MvcNetCore.PagesRenderer
             Json = json;
         }
     }
+
+    public class EmbededViewRedirectResult : EmbededViewResult
+    {
+        public string Url { get; }
+
+        public EmbededViewRedirectResult(string url)
+        {
+            Url = url;
+        }
+    }
 }
