@@ -34,22 +34,57 @@ public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider,
 ```
 Run the app and navigate to http://localhost/debug
 
+&nbsp;
+
+&nbsp;
+
 ## Track requests details
-* List all requests with status and max log level
+
+&nbsp;
+
+&nbsp;
+
+### List all requests with status and max log level
 ![Debug4Mvc Requests](Debug4Mvc_Requests.PNG)
 
-* Show request details, including all logs.
+&nbsp;
+
+&nbsp;
+
+###  Show request details, including all logs.
+
 ![Debug4Mvc Request](Debug4Mvc_Request.PNG)
 
-* Show log details
+&nbsp;
+
+&nbsp;
+
+###  Show log details
 ![Debug4Mvc Log](Debug4Mvc_Log.PNG)
 
+&nbsp;
+
+&nbsp;
+
 ## Display EntityFramework Core context details
-* Show migrations, tables and models
+
+&nbsp;
+
+&nbsp;
+
+### Show migrations, tables and models
 ![Debug4Mvc Routing](Debug4Mvc_EntityFrameworkCore.PNG)
-* Let you run SQL on context
+
+&nbsp;
+
+&nbsp;
+
+### Let you run SQL on context
 ![Debug4Mvc Routing](Debug4Mvc_EntityFrameworkCore_RunSql.PNG)
 
+&nbsp;
+
+&nbsp;
 
 ## Display routing information
 ![Debug4Mvc Routing](Debug4Mvc_Routing.PNG)
