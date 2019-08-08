@@ -33,7 +33,7 @@ namespace Debug4MvcNetCore
                 return
                   RequestsActive
                   .Union(RequestsEnded)
-                  .OrderByDescending(x => x.Created)
+                  .OrderByDescending(x => x.Started)
                   .ToList();
             }
         }
@@ -111,7 +111,7 @@ namespace Debug4MvcNetCore
                         _cleanUpRequestsMonitorLocked = true;
                         if (_requestsEnded.Count > ConfigurationInfo.MaxNumberOfRequestsLogs)
                         {
-                            foreach (var request in _requestsEnded.OrderByDescending(x => x.Key.Created).Skip(ConfigurationInfo.MaxNumberOfRequestsLogs))
+                            foreach (var request in _requestsEnded.OrderByDescending(x => x.Key.Started).Skip(ConfigurationInfo.MaxNumberOfRequestsLogs))
                                 _requestsEnded.TryRemove(request.Key, out RequestResponseInfo removingItem);
                         }
                     }
@@ -201,7 +201,7 @@ namespace Debug4MvcNetCore
             RequestResponseInfo requestResponseInfo = new RequestResponseInfo();
             requestResponseInfo.Request = CreateRequestInfo(httpContext);
             requestResponseInfo.Response = CreateResponseInfo(httpContext);
-            requestResponseInfo.Created = now;
+            requestResponseInfo.Started = now;
             requestResponseInfo.TraceIdentifier = httpContext.TraceIdentifier;
             requestResponseInfo.DateTime.Now = now.ToString("yyyy-MM-ddTHH:mm:sszzz");
             requestResponseInfo.DateTime.NowUtc = nowUtc.ToString("yyyy-MM-ddTHH:mm:sszzz");
@@ -308,8 +308,10 @@ namespace Debug4MvcNetCore
         public TimeZoneDebugInfo UtcTimeZone = new TimeZoneDebugInfo();
         public CultureDebugInfo CurrentCulture = new CultureDebugInfo();
         public CultureDebugInfo CurrentUICulture = new CultureDebugInfo();
-        public DateTime Created;
+        public DateTime Started;
         public DateTime Completed;
+        public TimeSpan ExecutionTime => Completed != default(DateTime) ? (Completed.ToUniversalTime() - Started.ToUniversalTime()) : (System.DateTime.UtcNow - Started.ToUniversalTime());
+        
         public List<LogEntry> Logs = new List<LogEntry>();
 
         public bool IsError

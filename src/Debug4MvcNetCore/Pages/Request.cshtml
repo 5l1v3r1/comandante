@@ -1,42 +1,40 @@
 ﻿<h2>Request</h2>
 @if (Model?.Request != null)
 {
-    <table class="form">
-        <tr>
-            <td>TraceIdentifier</td>
-            <td>@Model?.TraceIdentifier</td>
-        </tr>
-        <tr>
-            <td>Created</td>
-            <td>
-                @if (Model.Request?.Created != null)
-                {
-                    <span>@Model.Request?.Created.ToString("yyyy-MM-dd")</span><span class="text-muted">T</span><span>@Model.Request?.Created.ToString("HH:mm:ss")</span><span class="text-muted">@Model.Request?.Created.ToString("zzz")</span>
-                }
-            </td>
-        </tr>
-        <tr>
-            <td>Completed</td>
-            <td>
-                @if (Model.Request?.Completed != null)
-                {
-                    <span>@Model.Request?.Completed.ToString("yyyy-MM-dd")</span><span class="text-muted">T</span><span>@Model.Request?.Completed.ToString("HH:mm:ss")</span><span class="text-muted">@Model.Request?.Completed.ToString("zzz")</span>
-                }
-            </td>
-        </tr>
-        <tr>
-            <td>Path</td>
-            <td>@Model?.Request?.Request?.Method @Model?.Request?.Request?.Path</td>
-        </tr>
-        <tr>
-            <td>StatusCode</td>
-            <td>@Model?.Request?.Response.StatusCode</td>
-        </tr>
-        <tr>
-            <td>MaxLogLevel</td>
-            <td>@Model?.Request?.MaxLogLevel</td>
-        </tr>
-    </table>
+<table class="form">
+    <tr>
+        <td>Path</td>
+        <td>@Model?.Request?.Request?.Method @Model?.Request?.Request?.Path</td>
+    </tr>
+    <tr>
+        <td>Started</td>
+        <td>
+            @if (Model.Request?.Started != null)
+            {
+                <span>@Model.Request?.Started.ToString("yyyy-MM-dd")</span><span class="text-muted">T</span><span>@Model.Request?.Started.ToString("HH:mm:ss")</span><span class="text-muted">@Model.Request?.Started.ToString("zzz")</span>
+            }
+        </td>
+    </tr>
+    <tr>
+        <td>ExecutionTime</td>
+        <td>
+            @Model.Request?.ExecutionTime.ToHumanString()
+        </td>
+    </tr>
+
+    <tr>
+        <td>StatusCode</td>
+        <td><div class="@((Model?.Request != null && Model.Request.IsError) ? "text-error" : "")">@Model?.Request?.Response.StatusCode</div></td>
+    </tr>
+    <tr>
+        <td>MaxLogLevel</td>
+        <td><div class="@("text-" + Model?.Request?.MaxLogLevel.ToString().ToLower())">@Model?.Request?.MaxLogLevel</div></td>
+    </tr>
+    <tr>
+        <td>TraceIdentifier</td>
+        <td>@Model?.TraceIdentifier</td>
+    </tr>
+</table>
 }
 else
 {
