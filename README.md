@@ -5,6 +5,9 @@ ASP Mvc .Net Core debugging tool.
 * Logs all messages
 * Displays server information
 * Display routing information
+* Display hosting information
+* Display EntityFramework context details
+* Run SQL queryies on EntityFramework context
 
 
 ## Instalation
@@ -31,17 +34,23 @@ public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider,
 ```
 Run the app and navigate to http://localhost/debug
 
-## Screenshots
-![Debug4Mvc Home](Debug4Mvc_Home.PNG)
-
-![Debug4Mvc Logs](Debug4Mvc_Logs.PNG)
-
-![Debug4Mvc Log](Debug4Mvc_Log.PNG)
-
+## Track requests details
+* List all requests with status and max log level
 ![Debug4Mvc Requests](Debug4Mvc_Requests.PNG)
 
+* Show request details, including all logs.
 ![Debug4Mvc Request](Debug4Mvc_Request.PNG)
 
-![Debug4Mvc Hosting](Debug4Mvc_Hosting.PNG)
+* Show log details
+![Debug4Mvc Log](Debug4Mvc_Log.PNG)
 
+
+## Display routing information
 ![Debug4Mvc Routing](Debug4Mvc_Routing.PNG)
+
+## Display EntityFramework Core context details
+* Show migrations, tables and models
+![Debug4Mvc Routing](Debug4Mvc_EntityFrameworkCore.PNG)
+* Let you run SQL on context
+![Debug4Mvc Routing](Debug4Mvc_EntityFrameworkCore_RunSql.PNG)
+
