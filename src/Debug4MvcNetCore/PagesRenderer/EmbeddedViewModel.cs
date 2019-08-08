@@ -96,9 +96,10 @@ namespace Debug4MvcNetCore.PagesRenderer
             return "";
         }
 
-        public async Task RenderPartialView(string viewName, object model)
+        public object RenderPartialView(string viewName, object model)
         {
-            await new EmbeddedViewRenderer().RenderView(viewName, this.HttpContext, model);
+            new EmbeddedViewRenderer().RenderView(viewName, this.HttpContext, model).Wait();
+            return null;
         }
 
         public async virtual Task ExecuteAsync()

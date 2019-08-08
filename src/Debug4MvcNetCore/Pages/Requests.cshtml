@@ -9,7 +9,7 @@
                     <span>@request.Started.ToString("yyyy-MM-dd")</span><span class="text-muted">T</span><span>@request.Started.ToString("HH:mm:ss")</span><span class="text-muted">@request.Started.ToString("zzz")</span>
                 </a>
             </div>
-            <div>@(request.Identity?.Name != null ? "@" + request.Identity?.Name : "")</div>
+            <div>@(request.IdentityName != null ? "@" + request.IdentityName : "")</div>
         </td>
         <td>
             <div>

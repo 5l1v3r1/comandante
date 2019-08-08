@@ -23,6 +23,7 @@
     <None Remove="Pages\Routing.cshtml" />
     <None Remove="Pages\_Layout.cshtml" />
     <None Remove="Pages\_Request.cshtml" />
+    <None Remove="Pages\_RequestDetails.cshtml" />
     <None Remove="wwwroot\bootstrap.min.css" />
     <None Remove="wwwroot\bootstrap.min.js" />
     <None Remove="wwwroot\jquery.min.js" />
@@ -34,6 +35,7 @@
     <EmbeddedResource Include="Pages\EntityFrameworkCoreRunSql.cshtml" />
     <EmbeddedResource Include="Pages\Log.cshtml" />
     <EmbeddedResource Include="Pages\Routing.cshtml" />
+    <EmbeddedResource Include="Pages\_RequestDetails.cshtml" />
     <EmbeddedResource Include="Pages\_Request.cshtml" />
     <EmbeddedResource Include="Pages\Request.cshtml" />
     <EmbeddedResource Include="Pages\Requests.cshtml" />

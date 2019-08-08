@@ -1,35 +1,46 @@
-﻿
+﻿@using System;
+@using System.Linq;
+@using  Debug4MvcNetCore;
+@using  Debug4MvcNetCore.Services;
+
 <h3>Request</h3>
-<table class="form">
-    <tr>
-        <td>TraceIdentifier</td>
-        <td>@Model?.TraceIdentifier</td>
-    </tr>
-    <tr>
-        <td>Host</td>
-        <td>@Model?.Request?.Host</td>
-    </tr>
-    <tr>
-        <td>Method</td>
-        <td>@Model?.Request?.Method</td>
-    </tr>
-    <tr>
-        <td>Scheme</td>
-        <td>@Model?.Request?.Scheme</td>
-    </tr>
-    <tr>
-        <td>Protocol</td>
-        <td>@Model?.Request?.Protocol</td>
-    </tr>
-    <tr>
-        <td>Path</td>
-        <td>@Model?.Request?.Path</td>
-    </tr>
-    <tr>
-        <td>PathBase</td>
-        <td>@Model?.Request?.PathBase</td>
-    </tr>
-</table>
+@RenderPartialView("_RequestDetails", Model)
+
+<h3>Request.QueryString</h3>
+@if (string.IsNullOrEmpty(Model?.Request.QueryString) == false)
+{
+    @Model?.Request.QueryString
+}
+else
+{
+    <div class="small">No query string in the request exist</div>
+}
+
+<h3>Request.Form</h3>
+@if (Model?.Request?.Form != null && Model?.Request?.Form.Count > 0)
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var formItem in @Model.Request.Form)
+            {
+                <tr>
+                    <td class="text-nowrap">@formItem.Key</td>
+                    <td>@System.String.Join(", ", formItem.Value)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="small">No form in the request exist</div>
+}
 
 <h3>Request.Headers</h3>
 <table>
@@ -71,32 +82,6 @@
                     <td class="text-nowrap">@cookie.Key</td>
                     <td>@cookie.Value</td>
                 </tr>
-            }
-        }
-    </tbody>
-</table>
-
-<h3>Request.QueryString</h3>
-@Model?.Request.QueryString
-
-<h3>Request.Form</h3>
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Value</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model?.Request?.Form != null)
-        {
-            foreach (var formItem in @Model.Request.Form)
-            {
-                <tr>
-                    <td class="text-nowrap">@formItem.Key</td>
-                    <td>@System.String.Join(", ", formItem.Value)</td>
-                </tr>
-
             }
         }
     </tbody>

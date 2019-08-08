@@ -311,7 +311,7 @@ namespace Debug4MvcNetCore
         public DateTime Started;
         public DateTime Completed;
         public TimeSpan ExecutionTime => Completed != default(DateTime) ? (Completed.ToUniversalTime() - Started.ToUniversalTime()) : (System.DateTime.UtcNow - Started.ToUniversalTime());
-        
+        public string IdentityName => string.IsNullOrEmpty(Identity?.Name) == false ? Identity?.Name : Logs.FirstOrDefault(x => string.IsNullOrEmpty(x.IdentityName))?.IdentityName;
         public List<LogEntry> Logs = new List<LogEntry>();
 
         public bool IsError
