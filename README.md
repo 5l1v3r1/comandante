@@ -44,13 +44,13 @@ Run the app and navigate to http://localhost/debug
 * Show log details
 ![Debug4Mvc Log](Debug4Mvc_Log.PNG)
 
-
-## Display routing information
-![Debug4Mvc Routing](Debug4Mvc_Routing.PNG)
-
 ## Display EntityFramework Core context details
 * Show migrations, tables and models
 ![Debug4Mvc Routing](Debug4Mvc_EntityFrameworkCore.PNG)
 * Let you run SQL on context
 ![Debug4Mvc Routing](Debug4Mvc_EntityFrameworkCore_RunSql.PNG)
+
+
+## Display routing information
+![Debug4Mvc Routing](Debug4Mvc_Routing.PNG)
 

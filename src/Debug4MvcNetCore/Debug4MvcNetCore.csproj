@@ -5,6 +5,9 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/golabek-io/Debug4MvcNetCore</RepositoryUrl>
     <Description>ASP Mvc dotNet Core Debug Tool</Description>
+    <Version>1.2.0</Version>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
