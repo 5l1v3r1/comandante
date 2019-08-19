@@ -1,0 +1,27 @@
+﻿<h2>Entity Framework Core</h2>
+
+<table>
+    <thead>
+        <tr class="small">
+            <th>AppDbContext</th>
+            <th>ProviderName</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var appDbContext in Model.AppDbContexts)
+        {
+        <tr>
+            <td>
+                <a class="link-muted" href="/debug/EntityFrameworkCoreDbContext?AppDbContext=@(appDbContext?.Name)">@appDbContext?.Name</a><br />
+            </td>
+            <td>
+                @appDbContext?.ProviderName
+            </td>
+            <td>
+                <a class="link-muted" href="/debug/EntityFrameworkCoreRunSql?AppDbContext=@(appDbContext?.Name)">Run Sql</a>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
