@@ -9,20 +9,20 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Comandante.Pages
 {
-    public class EntityFrameworkCore : EmbeddedViewModel
+    public class EF : EmbeddedViewModel
     {
-        public EntityFrameworkCoreModel Model { get; set; }
+        public EFModel Model { get; set; }
 
         public override async Task<EmbededViewResult> InitView()
         {
-            Model = new EntityFrameworkCoreModel();
+            Model = new EFModel();
 
-            Model.AppDbContexts = new EntityFrameworkCoreService().GetAppDbContexts(this.HttpContext);
+            Model.AppDbContexts = new EntityFrameworkService().GetAppDbContexts(this.HttpContext);
             return await View();
         }
     }
 
-    public class EntityFrameworkCoreModel
+    public class EFModel
     {
         public List<AppDbContextInfo> AppDbContexts;
     }

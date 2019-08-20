@@ -25,7 +25,11 @@
             @foreach (var entity in Model.AppDbContext.Entities)
             {
                 <tr>
-                    <td>@(entity.SchemaAndTableName)</td>
+                    <td>
+                        <a href="/debug/EFEntity?_AppDbContext=@(Model.AppDbContext?.Name)&_Entity=@(entity.ClrTypeName)">
+                            @(entity.SchemaAndTableName)
+                        </a>
+                    </td>
                     <td>@entity.ClrTypeName</td>
                 </tr>
             }
@@ -76,3 +80,8 @@
         <div class="text-muted">No Migrations found.</div>
     }
 }
+
+<h3>DebugView</h3>
+<pre>
+@Model.AppDbContext?.DebugView
+</pre>

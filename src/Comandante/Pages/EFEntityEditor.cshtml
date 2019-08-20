@@ -1,0 +1,17 @@
+﻿<h2>Entity Framework Core - Entity Editor</h2>
+
+<h3>@Model.Entity?.ClrTypeName</h3>
+
+<form autocomplete="off" method="post">
+    <input name="_AppDbContext" value="@Model.AppDbContext" type="hidden" />
+    <input name="_Entity" value="@Model.Entity?.ClrTypeName" type="hidden" />
+    <table class="form">
+        @foreach (var field in @Model.Entity.Fields)
+        {
+            <tr>
+                <td>@field.Name</td>
+                <td>@RenderPartialView("_Field", field)</td>
+            </tr>
+        }
+    </table>
+</form>

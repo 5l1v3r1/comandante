@@ -35,8 +35,11 @@ namespace Comandante.TestsWeb.Areas.Identity
             });
 
 
-            
 
+            //ComandanteTestsWebContext a;
+            //a.Set<IdentityUser>().ToList
+            //a
+            //EntityFrameworkQueryableExtensions.AllAsync()
             //DbConnection dbConnection = new Debug4MvcNetCoreTestsWebContext().Database.GetDbConnection();
             //dbConnection.Open();
             //DbCommand command = dbConnection.CreateCommand();

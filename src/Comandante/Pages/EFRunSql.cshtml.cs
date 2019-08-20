@@ -13,14 +13,14 @@ using Newtonsoft.Json;
 
 namespace Comandante.Pages
 {
-    public class EntityFrameworkCoreRunSql : EmbeddedViewModel
+    public class EFRunSql : EmbeddedViewModel
     {
-        private EntityFrameworkCoreService _entityFrameworkCoreService = new EntityFrameworkCoreService();
-        public EntityFrameworkCoreRunSqlModel Model { get; set; }
+        private EntityFrameworkService _entityFrameworkCoreService = new EntityFrameworkService();
+        public EFRunSqlModel Model { get; set; }
 
         public override async Task<EmbededViewResult> InitView()
         {
-            Model = new EntityFrameworkCoreRunSqlModel();
+            Model = new EFRunSqlModel();
             Model.AppDbContexts = _entityFrameworkCoreService.GetAppDbContexts(this.HttpContext);
 
             if (this.HttpContext.Request.Query.ContainsKey("EFExecutedDbCommand"))
@@ -42,7 +42,7 @@ namespace Comandante.Pages
                     string sql = this.HttpContext.Request.Form["Sql"];
                     appDbContext = this.HttpContext.Request.Form["AppDbContext"];
                     
-                    var results = new EntityFrameworkCoreService().RunSql(sql, appDbContext, this.HttpContext);
+                    var results = new EntityFrameworkService().RunSql(this.HttpContext, appDbContext, sql);
                     return await Json(JsonConvert.SerializeObject(results));
                 } catch(Exception ex)
                 {
@@ -55,7 +55,7 @@ namespace Comandante.Pages
         }
     }
 
-    public class EntityFrameworkCoreRunSqlModel
+    public class EFRunSqlModel
     {
         public string AppDbContext;
         public List<AppDbContextInfo> AppDbContexts = new List<AppDbContextInfo>();

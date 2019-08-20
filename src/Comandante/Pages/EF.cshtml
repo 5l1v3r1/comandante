@@ -13,13 +13,13 @@
         {
         <tr>
             <td>
-                <a class="link-muted" href="/debug/EntityFrameworkCoreDbContext?AppDbContext=@(appDbContext?.Name)">@appDbContext?.Name</a><br />
+                <a class="link-muted" href="/debug/EFContext?AppDbContext=@(appDbContext?.Name)">@appDbContext?.Name</a><br />
             </td>
             <td>
                 @appDbContext?.ProviderName
             </td>
             <td>
-                <a class="link-muted" href="/debug/EntityFrameworkCoreRunSql?AppDbContext=@(appDbContext?.Name)">Run Sql</a>
+                <a class="link-muted" href="/debug/EFRunSql?AppDbContext=@(appDbContext?.Name)">Run Sql</a>
             </td>
         </tr>
         }

@@ -14,6 +14,22 @@ namespace Comandante.Services
             return obj.GetType().GetProperty(propertyName)?.GetValue(obj);
         }
 
+        public static object GetFieldValue(this object obj, string fieldName)
+        {
+            if (obj == null)
+                return null;
+            return 
+                (
+                    obj.GetType().GetField(fieldName) ??
+                    obj.GetType().GetRuntimeFields().FirstOrDefault(x => x.Name == fieldName)
+                )?.GetValue(obj);
+        }
+
+        public static object GetPropertyOrFieldValue(this object obj, string fieldName)
+        {
+            return GetPropertyValue(obj, fieldName) ?? GetFieldValue(obj, fieldName);
+        }
+
         public static void SetPropertyValue(this object obj, string propertyName, object propertyValue)
         {
             if (obj == null)
@@ -27,6 +43,15 @@ namespace Comandante.Services
                 return null;
             MethodInfo method = FindMethod(obj.GetType(), methodName, methodParameters);
             return method.Invoke(obj, methodParameters);
+        }
+
+        public static object InvokeGenericMethod(this object obj, string methodName, Type[] typeArguments, params object[] methodParameters)
+        {
+            if (obj == null)
+                return null;
+            MethodInfo method = FindMethod(obj.GetType(), methodName, methodParameters);
+            MethodInfo generic = method.MakeGenericMethod(typeArguments);
+            return generic.Invoke(obj, methodParameters);
         }
 
         public static object InvokeStaticMethod(this Type type, string methodName, params object[] methodParameters)

@@ -15,9 +15,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Pages\EntityFrameworkCore.cshtml" />
-    <None Remove="Pages\EntityFrameworkCoreDbContext.cshtml" />
-    <None Remove="Pages\EntityFrameworkCoreRunSql.cshtml" />
+    <None Remove="Pages\EF.cshtml" />
+    <None Remove="Pages\EFContext.cshtml" />
+    <None Remove="Pages\EFEntity.cshtml" />
+    <None Remove="Pages\EFEntityEditor.cshtml" />
+    <None Remove="Pages\EFRunSql.cshtml" />
     <None Remove="Pages\Hosting.cshtml" />
     <None Remove="Pages\Index.cshtml" />
     <None Remove="Pages\Log.cshtml" />
@@ -25,6 +27,7 @@
     <None Remove="Pages\Request.cshtml" />
     <None Remove="Pages\Requests.cshtml" />
     <None Remove="Pages\Routing.cshtml" />
+    <None Remove="Pages\_Field.cshtml" />
     <None Remove="Pages\_Layout.cshtml" />
     <None Remove="Pages\_Request.cshtml" />
     <None Remove="Pages\_RequestDetails.cshtml" />
@@ -35,16 +38,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Pages\EntityFrameworkCoreDbContext.cshtml" />
-    <EmbeddedResource Include="Pages\EntityFrameworkCoreRunSql.cshtml" />
+    <EmbeddedResource Include="Pages\EFEntityEditor.cshtml" />
+    <EmbeddedResource Include="Pages\EFEntity.cshtml" />
+    <EmbeddedResource Include="Pages\EFContext.cshtml" />
+    <EmbeddedResource Include="Pages\EFRunSql.cshtml" />
     <EmbeddedResource Include="Pages\Log.cshtml" />
     <EmbeddedResource Include="Pages\Routing.cshtml" />
+    <EmbeddedResource Include="Pages\_Field.cshtml" />
     <EmbeddedResource Include="Pages\_RequestDetails.cshtml" />
     <EmbeddedResource Include="Pages\_Request.cshtml" />
     <EmbeddedResource Include="Pages\Request.cshtml" />
     <EmbeddedResource Include="Pages\Requests.cshtml" />
     <EmbeddedResource Include="Pages\Logs.cshtml" />
-    <EmbeddedResource Include="Pages\EntityFrameworkCore.cshtml" />
+    <EmbeddedResource Include="Pages\EF.cshtml" />
     <EmbeddedResource Include="Pages\Hosting.cshtml" />
     <EmbeddedResource Include="Pages\_Layout.cshtml" />
     <EmbeddedResource Include="Pages\Index.cshtml" />

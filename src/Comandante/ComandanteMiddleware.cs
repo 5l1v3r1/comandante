@@ -123,7 +123,7 @@ namespace Comandante
             var loggerFactory = (ILoggerFactory)builder.ApplicationServices.GetService(typeof(ILoggerFactory));
             loggerFactory.AddProvider(new ComandanteLoggerProvider());
 
-            new EntityFrameworkCoreService().EnableSensitiveDataLogging(builder.ApplicationServices);
+            new EntityFrameworkService().EnableSensitiveDataLogging(builder.ApplicationServices);
 
             return builder.UseMiddleware<ComandanteMiddleware>();
         }

@@ -1,0 +1,105 @@
+﻿<h2>Entity Framework Core - Entity</h2>
+
+<h3>@Model.Entity?.ClrTypeName</h3>
+
+<h3>Rows</h3>
+<a class="small" href="/debug/EFEntityEditor?_AppDbContext=@(Model.AppDbContext)&_Entity=@(Model.Entity.ClrTypeName)">Add row</a>
+<div class="text-error">@Model.Rows?.Error</div>
+@if (Model.Rows != null)
+{
+<form autocomplete="off" method="get">
+    <input name="_AppDbContext" value="@Model.AppDbContext" type="hidden" />
+    <input name="_Entity" value="@Model.Entity?.ClrTypeName" type="hidden" />
+    <table>
+        <thead class="small">
+            <tr>
+                @foreach (var field in Model.Rows.Fields)
+                {
+                    <td>@field.Name</td>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                @foreach (var field in Model.Rows.Fields)
+                {
+                <td>
+                    @RenderPartialView("_Field", field)
+                </td>
+                }
+            </tr>
+            <tr>
+                <td colspan="1000">
+                    <button name="find">Find</button>
+                </td>
+            </tr>
+            @foreach (var row in Model.Rows.Rows)
+            {
+                <tr>
+                    @foreach (var value in row)
+                    {
+                        <td>@value</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
+}
+
+<h3>Details</h3>
+<table class="form">
+    <tr>
+        <td>AppDbContext</td>
+        <td>@Model.AppDbContext</td>
+    </tr>
+    <tr>
+        <td>NavigationName</td>
+        <td>@Model.Entity?.NavigationName</td>
+    </tr>
+    <tr>
+        <td>ClrTypeName</td>
+        <td>@Model.Entity?.ClrTypeName</td>
+    </tr>
+    <tr>
+        <td>Schema</td>
+        <td>@Model.Entity?.Schema</td>
+    </tr>
+    <tr>
+        <td>TableName</td>
+        <td>@Model.Entity?.TableName</td>
+    </tr>
+    <tr>
+        <td>SchemaAndTableName</td>
+        <td>@Model.Entity?.SchemaAndTableName</td>
+    </tr>
+</table>
+
+<h3>Fields</h3>
+@if (Model.Entity?.Fields != null)
+{
+    <table>
+        <thead class="small">
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var field in Model.Entity?.Fields)
+            {
+                <tr>
+                    <td>@field.Name</td>
+                    <td>@field?.FieldInfo?.FieldType?.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+<h3>DebugView</h3>
+<pre>
+@Model.Entity?.DebugView
+</pre>
+

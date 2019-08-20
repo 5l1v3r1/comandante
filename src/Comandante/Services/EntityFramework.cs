@@ -3,20 +3,21 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Comandante.Services
 {
-    public class EntityFrameworkCoreService
+    public class EntityFrameworkService
     {
-        public EntityFrameworkCoreService()
+        public EntityFrameworkService()
         {
 
         }
 
-        public AppDbContextSqlResults RunSql(string sql, string appDbContextName, HttpContext httpContext, int maxRowsReads = 1000)
+        public AppDbContextSqlResults RunSql(HttpContext httpContext, string appDbContextName, string sql, int maxRowsReads = 1000)
         {
             try {
                 Type addDbContextType = GetAppDbContextTypes().FirstOrDefault(x => x.Name == appDbContextName);
@@ -93,6 +94,81 @@ namespace Comandante.Services
             }
         }
 
+        public AppDbContextSqlResults GetRows(HttpContext httpContext, string appDbContextName, AppDbContextEntityInfo entityInfo)
+        {
+            return GetRows(httpContext, appDbContextName, entityInfo, new Dictionary<string, string>());
+        }
+        public AppDbContextSqlResults GetRows(HttpContext httpContext, string appDbContextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> where)
+        {
+            Type addDbContextType = GetAppDbContextTypes().FirstOrDefault(y => y.Name == appDbContextName);
+            object addDbContext = httpContext?.RequestServices?.GetService(addDbContextType);
+            if (addDbContext == null)
+                return new AppDbContextSqlResults { Error = "Cannot find DbContext: " + appDbContextName };
+
+            object dbSet = addDbContext.InvokeGenericMethod("Set", new[] { entityInfo.ClrType });
+
+            ParameterExpression x = Expression.Parameter(entityInfo.ClrType, "x");
+            BinaryExpression lastOperation = null;
+            foreach (var whereCondition in where)
+            {
+                MemberExpression leftSide = Expression.Property(x, whereCondition.Key);
+                ConstantExpression rightSide = Expression.Constant(whereCondition.Value);
+                BinaryExpression operation = Expression.Equal(leftSide, rightSide);
+                if (lastOperation == null)
+                    lastOperation = operation;
+                else
+                    lastOperation = Expression.And(lastOperation, operation);
+            }
+
+            if (lastOperation != null)
+            {
+                Type delegateType = typeof(Func<,>).MakeGenericType(entityInfo.ClrType, typeof(bool));
+                LambdaExpression predicate = Expression.Lambda(delegateType, lastOperation, x);
+
+                var whereMethod = typeof(System.Linq.Queryable).GetMethods(BindingFlags.Static | BindingFlags.Public)
+                    .FirstOrDefault(m => m.Name == "Where" && m.GetParameters().Count() == 2);
+
+                MethodInfo genericWhereMethod = whereMethod.MakeGenericMethod(new[] { entityInfo.ClrType });
+                dbSet = genericWhereMethod.Invoke(null, new object[] { dbSet, predicate });
+            }
+
+            var toListMethod = typeof(System.Linq.Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public)
+                    .FirstOrDefault(m => m.Name == "ToList" && m.GetParameters().Count() == 1);
+            MethodInfo genericToListMethod = toListMethod.MakeGenericMethod(new[] { entityInfo.ClrType });
+            dbSet = genericToListMethod.Invoke(null, new object[] { dbSet});
+
+            AppDbContextSqlResults results = new AppDbContextSqlResults();
+            foreach (var field in entityInfo.Fields)
+            {
+                results.Columns.Add(field.Name);
+                results.Fields = entityInfo.Fields;
+            }
+
+            foreach (var entity in dbSet as System.Collections.IEnumerable)
+            {
+                object[] row = new object[entityInfo.Fields.Count];
+                for (int i = 0; i < entityInfo.Fields.Count; i++)
+                {
+                    row[i] = entity.GetPropertyOrFieldValue(entityInfo.Fields[i].Name);
+                }
+                results.Rows.Add(row);
+            }
+            return results;
+        }
+
+        //public AppDbContextSqlResults GetRows(HttpContext httpContext, string appDbContextName, AppDbContextEntityInfo entityInfo)
+        //{
+
+        //    StringBuilder sb = new StringBuilder();
+        //    sb.Append("SELECT ");
+        //    entityInfo.Fields.ForEach(x => sb.Append(x.Name + ", "));
+        //    sb.Remove(sb.Length - 2, 2);
+        //    sb.AppendLine();
+        //    sb.Append(" FROM ");
+        //    sb.Append(entityInfo.SchemaAndTableName);
+        //    return RunSql(httpContext, appDbContextName, sb.ToString());
+        //}
+
         public List<AppDbContextInfo> GetAppDbContexts(HttpContext httpContext)
         {
             List<AppDbContextInfo> appDbContexts = new List<AppDbContextInfo>();
@@ -127,17 +203,37 @@ namespace Comandante.Services
                             var relationalEntity = relationalMetadataExtensions.InvokeStaticMethod("Relational", entityType);
                             var schema = relationalEntity.GetPropertyValue("Schema")?.ToString();
                             var tableName = relationalEntity.GetPropertyValue("TableName")?.ToString();
+
+                            var debugView = entityType.GetPropertyValue("DebugView")?.GetPropertyValue("View"); ;
+                            
+                            var properties = entityType.GetFieldValue("_properties") as System.Collections.IEnumerable;
+                            var entityFields = new List<AppDbContextEntityFieldInfo>();
+                            foreach (var property in properties)
+                            {
+                                entityFields.Add(new AppDbContextEntityFieldInfo
+                                {
+                                    Name = property.GetPropertyValue("Value")?.GetPropertyValue("Name")?.ToString(),
+                                    FieldInfo = property.GetPropertyValue("Value")?.GetPropertyValue("FieldInfo") as FieldInfo
+                                });
+                            }
+
                             var schemaAndTableName = string.IsNullOrEmpty(schema) == false ? schema + "." + tableName : tableName;
                             appDbContextInfo.Entities.Add(new AppDbContextEntityInfo
                             {
                                 NavigationName = entityType.GetPropertyValue("DefiningNavigationName")?.ToString(),
                                 ClrTypeName = entityType.GetPropertyValue("ClrType")?.ToString(),
+                                ClrType = entityType.GetPropertyValue("ClrType") as Type,
                                 Schema = schema,
                                 TableName = tableName,
                                 SchemaAndTableName = schemaAndTableName,
+                                DebugView = debugView?.ToString(),
+                                Fields = entityFields,
                             });
 
                         }
+
+                        var modelDebugView = model.GetPropertyValue("DebugView")?.GetPropertyValue("View"); ;
+                        appDbContextInfo.DebugView = modelDebugView?.ToString();
                     }
                 }
 
@@ -301,17 +397,26 @@ namespace Comandante.Services
         public List<string> AppliedMigrations = new List<string>();
         //.Model.GetEntityTypes() : IEnumerable<IEntityType>
         public List<AppDbContextEntityInfo> Entities = new List<AppDbContextEntityInfo>();
-        
+        public string DebugView;
+
     }
 
     public class AppDbContextEntityInfo
     {
         public string NavigationName;
+        public Type ClrType;
         public string ClrTypeName;
         public string Schema;
         public string TableName;
+        public string SchemaAndTableName;
+        public List<AppDbContextEntityFieldInfo> Fields;
+        public string DebugView;
+    }
 
-        public string SchemaAndTableName { get; internal set; }
+    public class AppDbContextEntityFieldInfo
+    {
+        public string Name;
+        public FieldInfo FieldInfo;
     }
 
     public class AppDbContextSqlResults
@@ -319,6 +424,8 @@ namespace Comandante.Services
         public int AffectedRecords;
         public List<object[]> Rows = new List<object[]>();
         public List<string> Columns = new List<string>();
+        public List<AppDbContextEntityFieldInfo> Fields = new List<AppDbContextEntityFieldInfo>();
         public string Error;
+        
     }
 }
