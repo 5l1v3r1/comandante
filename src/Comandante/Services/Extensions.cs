@@ -92,6 +92,38 @@ namespace Comandante.Services
             return method;
         }
 
+        public static bool IsNumericType(this Type type)
+        {
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public static string GetFriendlyName(this Type type)
+        {
+            string friendlyName = type.Name;
+            if (type.IsGenericType)
+            {
+                friendlyName += ("<" + string.Join(",", type.GetGenericArguments().Select(x => x.GetFriendlyName())) + ">");
+            }
+
+            return friendlyName;
+        }
+
         public static string ToHumanString(this TimeSpan timeSpan)
         {
             StringBuilder sb = new StringBuilder();

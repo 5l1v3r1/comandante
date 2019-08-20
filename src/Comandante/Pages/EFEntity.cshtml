@@ -7,44 +7,44 @@
 <div class="text-error">@Model.Rows?.Error</div>
 @if (Model.Rows != null)
 {
-<form autocomplete="off" method="get">
-    <input name="_AppDbContext" value="@Model.AppDbContext" type="hidden" />
-    <input name="_Entity" value="@Model.Entity?.ClrTypeName" type="hidden" />
-    <table>
-        <thead class="small">
-            <tr>
-                @foreach (var field in Model.Rows.Fields)
-                {
-                    <td>@field.Name</td>
-                }
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                @foreach (var field in Model.Rows.Fields)
-                {
-                <td>
-                    @RenderPartialView("_Field", field)
-                </td>
-                }
-            </tr>
-            <tr>
-                <td colspan="1000">
-                    <button name="find">Find</button>
-                </td>
-            </tr>
-            @foreach (var row in Model.Rows.Rows)
-            {
+    <form autocomplete="off" method="get">
+        <input name="_AppDbContext" value="@Model.AppDbContext" type="hidden" />
+        <input name="_Entity" value="@Model.Entity?.ClrTypeName" type="hidden" />
+        <table>
+            <thead class="small">
                 <tr>
-                    @foreach (var value in row)
+                    @foreach (var field in Model.Rows.Fields)
                     {
-                        <td>@value</td>
+                        <td>@field.Name</td>
                     }
                 </tr>
-            }
-        </tbody>
-    </table>
-</form>
+            </thead>
+            <tbody>
+                <tr>
+                    @foreach (var field in Model.Rows.Fields)
+                    {
+                        <td>
+                            @RenderPartialView("_FieldFilter", field)
+                        </td>
+                    }
+                </tr>
+                <tr>
+                    <td colspan="1000">
+                        <button name="find">Find</button>
+                    </td>
+                </tr>
+                @foreach (var row in Model.Rows.Rows)
+                {
+                    <tr>
+                        @foreach (var value in row)
+                        {
+                            <td>@value</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </form>
 }
 
 <h3>Details</h3>
@@ -90,13 +90,12 @@
             {
                 <tr>
                     <td>@field.Name</td>
-                    <td>@field?.FieldInfo?.FieldType?.Name</td>
+                    <td>@(field?.FieldInfo?.FieldType?.GetFriendlyName())</td>
                 </tr>
             }
         </tbody>
     </table>
 }
-
 
 <h3>DebugView</h3>
 <pre>

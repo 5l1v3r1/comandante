@@ -39,4 +39,5 @@ namespace Comandante.Pages
         public AppDbContextEntityInfo Entity;
     }
 
+   
 }

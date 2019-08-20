@@ -24,7 +24,7 @@ namespace Comandante.PagesRenderer
 
         public void BeginWriteAttribute(string name, string begining, int startPosition, string ending, int endPosition, int thingy)
         {
-            HttpContext?.Response.WriteAsync(begining);
+            HttpContext.Response.WriteAsync(begining);
             AttributeEnding = ending;
         }
 
@@ -42,24 +42,30 @@ namespace Comandante.PagesRenderer
             if (AttributeValues != null)
             {
                 var attributes = string.Join(" ", AttributeValues);
-                HttpContext?.Response.WriteAsync(attributes);
+                HttpContext.Response.WriteAsync(attributes);
             }
 
             AttributeValues = null;
 
-            HttpContext?.Response.WriteAsync(AttributeEnding);
+            HttpContext.Response.WriteAsync(AttributeEnding);
             AttributeEnding = null;
         }
 
         public void WriteLiteral(string literal)
         {
-            HttpContext?.Response.WriteAsync(literal);
+            HttpContext.Response.WriteAsync(literal);
         }
 
         public void Write(object obj)
         {
             if (obj != null)
-                HttpContext?.Response.WriteAsync(obj.ToString());
+                WriteEncodedText(obj.ToString());
+        }
+
+        public void WriteEncodedText(string text)
+        {
+            if (text != null)
+                HttpContext.Response.WriteAsync(System.Net.WebUtility.HtmlEncode(text));
         }
 
         private Stack<TextWriter> TextWriters { get; set; } = new Stack<TextWriter>();
@@ -82,7 +88,7 @@ namespace Comandante.PagesRenderer
                 using (Stream resourceStream = assembly.GetManifestResourceStream("Comandante.wwwroot." + resource))
                 {
                     string resourceContent = new StreamReader(resourceStream).ReadToEnd();
-                    return "<script>" + resourceContent + "</script>";
+                    HttpContext.Response.WriteAsync("<script>" + resourceContent + "</script>");
                 }
             }
             if (resource.EndsWith(".css"))
@@ -90,7 +96,7 @@ namespace Comandante.PagesRenderer
                 using (Stream resourceStream = assembly.GetManifestResourceStream("Comandante.wwwroot." + resource))
                 {
                     string resourceContent = new StreamReader(resourceStream).ReadToEnd();
-                    return "<style>" + resourceContent + "</style>";
+                    HttpContext.Response.WriteAsync("<style>" + resourceContent + "</style>");
                 }
             }
             return "";

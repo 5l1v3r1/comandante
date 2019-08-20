@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Comandante.Pages
 {
-    public class _Field : EmbeddedViewModel
+    public class _FieldEditor : EmbeddedViewModel
     {
         public AppDbContextEntityFieldInfo Model { get; set; }
         public string Value { get; set; }

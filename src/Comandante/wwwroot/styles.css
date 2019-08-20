@@ -187,7 +187,8 @@ button:hover {
     cursor: pointer;
 }
 
-select {
+select,
+input {
     padding: 3px;
     padding-left: 10px;
     padding-right: 10px;

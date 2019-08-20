@@ -31,7 +31,6 @@ namespace Comandante.Pages
                 .Entities
                 .FirstOrDefault(x => x.ClrTypeName == entity);
             Model.Rows = new EntityFrameworkService().GetRows(this.HttpContext, appDbContext, Model.Entity, rowsFilter);
-            //Model.RowsFilter = rowsFilter;
             return await View();
         }
     }
@@ -41,13 +40,5 @@ namespace Comandante.Pages
         public string AppDbContext;
         public AppDbContextEntityInfo Entity;
         public AppDbContextSqlResults Rows;
-        public List<RowsFilter> RowsFilter;
     }
-
-    public class RowsFilter
-    {
-        public string FieldName;
-        public object FieldValue;
-    }
-
 }

@@ -27,7 +27,8 @@
     <None Remove="Pages\Request.cshtml" />
     <None Remove="Pages\Requests.cshtml" />
     <None Remove="Pages\Routing.cshtml" />
-    <None Remove="Pages\_Field.cshtml" />
+    <None Remove="Pages\_FieldEditor.cshtml" />
+    <None Remove="Pages\_FieldFilter.cshtml" />
     <None Remove="Pages\_Layout.cshtml" />
     <None Remove="Pages\_Request.cshtml" />
     <None Remove="Pages\_RequestDetails.cshtml" />
@@ -44,7 +45,8 @@
     <EmbeddedResource Include="Pages\EFRunSql.cshtml" />
     <EmbeddedResource Include="Pages\Log.cshtml" />
     <EmbeddedResource Include="Pages\Routing.cshtml" />
-    <EmbeddedResource Include="Pages\_Field.cshtml" />
+    <EmbeddedResource Include="Pages\_FieldEditor.cshtml" />
+    <EmbeddedResource Include="Pages\_FieldFilter.cshtml" />
     <EmbeddedResource Include="Pages\_RequestDetails.cshtml" />
     <EmbeddedResource Include="Pages\_Request.cshtml" />
     <EmbeddedResource Include="Pages\Request.cshtml" />
