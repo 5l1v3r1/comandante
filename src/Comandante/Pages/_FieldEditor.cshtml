@@ -5,7 +5,7 @@
 
 @if (Model.Field.FieldInfo.FieldType == typeof(string) || Model.Field.FieldInfo.FieldType.IsNumericType())
 {
-    <input name="@Model.Field.Name" value="@Model.Value" />
+    <input name="@Model.Field.Name" value="@Model.Value" style="min-width: 250px" />
 }
 
 @if (Model.Field.FieldInfo.FieldType == typeof(bool))
@@ -15,7 +15,7 @@
 
 @if (Model.Field.FieldInfo.FieldType == typeof(bool?))
 {
-    <select name="@Model.Field.Name">
+    <select name="@Model.Field.Name"  style="min-width: 250px">
         <option value="">Not specofied</option>
         <option value="True" @(@Model.Value == "True" ? "selected" : "")>True</option>
         <option value="False" @(@Model.Value == "False" ? "selected" : "")>False</option>
@@ -24,5 +24,5 @@
 
 @if (Model.Field.FieldInfo.FieldType == typeof(DateTime) || Model.Field.FieldInfo.FieldType == typeof(DateTime?) || Model.Field.FieldInfo.FieldType == typeof(DateTimeOffset) || Model.Field.FieldInfo.FieldType == typeof(DateTimeOffset?))
 {
-    <input name="@Model.Field.Name" value="@Model.Value" type="datetime-local" />
+    <input name="@Model.Field.Name" value="@Model.Value" type="datetime-local"  style="min-width: 250px" />
 }

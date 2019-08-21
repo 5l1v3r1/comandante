@@ -1,9 +1,9 @@
-﻿<h2>Entity Framework Core - Entity Editor</h2>
+﻿<h2>Entity Framework Core - Entity - @(Model.IsUpdate ? "Update" : "Create")</h2>
 
 <h3>@Model.Entity?.ClrTypeName</h3>
 
 <form autocomplete="off" method="post">
-    <input name="_dbContext" value="@Model.AppDbContext" type="hidden" />
+    <input name="_dbContext" value="@Model.DbContext" type="hidden" />
     <input name="_entity" value="@Model.Entity?.ClrTypeName" type="hidden" />
     <table class="form">
         @foreach (var field in @Model.FieldsWithValues)
@@ -14,5 +14,12 @@
             </tr>
         }
     </table>
-    <button name="_submit">Submit</button>
+    <br />
+    <div class="text-danger">@Model.Error</div>
+    <button name="_submit">Save Changes</button>
 </form>
+<br />
+<br />
+<a href="/debug/EFEntity?_dbContext=@(Model.DbContext)&_entity=@(Model.Entity.ClrTypeName)">
+    Go To Entity
+</a>

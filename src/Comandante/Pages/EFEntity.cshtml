@@ -4,14 +4,14 @@
 
 
 <h3 style="margin-bottom: 10px;">Rows</h3>
-<a style="margin-left: 5px;" class="button small" href="/debug/EFEntityEditor?_dbContext=@(Model.AppDbContext)&_entity=@(Model.Entity.ClrTypeName)">Create</a>
+<a style="margin-left: 5px;" class="button small" href="/debug/EFEntityEditor?_dbContext=@(Model.DbContext)&_entity=@(Model.Entity.ClrTypeName)">Create</a>
 <br />
 <br />
 <div class="text-error">@Model.Rows?.Error</div>
 @if (Model.Rows != null)
 {
     <form autocomplete="off" method="get">
-        <input name="_dbContext" value="@Model.AppDbContext" type="hidden" />
+        <input name="_dbContext" value="@Model.DbContext" type="hidden" />
         <input name="_entity" value="@Model.Entity?.ClrTypeName" type="hidden" />
         <table>
             <thead class="small">
@@ -56,7 +56,7 @@
                                         }
                                     }
 
-                                    <a href="/debug/EFEntityEditor?_dbContext=@(Model.AppDbContext)&_entity=@(Model.Entity.ClrTypeName)@(pk)">
+                                    <a href="/debug/EFEntityEditor?_dbContext=@(Model.DbContext)&_entity=@(Model.Entity.ClrTypeName)@(pk)">
                                         @row[i]
                                     </a>
                                 }
@@ -78,13 +78,13 @@
 <table class="form">
     <tr>
         <td>AppDbContext</td>
-        <td>@Model.AppDbContext</td>
+        <td>@Model.DbContext</td>
     </tr>
     <tr>
         <td></td>
         <td>
-            <a class="button small" href="/debug/EFContext?_dbContext=@(Model.AppDbContext)">Details</a>
-            <a class="button small" href="/debug/EFRunSql?_dbContext=@(Model.AppDbContext)">Run Sql</a>
+            <a class="button small" href="/debug/EFContext?_dbContext=@(Model.DbContext)">Details</a>
+            <a class="button small" href="/debug/EFRunSql?_dbContext=@(Model.DbContext)">Run Sql</a>
         </td>
     </tr>
     <tr>

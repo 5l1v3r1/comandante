@@ -45,21 +45,29 @@ namespace Comandante.Pages
             
             if (string.Equals(this.HttpContext.Request.Method, "GET", StringComparison.CurrentCultureIgnoreCase))
             {
-                var entity = new EntityFrameworkService().GetByPrimaryKey(this.HttpContext, contextName, entityInfo, pkValues);
+                var entity = new EntityFrameworkService().GetEntityByPrimaryKey(this.HttpContext, contextName, entityInfo, pkValues);
                 if (entity != null)
                     fieldsValues = entityInfo.Fields.ToDictionary(x => x.Name, x => entity.GetPropertyOrFieldValue(x.Name)?.ToString());
             }
 
-            Model.AppDbContext = contextName;
+            Model.DbContext = contextName;
             Model.Entity = entityInfo;
             Model.FieldsWithValues = entityInfo.Fields.Select(x => (x, fieldsValues.FirstOrDefault(v => v.Key == x.Name).Value)).ToList();
-
+            Model.IsUpdate = isUpdate;
             if (isSubmit)
             {
+                AppDbContextEntityResult result = null;
                 if (isUpdate)
-                    new EntityFrameworkService().Update(this.HttpContext, contextName, entityInfo, pkValues, fieldsValues);
+                    result = new EntityFrameworkService().Update(this.HttpContext, contextName, entityInfo, pkValues, fieldsValues);
                 else
-                    new EntityFrameworkService().Add(this.HttpContext, contextName, entityInfo, fieldsValues);
+                    result = new EntityFrameworkService().Add(this.HttpContext, contextName, entityInfo, fieldsValues);
+                if ((result?.IsSuccess).GetValueOrDefault(false))
+                {
+                    var pk = string.Join("&", entityInfo.Fields.Where(x => x.IsPrimaryKey).Select(x => x.Name + "=" + result.Entity.GetPropertyOrFieldValue(x.Name)));
+                    var url = $"/debug/EFEntityEditor?_dbContext={contextName}&_entity={entityInfo.ClrTypeName}&{pk}";
+                    return new EmbededViewRedirectResult(url);
+                }
+                Model.Error = result.Error;
             }
 
             return await View();
@@ -68,9 +76,11 @@ namespace Comandante.Pages
 
     public class EFEntityEditorModel
     {
-        public string AppDbContext;
+        public string DbContext;
         public AppDbContextEntityInfo Entity;
         public List<(AppDbContextEntityFieldInfo Field, string Value)> FieldsWithValues;
+        public string Error;
+        public bool IsUpdate;
     }
 
    

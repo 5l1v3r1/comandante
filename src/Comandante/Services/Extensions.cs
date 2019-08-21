@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -90,6 +91,17 @@ namespace Comandante.Services
             return obj;
         }
 
+        public static string GetDetails(this Exception ex)
+        {
+            List<string> messages = new List<string>();
+            while(ex != null)
+            {
+                messages.Add(ex.Message);
+                ex = ex.InnerException;
+            }
+            messages.Reverse();
+            return string.Join(". ", messages);
+        }
 
         public static object InvokeMethod(this object obj, string methodName, params object[] methodParameters)
         {

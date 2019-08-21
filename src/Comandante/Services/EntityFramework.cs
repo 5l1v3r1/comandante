@@ -50,7 +50,7 @@ namespace Comandante.Services
         //    return lambda;
         //}
 
-        public AppDbContextSqlResults RunSql(HttpContext httpContext, string contextName, string sql, int maxRowsReads = 1000)
+        public AppDbContextSqlResult RunSql(HttpContext httpContext, string contextName, string sql, int maxRowsReads = 1000)
         {
             try {
                 Type addDbContextType = GetAppDbContextTypes().FirstOrDefault(x => x.Name == contextName);
@@ -93,7 +93,7 @@ namespace Comandante.Services
                             }
                         }
                     }
-                    return new AppDbContextSqlResults
+                    return new AppDbContextSqlResult
                     {
                         Columns = columns,
                         Rows = rows,
@@ -101,7 +101,7 @@ namespace Comandante.Services
                     };
 
                 }
-                return new AppDbContextSqlResults { Error = "Cannot find DbContext: " + contextName };
+                return new AppDbContextSqlResult { Error = "Cannot find DbContext: " + contextName };
             }
             catch (TargetInvocationException ex)
             {
@@ -112,7 +112,7 @@ namespace Comandante.Services
                     error = error + " " + exception.Message; ;
                     exception = exception.InnerException;
                 }
-                return new AppDbContextSqlResults { Error = error };
+                return new AppDbContextSqlResult { Error = error };
             }
             catch (Exception ex)
             {
@@ -123,20 +123,20 @@ namespace Comandante.Services
                     error = error + " " + exception.Message; ;
                     exception = exception.InnerException;
                 }
-                return new AppDbContextSqlResults { Error = error };
+                return new AppDbContextSqlResult { Error = error };
             }
         }
 
-        public AppDbContextSqlResults GetAll(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo)
+        public AppDbContextEntitiesResult GetAll(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo)
         {
             return GetAll(httpContext, contextName, entityInfo, new Dictionary<string, string>());
         }
-        public AppDbContextSqlResults GetAll(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> where)
+        public AppDbContextEntitiesResult GetAll(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> where)
         {
             Type dbContextType = GetAppDbContextTypes().FirstOrDefault(y => y.Name == contextName);
             object dbContext = httpContext?.RequestServices?.GetService(dbContextType);
             if (dbContext == null)
-                return new AppDbContextSqlResults { Error = "Cannot find DbContext: " + contextName };
+                return new AppDbContextEntitiesResult { Error = "Cannot find DbContext: " + contextName };
 
             object dbSet = dbContext.InvokeGenericMethod("Set", new[] { entityInfo.ClrType });
 
@@ -170,10 +170,9 @@ namespace Comandante.Services
             MethodInfo genericToListMethod = toListMethod.MakeGenericMethod(new[] { entityInfo.ClrType });
             dbSet = genericToListMethod.Invoke(null, new object[] { dbSet});
 
-            AppDbContextSqlResults results = new AppDbContextSqlResults();
+            AppDbContextEntitiesResult results = new AppDbContextEntitiesResult();
             foreach (var field in entityInfo.Fields)
             {
-                results.Columns.Add(field.Name);
                 results.Fields = entityInfo.Fields;
             }
 
@@ -189,12 +188,12 @@ namespace Comandante.Services
             return results;
         }
 
-        public object GetByPrimaryKey(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> pkValues)
+        public object GetEntityByPrimaryKey(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> pkValues)
         {
             Type dbContextType = GetAppDbContextTypes().FirstOrDefault(y => y.Name == contextName);
             object dbContext = httpContext?.RequestServices?.GetService(dbContextType);
             if (dbContext == null)
-                return new AppDbContextSqlResults { Error = "Cannot find DbContext: " + contextName };
+                return new AppDbContextSqlResult { Error = "Cannot find DbContext: " + contextName };
 
             var primaryKeys = entityInfo.Fields
                 .Where(x => x.IsPrimaryKey)
@@ -204,43 +203,120 @@ namespace Comandante.Services
             return dbContext.InvokeMethod("Find", entityInfo.ClrType, primaryKeys);
         }
 
-        public AppDbContextSqlResults Add(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> fieldsValues)
+        public AppDbContextEntityResult Add(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> fieldsValues)
         {
             Type dbContextType = GetAppDbContextTypes().FirstOrDefault(y => y.Name == contextName);
             object dbContext = httpContext?.RequestServices?.GetService(dbContextType);
             if (dbContext == null)
-                return new AppDbContextSqlResults { Error = "Cannot find DbContext: " + contextName };
+                return new AppDbContextEntityResult { Error = "Cannot find DbContext: " + contextName };
 
+            StringBuilder error = new StringBuilder();
             var entity = Activator.CreateInstance(entityInfo.ClrType);
             foreach(var value in fieldsValues)
             {
-                entity.SetPropertyValueAndConvertIfNeeded(value.Key, value.Value);
+                try
+                {
+                    entity.SetPropertyValueAndConvertIfNeeded(value.Key, value.Value);
+                }catch(Exception ex)
+                {
+                    error.AppendLine($"Cannot set entity property -> {value.Key} = {value.Value} . Error -> {ex.GetDetails()}");
+                }
             }
 
-            dbContext.InvokeMethod("Add", entity);
-            dbContext.InvokeMethod("SaveChanges");
+            try
+            {
+                dbContext.InvokeMethod("Add", entity);
+            }
+            catch (Exception ex)
+            {
+                error.AppendLine($"Cannot add entity to the context. Error -> {ex.GetDetails()}");
+            }
 
-            return null;
+            try
+            {
+                dbContext.InvokeMethod("SaveChanges");
+            }
+            catch (Exception ex)
+            {
+                error.AppendLine($"Cannot save entity. Error -> {ex.GetDetails()}");
+            }
+
+            return new AppDbContextEntityResult
+            {
+                Entity = entity,
+                Error = error.ToString()
+            };
         }
 
-        public AppDbContextSqlResults Update(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> pkValues , Dictionary<string, string> fieldsValues)
+        public AppDbContextEntityResult Update(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> pkValues , Dictionary<string, string> fieldsValues)
         {
             Type dbContextType = GetAppDbContextTypes().FirstOrDefault(y => y.Name == contextName);
             object dbContext = httpContext?.RequestServices?.GetService(dbContextType);
             if (dbContext == null)
-                return new AppDbContextSqlResults { Error = "Cannot find DbContext: " + contextName };
+                return new AppDbContextEntityResult { Error = "Cannot find DbContext: " + contextName };
 
-            var entity = GetByPrimaryKey(httpContext, contextName, entityInfo, pkValues);
-            foreach(var value in fieldsValues)
+            var pkString = string.Join(";", pkValues.Select(x => x.Key + "=" + x.Value).ToArray());
+            StringBuilder error = new StringBuilder();
+            object entity = null;
+
+            try
             {
-                entity.SetPropertyValueAndConvertIfNeeded(value.Key, value.Value);
+                entity = GetEntityByPrimaryKey(httpContext, contextName, entityInfo, pkValues);
+            }
+            catch (Exception ex)
+            {
+                error.AppendLine($"Cannot find entity by primary key. PK -> {pkString}  . Error -> {ex.GetDetails()}");
+                return new AppDbContextEntityResult
+                {
+                    Entity = entity,
+                    Error = error.ToString()
+                };
             }
 
-            dbContext.InvokeMethod("Update", entity);
-            dbContext.InvokeMethod("SaveChanges");
+            if (entity == null)
+            {
+                error.AppendLine($"Cannot find entity by primary key. PK -> {pkString}");
+                return new AppDbContextEntityResult
+                {
+                    Entity = entity,
+                    Error = error.ToString()
+                };
+            }
 
-            return null;
+            foreach (var value in fieldsValues)
+            {
+                try
+                {
+                    entity.SetPropertyValueAndConvertIfNeeded(value.Key, value.Value);
+                }
+                catch (Exception ex)
+                {
+                    error.AppendLine($"Cannot set entity property -> {value.Key} = {value.Value} . Error -> {ex.GetDetails()}");
+                }
+            }
 
+            try {
+                dbContext.InvokeMethod("Update", entity);
+            }
+            catch (Exception ex)
+            {
+                error.AppendLine($"Cannot update entity in the context. Error -> {ex.GetDetails()}");
+            }
+
+            try
+            {
+                dbContext.InvokeMethod("SaveChanges");
+            }
+            catch (Exception ex)
+            {
+                error.AppendLine($"Cannot save entity. Error -> {ex.GetDetails()}");
+            }
+
+            return new AppDbContextEntityResult
+            {
+                Entity = entity,
+                Error = error.ToString()
+            };
         }
 
             //public AppDbContextSqlResults GetRows(HttpContext httpContext, string appDbContextName, AppDbContextEntityInfo entityInfo)
@@ -508,13 +584,29 @@ namespace Comandante.Services
         public bool IsPrimaryKey;
     }
 
-    public class AppDbContextSqlResults
+    public class AppDbContextSqlResult
     {
         public int AffectedRecords;
         public List<object[]> Rows = new List<object[]>();
         public List<string> Columns = new List<string>();
-        public List<AppDbContextEntityFieldInfo> Fields = new List<AppDbContextEntityFieldInfo>();
         public string Error;
         
     }
+
+    public class AppDbContextEntitiesResult
+    {
+        public int AffectedRecords;
+        public List<object[]> Rows = new List<object[]>();
+        public List<AppDbContextEntityFieldInfo> Fields = new List<AppDbContextEntityFieldInfo>();
+        public string Error;
+    }
+
+    public class AppDbContextEntityResult
+    {
+        public object Entity;
+        public string Error;
+
+        public bool IsSuccess => Entity != null && string.IsNullOrEmpty(Error);
+    }
+    
 }

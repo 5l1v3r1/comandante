@@ -24,7 +24,7 @@ namespace Comandante.Pages
                 .Where(x => x.Key.StartsWith("_") == false && string.IsNullOrEmpty(x.Value.FirstOrDefault()) == false)
                 .ToDictionary(x => x.Key, x => x.Value.FirstOrDefault()?.ToString());
 
-            Model.AppDbContext = appDbContext;
+            Model.DbContext = appDbContext;
             Model.Entity = new EntityFrameworkService()
                 .GetAppDbContexts(this.HttpContext)
                 .FirstOrDefault(x => x.Name == appDbContext)
@@ -37,8 +37,8 @@ namespace Comandante.Pages
 
     public class EFEntityModel
     {
-        public string AppDbContext;
+        public string DbContext;
         public AppDbContextEntityInfo Entity;
-        public AppDbContextSqlResults Rows;
+        public AppDbContextEntitiesResult Rows;
     }
 }

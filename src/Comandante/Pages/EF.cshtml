@@ -13,10 +13,10 @@
                     <tr>
                         <td>
                             <a href="/debug/EFEntity?_dbContext=@(appDbContext?.Name)&_entity=@(entity.ClrTypeName)">
-                                @(entity.SchemaAndTableName)
+                                @entity.ClrTypeName
                             </a>
                         </td>
-                        <td>@entity.ClrTypeName</td>
+                        <td>@(entity.SchemaAndTableName)</td>
                     </tr>
                 }
             </tbody>
