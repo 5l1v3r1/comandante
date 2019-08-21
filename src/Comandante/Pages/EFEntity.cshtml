@@ -2,24 +2,19 @@
 
 <h3>@Model.Entity?.ClrTypeName</h3>
 
-<h3>Rows</h3>
-<a class="small" href="/debug/EFEntityEditor?_AppDbContext=@(Model.AppDbContext)&_Entity=@(Model.Entity.ClrTypeName)">Add row</a>
+
+<h3 style="margin-bottom: 10px;">Rows</h3>
+<a style="margin-left: 5px;" class="button small" href="/debug/EFEntityEditor?_dbContext=@(Model.AppDbContext)&_entity=@(Model.Entity.ClrTypeName)">Create</a>
+<br />
+<br />
 <div class="text-error">@Model.Rows?.Error</div>
 @if (Model.Rows != null)
 {
     <form autocomplete="off" method="get">
-        <input name="_AppDbContext" value="@Model.AppDbContext" type="hidden" />
-        <input name="_Entity" value="@Model.Entity?.ClrTypeName" type="hidden" />
+        <input name="_dbContext" value="@Model.AppDbContext" type="hidden" />
+        <input name="_entity" value="@Model.Entity?.ClrTypeName" type="hidden" />
         <table>
             <thead class="small">
-                <tr>
-                    @foreach (var field in Model.Rows.Fields)
-                    {
-                        <td>@field.Name</td>
-                    }
-                </tr>
-            </thead>
-            <tbody>
                 <tr>
                     @foreach (var field in Model.Rows.Fields)
                     {
@@ -30,15 +25,47 @@
                 </tr>
                 <tr>
                     <td colspan="1000">
-                        <button name="find">Find</button>
+                        <button class="small" name="find">Find</button>
                     </td>
                 </tr>
+                <tr>
+                    @foreach (var field in Model.Rows.Fields)
+                    {
+                        <td>@field.Name</td>
+                    }
+                </tr>
+            </thead>
+            <tbody>
                 @foreach (var row in Model.Rows.Rows)
                 {
                     <tr>
-                        @foreach (var value in row)
+                        @for (int i = 0; i < Model.Rows.Fields.Count; i++)
                         {
-                            <td>@value</td>
+                            <td>
+
+                                @if (Model.Rows.Fields[i].IsPrimaryKey)
+                                {
+                                    var pk = "";
+                                    @foreach (var pkField in Model.Rows.Fields)
+                                    {
+                                        if (pkField.IsPrimaryKey)
+                                        {
+                                            int pkIndex = Model.Rows.Fields.IndexOf(pkField);
+                                            var pkValue = row[pkIndex];
+                                            pk = pk + "&" + pkField.Name + "=" + pkValue;
+                                        }
+                                    }
+
+                                    <a href="/debug/EFEntityEditor?_dbContext=@(Model.AppDbContext)&_entity=@(Model.Entity.ClrTypeName)@(pk)">
+                                        @row[i]
+                                    </a>
+                                }
+                                else
+                                {
+                                    @row[i]
+                                }
+
+                            </td>
                         }
                     </tr>
                 }
@@ -52,6 +79,13 @@
     <tr>
         <td>AppDbContext</td>
         <td>@Model.AppDbContext</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>
+            <a class="button small" href="/debug/EFContext?_dbContext=@(Model.AppDbContext)">Details</a>
+            <a class="button small" href="/debug/EFRunSql?_dbContext=@(Model.AppDbContext)">Run Sql</a>
+        </td>
     </tr>
     <tr>
         <td>NavigationName</td>
@@ -83,6 +117,7 @@
             <tr>
                 <th>Name</th>
                 <th>Type</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -91,6 +126,9 @@
                 <tr>
                     <td>@field.Name</td>
                     <td>@(field?.FieldInfo?.FieldType?.GetFriendlyName())</td>
+                    <td>
+                        @(field.IsPrimaryKey ? "PrimaryKey" : "")
+                    </td>
                 </tr>
             }
         </tbody>

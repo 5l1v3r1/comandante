@@ -37,6 +37,60 @@ namespace Comandante.Services
             obj.GetType().GetProperty(propertyName)?.SetValue(obj, propertyValue);
         }
 
+        public static void SetPropertyValueAndConvertIfNeeded(this object obj, string propertyName, object propertyValue)
+        {
+            if (obj == null)
+                return;
+            var property = obj.GetType().GetProperty(propertyName);
+            property.SetValue(obj, propertyValue.ConvertIfNeeded(property.PropertyType));
+        }
+
+        public static object ConvertIfNeeded(this object obj, Type type)
+        {
+            if (obj == null)
+                return null;
+            if (type.IsNumericType())
+            {
+                long numericValue;
+                if (long.TryParse(obj?.ToString(), out numericValue))
+                    return Convert.ChangeType(numericValue, type);
+                else if (type.IsNulable())
+                    return Activator.CreateInstance(type);
+            }
+            if (type == typeof(bool) || type == typeof(bool?))
+            {
+                bool boolValue;
+                if (bool.TryParse(obj?.ToString(), out boolValue))
+                    return boolValue;
+                else if (type.IsNulable())
+                    return null;
+                else
+                    return Activator.CreateInstance(type);
+            }
+            if (type == typeof(DateTime) || type == typeof(DateTime?))
+            {
+                DateTime dateTimeValue;
+                if (DateTime.TryParse(obj?.ToString(), out dateTimeValue))
+                    return dateTimeValue;
+                else if (type.IsNulable())
+                    return null;
+                else
+                    return Activator.CreateInstance(type);
+            }
+            if (type == typeof(DateTimeOffset) || type == typeof(DateTimeOffset?))
+            {
+                DateTimeOffset dateTimeOffsetValue;
+                if (DateTimeOffset.TryParse(obj?.ToString(), out dateTimeOffsetValue))
+                    return dateTimeOffsetValue;
+                else if (type.IsNulable())
+                    return null;
+                else
+                    return Activator.CreateInstance(type);
+            }
+            return obj;
+        }
+
+
         public static object InvokeMethod(this object obj, string methodName, params object[] methodParameters)
         {
             if (obj == null)
@@ -111,6 +165,11 @@ namespace Comandante.Services
                 default:
                     return false;
             }
+        }
+
+        public static bool IsNulable(this Type type)
+        {
+            return type == typeof(Nullable<>);
         }
 
         public static string GetFriendlyName(this Type type)

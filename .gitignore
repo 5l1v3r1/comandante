@@ -1,6 +1,10 @@
-/src/Debug4MvcNetCore.Tests/bin/
-/src/Debug4MvcNetCore.Tests/obj/
-/src/Debug4MvcNetCore.TestsWeb/bin/
-/src/Debug4MvcNetCore.TestsWeb/obj/
-/src/Debug4MvcNetCore/bin/
-/src/Debug4MvcNetCore/obj/
+/src/Comandante.Tests/bin/
+/src/Comandante.Tests/obj/
+/src/Comandante.TestsWeb/bin/
+/src/Comandante.TestsWeb/obj/
+/src/Comandante/bin/
+/src/Comandante/obj/
+
+*.dll
+
+*.pdb

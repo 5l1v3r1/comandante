@@ -9,6 +9,10 @@
         <td>ProviderName</td>
         <td>@Model.AppDbContext?.ProviderName</td>
     </tr>
+    <tr>
+        <td></td>
+        <td><a class="button small" href="/debug/EFRunSql?_dbContext=@(@Model.AppDbContext?.Name)">Run Sql</a></td>
+    </tr>
 </table>
 
 @if (Model.AppDbContext != null)
@@ -26,7 +30,7 @@
             {
                 <tr>
                     <td>
-                        <a href="/debug/EFEntity?_AppDbContext=@(Model.AppDbContext?.Name)&_Entity=@(entity.ClrTypeName)">
+                        <a href="/debug/EFEntity?_dbContext=@(Model.AppDbContext?.Name)&_entity=@(entity.ClrTypeName)">
                             @(entity.SchemaAndTableName)
                         </a>
                     </td>

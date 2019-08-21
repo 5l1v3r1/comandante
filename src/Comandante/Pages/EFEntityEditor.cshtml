@@ -3,16 +3,16 @@
 <h3>@Model.Entity?.ClrTypeName</h3>
 
 <form autocomplete="off" method="post">
-    <input name="_AppDbContext" value="@Model.AppDbContext" type="hidden" />
-    <input name="_Entity" value="@Model.Entity?.ClrTypeName" type="hidden" />
+    <input name="_dbContext" value="@Model.AppDbContext" type="hidden" />
+    <input name="_entity" value="@Model.Entity?.ClrTypeName" type="hidden" />
     <table class="form">
-        @foreach (var field in @Model.Entity.Fields)
+        @foreach (var field in @Model.FieldsWithValues)
         {
             <tr>
-                <td>@field.Name</td>
-                <td>@RenderPartialView("_FieldEditor", field)</td>
+                <td>@field.Field.Name</td>
+                <td>@RenderPartialView("_FieldEditor", @field)</td>
             </tr>
         }
     </table>
-    <button>Submit</button>
+    <button name="_submit">Submit</button>
 </form>

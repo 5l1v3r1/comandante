@@ -3,21 +3,26 @@
 @using  Comandante;
 @using  Comandante.Services;
 
-@if (Model.FieldInfo.FieldType == typeof(string) || Model.FieldInfo.FieldType.IsNumericType())
+@if (Model.Field.FieldInfo.FieldType == typeof(string) || Model.Field.FieldInfo.FieldType.IsNumericType())
 {
-    <input name="@Model.Name" value="@Value" />
+    <input name="@Model.Field.Name" value="@Model.Value" />
 }
 
-@if (Model.FieldInfo.FieldType == typeof(bool) || Model.FieldInfo.FieldType == typeof(bool?))
+@if (Model.Field.FieldInfo.FieldType == typeof(bool))
 {
-    <select name="@Model.Name">
+    <input name="@Model.Field.Name" value="True" type="checkbox" @(@Model.Value == "True" ? "checked" : "")/>
+}
+
+@if (Model.Field.FieldInfo.FieldType == typeof(bool?))
+{
+    <select name="@Model.Field.Name">
         <option value="">Not specofied</option>
-        <option value="true">True</option>
-        <option value="false">False</option>
+        <option value="True" @(@Model.Value == "True" ? "selected" : "")>True</option>
+        <option value="False" @(@Model.Value == "False" ? "selected" : "")>False</option>
     </select>
 }
 
-@if (Model.FieldInfo.FieldType == typeof(DateTime) || Model.FieldInfo.FieldType == typeof(DateTime?) || Model.FieldInfo.FieldType == typeof(DateTimeOffset) || Model.FieldInfo.FieldType == typeof(DateTimeOffset?))
+@if (Model.Field.FieldInfo.FieldType == typeof(DateTime) || Model.Field.FieldInfo.FieldType == typeof(DateTime?) || Model.Field.FieldInfo.FieldType == typeof(DateTimeOffset) || Model.Field.FieldInfo.FieldType == typeof(DateTimeOffset?))
 {
-    <input name="@Model.Name" value="@Value" type="datetime-local" />
+    <input name="@Model.Field.Name" value="@Model.Value" type="datetime-local" />
 }

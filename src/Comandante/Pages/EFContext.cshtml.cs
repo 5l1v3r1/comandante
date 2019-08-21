@@ -18,7 +18,7 @@ namespace Comandante.Pages
         {
             Model = new EFContextModel();
 
-            var appDbContext = this.HttpContext.Request.Query.FirstOrDefault(x => x.Key == "AppDbContext").Value.ToString().Trim();
+            var appDbContext = this.HttpContext.Request.Query.FirstOrDefault(x => x.Key == "_dbContext").Value.ToString().Trim();
 
             Model.AppDbContext = new EntityFrameworkService()
                 .GetAppDbContexts(this.HttpContext)

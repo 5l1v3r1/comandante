@@ -174,18 +174,27 @@ fieldset legend label{
     margin-top: 50px;
 }
 
+.button,
 button {
     background-color: white;
     border: 1px solid rgb(94, 94, 94);
     padding: 5px;
     padding-left: 12px;
     padding-right: 12px;
+    color: black;
 }
-
+.button:hover,
 button:hover {
     background-color: rgb(242, 242, 242);
     cursor: pointer;
 }
+
+.button.small {
+    padding: 3px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
 
 select,
 input {

@@ -15,19 +15,10 @@ namespace Comandante.Pages
 {
     public class _FieldEditor : EmbeddedViewModel
     {
-        public AppDbContextEntityFieldInfo Model { get; set; }
-        public string Value { get; set; }
+        public (AppDbContextEntityFieldInfo Field, string Value) Model { get; set; }
 
         public async override Task<EmbededViewResult> InitView()
         {
-            if (string.Equals(this.HttpContext.Request.Method, "GET", StringComparison.CurrentCultureIgnoreCase))
-            {
-                this.Value = this.HttpContext.Request.Query.FirstOrDefault(x => x.Key == Model.Name).Value.FirstOrDefault();
-            }
-            if(string.Equals(this.HttpContext.Request.Method, "POST", StringComparison.CurrentCultureIgnoreCase))
-            {
-                this.Value = this.HttpContext.Request.Form.FirstOrDefault(x => x.Key == Model.Name).Value.FirstOrDefault();
-            }
             return await View();
         }
     }

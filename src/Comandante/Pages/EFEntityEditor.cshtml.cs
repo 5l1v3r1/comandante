@@ -18,16 +18,49 @@ namespace Comandante.Pages
         {
             Model = new EFEntityEditorModel();
 
-            var appDbContext = this.HttpContext.Request.Query.FirstOrDefault(x => x.Key == "_AppDbContext").Value.ToString().Trim();
-            var entityName = this.HttpContext.Request.Query.FirstOrDefault(x => x.Key == "_Entity").Value.ToString().Trim();
-            var entity = new EntityFrameworkService()
+            var contextName = this.HttpContext.Request.Query.FirstOrDefault(x => x.Key == "_dbContext").Value.ToString().Trim();
+            var entityName = this.HttpContext.Request.Query.FirstOrDefault(x => x.Key == "_entity").Value.ToString().Trim();
+            var entityInfo = new EntityFrameworkService()
                 .GetAppDbContexts(this.HttpContext)
-                .FirstOrDefault(x => x.Name == appDbContext)
+                .FirstOrDefault(x => x.Name == contextName)
                 .Entities
                 .FirstOrDefault(x => x.ClrTypeName == entityName);
+            
+            var fieldsValues = new Dictionary<string, string>();
+            var isSubmit = false;
 
-            Model.AppDbContext = appDbContext;
-            Model.Entity = entity;
+            var pkValues = this.HttpContext.Request.Query
+                .Where(x => x.Key.StartsWith("_") == false && string.IsNullOrEmpty(x.Value.FirstOrDefault()) == false)
+                .ToDictionary(x => x.Key, x => x.Value.FirstOrDefault()?.ToString());
+            var isUpdate = pkValues.Count > 0;
+
+            if (string.Equals(this.HttpContext.Request.Method, "POST", StringComparison.CurrentCultureIgnoreCase))
+            {
+                fieldsValues = this.HttpContext.Request.Form
+                    .Where(x => x.Key.StartsWith("_") == false && string.IsNullOrEmpty(x.Value.FirstOrDefault()) == false)
+                    .ToDictionary(x => x.Key, x => x.Value.FirstOrDefault()?.ToString());
+                isSubmit = this.HttpContext.Request.Form.Any(x => x.Key == "_submit");
+                
+            }
+            
+            if (string.Equals(this.HttpContext.Request.Method, "GET", StringComparison.CurrentCultureIgnoreCase))
+            {
+                var entity = new EntityFrameworkService().GetByPrimaryKey(this.HttpContext, contextName, entityInfo, pkValues);
+                if (entity != null)
+                    fieldsValues = entityInfo.Fields.ToDictionary(x => x.Name, x => entity.GetPropertyOrFieldValue(x.Name)?.ToString());
+            }
+
+            Model.AppDbContext = contextName;
+            Model.Entity = entityInfo;
+            Model.FieldsWithValues = entityInfo.Fields.Select(x => (x, fieldsValues.FirstOrDefault(v => v.Key == x.Name).Value)).ToList();
+
+            if (isSubmit)
+            {
+                if (isUpdate)
+                    new EntityFrameworkService().Update(this.HttpContext, contextName, entityInfo, pkValues, fieldsValues);
+                else
+                    new EntityFrameworkService().Add(this.HttpContext, contextName, entityInfo, fieldsValues);
+            }
 
             return await View();
         }
@@ -37,6 +70,7 @@ namespace Comandante.Pages
     {
         public string AppDbContext;
         public AppDbContextEntityInfo Entity;
+        public List<(AppDbContextEntityFieldInfo Field, string Value)> FieldsWithValues;
     }
 
    
