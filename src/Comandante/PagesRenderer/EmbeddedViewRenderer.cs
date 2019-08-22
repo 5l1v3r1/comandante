@@ -153,6 +153,7 @@ namespace Comandante.PagesRenderer
             EmbeddedViewModel view = (EmbeddedViewModel)Activator.CreateInstance(item.Type);
             view.HttpContext = httpContext;
             view.ViewName = viewName;
+            view.Html = new Html(httpContext);
             if (model != null)
                 item.Type.GetProperty("Model").SetValue(view, model);
             var result = await view.InitView();

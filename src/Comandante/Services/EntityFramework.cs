@@ -53,77 +53,57 @@ namespace Comandante.Services
         public AppDbContextSqlResult RunSql(HttpContext httpContext, string contextName, string sql, int maxRowsReads = 1000)
         {
             try {
-                Type addDbContextType = GetAppDbContextTypes().FirstOrDefault(x => x.Name == contextName);
-                object addDbContext = httpContext?.RequestServices?.GetService(addDbContextType);
-                if (addDbContext != null)
+                Type dbContextType = GetDbContextTypes().FirstOrDefault(x => x.Name == contextName);
+                object dbContext = httpContext?.RequestServices?.GetService(dbContextType);
+                if (dbContext == null)
+                    return AppDbContextSqlResult.Error("Cannot find DbContext: " + contextName);
+
+                object database = dbContext.GetPropertyValue("Database");
+                List<string> columns = new List<string>();
+                List<object[]> rows = new List<object[]>();
+                int recordsAffected = -1;
+                var relatoinDatabaseExtensionType = GetRelationalDatabaseExtensionType();
+                using (var dbConnection = relatoinDatabaseExtensionType.InvokeStaticMethod("GetDbConnection", database) as IDisposable)
                 {
-                    object database = addDbContext.GetPropertyValue("Database");
-                    List<string> columns = new List<string>();
-                    List<object[]> rows = new List<object[]>();
-                    int recordsAffected = -1;
-                    var relatoinDatabaseExtensionType = GetRelationalDatabaseExtensionType();
-                    using (var dbConnection = relatoinDatabaseExtensionType.InvokeStaticMethod("GetDbConnection", database) as IDisposable)
+                    dbConnection.InvokeMethod("Open");
+                    using (var dbCommand = dbConnection.InvokeMethod("CreateCommand") as IDisposable)
                     {
-                        dbConnection.InvokeMethod("Open");
-                        using (var dbCommand = dbConnection.InvokeMethod("CreateCommand") as IDisposable)
+                        dbCommand.SetPropertyValue("CommandText", sql);
+                        using (var reader = dbCommand.InvokeMethod("ExecuteReader") as IDisposable)
                         {
-                            dbCommand.SetPropertyValue("CommandText", sql);
-                            using (var reader = dbCommand.InvokeMethod("ExecuteReader") as IDisposable)
+                            while ((bool)reader.InvokeMethod("Read"))
                             {
-                                while ((bool)reader.InvokeMethod("Read"))
+                                if (columns.Count == 0)
                                 {
-                                    if (columns.Count == 0)
+                                    int fieldCount = (int)reader.GetPropertyValue("FieldCount");
+                                    for (int i = 0; i < fieldCount; i++)
                                     {
-                                        int fieldCount = (int)reader.GetPropertyValue("FieldCount");
-                                        for (int i = 0; i < fieldCount; i++)
-                                        {
-                                            columns.Add(reader.InvokeMethod("GetName", i)?.ToString());
-                                        }
+                                        columns.Add(reader.InvokeMethod("GetName", i)?.ToString());
                                     }
-                                    object[] row = new object[columns.Count];
-                                    for (int i = 0; i < columns.Count; i++)
-                                    {
-                                        row[i] = reader.InvokeMethod("GetValue", i);
-                                    }
-                                    rows.Add(row);
-                                    if (rows.Count >= maxRowsReads)
-                                        break;
                                 }
-                                recordsAffected = (int)reader.GetPropertyValue("RecordsAffected");
+                                object[] row = new object[columns.Count];
+                                for (int i = 0; i < columns.Count; i++)
+                                {
+                                    row[i] = reader.InvokeMethod("GetValue", i);
+                                }
+                                rows.Add(row);
+                                if (rows.Count >= maxRowsReads)
+                                    break;
                             }
+                            recordsAffected = (int)reader.GetPropertyValue("RecordsAffected");
                         }
                     }
-                    return new AppDbContextSqlResult
-                    {
-                        Columns = columns,
-                        Rows = rows,
-                        AffectedRecords = recordsAffected
-                    };
-
                 }
-                return new AppDbContextSqlResult { Error = "Cannot find DbContext: " + contextName };
-            }
-            catch (TargetInvocationException ex)
-            {
-                var exception = ex.InnerException;
-                var error = "";
-                while (exception != null)
+                return new AppDbContextSqlResult
                 {
-                    error = error + " " + exception.Message; ;
-                    exception = exception.InnerException;
-                }
-                return new AppDbContextSqlResult { Error = error };
+                    Columns = columns,
+                    Rows = rows,
+                    AffectedRecords = recordsAffected
+                };
             }
             catch (Exception ex)
             {
-                var exception = ex;
-                var error = "";
-                while (exception != null)
-                {
-                    error = error + " " + exception.Message; ;
-                    exception = exception.InnerException;
-                }
-                return new AppDbContextSqlResult { Error = error };
+                return AppDbContextSqlResult.Error(ex.GetDetails());
             }
         }
 
@@ -133,93 +113,136 @@ namespace Comandante.Services
         }
         public AppDbContextEntitiesResult GetAll(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> where)
         {
-            Type dbContextType = GetAppDbContextTypes().FirstOrDefault(y => y.Name == contextName);
-            object dbContext = httpContext?.RequestServices?.GetService(dbContextType);
-            if (dbContext == null)
-                return new AppDbContextEntitiesResult { Error = "Cannot find DbContext: " + contextName };
-
-            object dbSet = dbContext.InvokeGenericMethod("Set", new[] { entityInfo.ClrType });
-
-            ParameterExpression x = Expression.Parameter(entityInfo.ClrType, "x");
-            BinaryExpression lastOperation = null;
-            foreach (var whereCondition in where)
-            {
-                MemberExpression leftSide = Expression.Property(x, whereCondition.Key);
-                ConstantExpression rightSide = Expression.Constant(whereCondition.Value);
-                BinaryExpression operation = Expression.Equal(leftSide, rightSide);
-                if (lastOperation == null)
-                    lastOperation = operation;
-                else
-                    lastOperation = Expression.And(lastOperation, operation);
-            }
-
-            if (lastOperation != null)
-            {
-                Type delegateType = typeof(Func<,>).MakeGenericType(entityInfo.ClrType, typeof(bool));
-                LambdaExpression predicate = Expression.Lambda(delegateType, lastOperation, x);
-
-                var whereMethod = typeof(System.Linq.Queryable).GetMethods(BindingFlags.Static | BindingFlags.Public)
-                    .FirstOrDefault(m => m.Name == "Where" && m.GetParameters().Count() == 2);
-
-                MethodInfo genericWhereMethod = whereMethod.MakeGenericMethod(new[] { entityInfo.ClrType });
-                dbSet = genericWhereMethod.Invoke(null, new object[] { dbSet, predicate });
-            }
-
-            var toListMethod = typeof(System.Linq.Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public)
-                    .FirstOrDefault(m => m.Name == "ToList" && m.GetParameters().Count() == 1);
-            MethodInfo genericToListMethod = toListMethod.MakeGenericMethod(new[] { entityInfo.ClrType });
-            dbSet = genericToListMethod.Invoke(null, new object[] { dbSet});
-
             AppDbContextEntitiesResult results = new AppDbContextEntitiesResult();
-            foreach (var field in entityInfo.Fields)
+            results.Fields = entityInfo.Fields;
+            try
             {
-                results.Fields = entityInfo.Fields;
-            }
+                Type dbContextType = GetDbContextTypes().FirstOrDefault(y => y.Name == contextName);
+                object dbContext = httpContext?.RequestServices?.GetService(dbContextType);
+                if (dbContext == null)
+                    return AppDbContextEntitiesResult.Error("Cannot find DbContext: " + contextName);
 
-            foreach (var entity in dbSet as System.Collections.IEnumerable)
-            {
-                object[] row = new object[entityInfo.Fields.Count];
-                for (int i = 0; i < entityInfo.Fields.Count; i++)
+                object dbSet = dbContext.InvokeGenericMethod("Set", new[] { entityInfo.ClrType });
+
+                ParameterExpression x = Expression.Parameter(entityInfo.ClrType, "x");
+                BinaryExpression lastOperation = null;
+                foreach (var whereCondition in where)
                 {
-                    row[i] = entity.GetPropertyOrFieldValue(entityInfo.Fields[i].Name);
+                    MemberExpression leftSide = Expression.Property(x, whereCondition.Key);
+                    ConstantExpression rightSide = Expression.Constant(whereCondition.Value);
+                    BinaryExpression operation = Expression.Equal(leftSide, rightSide);
+                    if (lastOperation == null)
+                        lastOperation = operation;
+                    else
+                        lastOperation = Expression.And(lastOperation, operation);
                 }
-                results.Rows.Add(row);
+
+                if (lastOperation != null)
+                {
+                    Type delegateType = typeof(Func<,>).MakeGenericType(entityInfo.ClrType, typeof(bool));
+                    LambdaExpression predicate = Expression.Lambda(delegateType, lastOperation, x);
+
+                    var whereMethod = typeof(System.Linq.Queryable).GetMethods(BindingFlags.Static | BindingFlags.Public)
+                        .FirstOrDefault(m => m.Name == "Where" && m.GetParameters().Count() == 2);
+
+                    MethodInfo genericWhereMethod = whereMethod.MakeGenericMethod(new[] { entityInfo.ClrType });
+                    dbSet = genericWhereMethod.Invoke(null, new object[] { dbSet, predicate });
+                }
+
+                var toListMethod = typeof(System.Linq.Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public)
+                        .FirstOrDefault(m => m.Name == "ToList" && m.GetParameters().Count() == 1);
+                MethodInfo genericToListMethod = toListMethod.MakeGenericMethod(new[] { entityInfo.ClrType });
+                dbSet = genericToListMethod.Invoke(null, new object[] { dbSet });
+
+                foreach (var entity in dbSet as System.Collections.IEnumerable)
+                {
+                    object[] row = new object[entityInfo.Fields.Count];
+                    for (int i = 0; i < entityInfo.Fields.Count; i++)
+                    {
+                        row[i] = dbContext
+                            .InvokeMethod("Entry", entity)
+                            .InvokeMethod("Property", entityInfo.Fields[i].Name)
+                            .GetPropertyValue("CurrentValue");
+                    }
+                    results.Rows.Add(row);
+                }
+                return results;
+            }
+            catch (Exception ex)
+            {
+                results.Errors.Add(ex.GetDetails());
             }
             return results;
         }
 
-        public object GetEntityByPrimaryKey(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> pkValues)
+        public AppDbContextEntityResult GetEntityByPrimaryKey(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> pkValues)
         {
-            Type dbContextType = GetAppDbContextTypes().FirstOrDefault(y => y.Name == contextName);
+            Type dbContextType = GetDbContextTypes().FirstOrDefault(y => y.Name == contextName);
             object dbContext = httpContext?.RequestServices?.GetService(dbContextType);
             if (dbContext == null)
-                return new AppDbContextSqlResult { Error = "Cannot find DbContext: " + contextName };
+                return AppDbContextEntityResult.Error("Cannot find DbContext: " + contextName);
 
-            var primaryKeys = entityInfo.Fields
-                .Where(x => x.IsPrimaryKey)
-                .Select(x => pkValues.FirstOrDefault(v => v.Key == x.Name).Value.ConvertIfNeeded(x.FieldInfo.FieldType))
-                .ToArray();
+            try
+            {
+                var primaryKeys = entityInfo.Fields
+                    .Where(x => x.IsPrimaryKey)
+                    .Select(x => pkValues.FirstOrDefault(v => v.Key == x.Name).Value.ConvertToType(x.FieldInfo.FieldType))
+                    .ToArray();
 
-            return dbContext.InvokeMethod("Find", entityInfo.ClrType, primaryKeys);
+                var entity = dbContext.InvokeMethod("Find", entityInfo.ClrType, primaryKeys);
+                if (entity == null)
+                {
+                    var pkString = string.Join(";", pkValues.Select(x => x.Key + "=" + x.Value).ToArray());
+                    return AppDbContextEntityResult.Error($"Cannot find entity {entityInfo.ClrTypeName} with primary key: {pkString}");
+                }
+                var fieldsValues = entityInfo.Fields.ToDictionary(
+                    x => x.Name,
+                    x =>
+                    {
+                        return dbContext
+                            .InvokeMethod("Entry", entity)
+                            .InvokeMethod("Property", x.Name)
+                            .GetPropertyValue("CurrentValue");
+                    });
+                return new AppDbContextEntityResult
+                {
+                    Entity = entity,
+                    FieldsValues = fieldsValues
+                };
+            } catch (Exception ex)
+            {
+                var pkString = string.Join(";", pkValues.Select(x => x.Key + "=" + x.Value).ToArray());
+                return AppDbContextEntityResult.Error($"Cannot find entity {entityInfo.ClrTypeName} with primary key: {pkString}. ex.GetDetails()");
+            }
         }
 
         public AppDbContextEntityResult Add(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> fieldsValues)
         {
-            Type dbContextType = GetAppDbContextTypes().FirstOrDefault(y => y.Name == contextName);
+            Type dbContextType = GetDbContextTypes().FirstOrDefault(y => y.Name == contextName);
             object dbContext = httpContext?.RequestServices?.GetService(dbContextType);
             if (dbContext == null)
-                return new AppDbContextEntityResult { Error = "Cannot find DbContext: " + contextName };
+                return AppDbContextEntityResult.Error("Cannot find DbContext: " + contextName);
 
-            StringBuilder error = new StringBuilder();
+            List<string> errors = new List<string>();
             var entity = Activator.CreateInstance(entityInfo.ClrType);
-            foreach(var value in fieldsValues)
+            foreach(var field in fieldsValues)
             {
                 try
                 {
-                    entity.SetPropertyValueAndConvertIfNeeded(value.Key, value.Value);
+                    var entityField = entityInfo.Fields.FirstOrDefault(x => x.Name == field.Key);
+                    if (entityField == null)
+                    {
+                        errors.Add($"Property {field.Key} does not exist in the entity {entityInfo.ClrTypeName}");
+                        continue;
+                    }
+                    var value = field.Value.ConvertToType(entityField.ClrType);
+                    dbContext
+                        .InvokeMethod("Entry", entity)
+                        .InvokeMethod("Property", field.Key)
+                        .SetPropertyValue("CurrentValue", value);
                 }catch(Exception ex)
                 {
-                    error.AppendLine($"Cannot set entity property -> {value.Key} = {value.Value} . Error -> {ex.GetDetails()}");
+                    errors.Add($"Cannot set entity property {field.Key} to {field.Value}. Error: {ex.GetDetails()}");
                 }
             }
 
@@ -229,7 +252,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                error.AppendLine($"Cannot add entity to the context. Error -> {ex.GetDetails()}");
+                errors.Add($"Cannot add entity to the context. Error: {ex.GetDetails()}");
             }
 
             try
@@ -238,60 +261,43 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                error.AppendLine($"Cannot save entity. Error -> {ex.GetDetails()}");
+                errors.Add($"Cannot save entity. Error: {ex.GetDetails()}");
             }
 
             return new AppDbContextEntityResult
             {
                 Entity = entity,
-                Error = error.ToString()
+                Errors = errors
             };
         }
 
         public AppDbContextEntityResult Update(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> pkValues , Dictionary<string, string> fieldsValues)
         {
-            Type dbContextType = GetAppDbContextTypes().FirstOrDefault(y => y.Name == contextName);
+            Type dbContextType = GetDbContextTypes().FirstOrDefault(y => y.Name == contextName);
             object dbContext = httpContext?.RequestServices?.GetService(dbContextType);
             if (dbContext == null)
-                return new AppDbContextEntityResult { Error = "Cannot find DbContext: " + contextName };
+                return AppDbContextEntityResult.Error("Cannot find DbContext: " + contextName);
 
-            var pkString = string.Join(";", pkValues.Select(x => x.Key + "=" + x.Value).ToArray());
-            StringBuilder error = new StringBuilder();
-            object entity = null;
+            var entityResult = GetEntityByPrimaryKey(httpContext, contextName, entityInfo, pkValues);
+            if (entityResult.IsSuccess == false)
+                return AppDbContextEntityResult.Error(entityResult.Errors);
+            object entity = entityResult.Entity;
 
-            try
+            List<string> errors = new List<string>();
+            foreach (var field in entityInfo.Fields)
             {
-                entity = GetEntityByPrimaryKey(httpContext, contextName, entityInfo, pkValues);
-            }
-            catch (Exception ex)
-            {
-                error.AppendLine($"Cannot find entity by primary key. PK -> {pkString}  . Error -> {ex.GetDetails()}");
-                return new AppDbContextEntityResult
-                {
-                    Entity = entity,
-                    Error = error.ToString()
-                };
-            }
-
-            if (entity == null)
-            {
-                error.AppendLine($"Cannot find entity by primary key. PK -> {pkString}");
-                return new AppDbContextEntityResult
-                {
-                    Entity = entity,
-                    Error = error.ToString()
-                };
-            }
-
-            foreach (var value in fieldsValues)
-            {
+                object value = fieldsValues.FirstOrDefault(x => x.Key == field.Name).Value;
                 try
                 {
-                    entity.SetPropertyValueAndConvertIfNeeded(value.Key, value.Value);
+                    value = value.ConvertToType(field.ClrType);
+                    dbContext
+                        .InvokeMethod("Entry", entity)
+                        .InvokeMethod("Property", field.Name)
+                        .SetPropertyValue("CurrentValue", value);
                 }
                 catch (Exception ex)
                 {
-                    error.AppendLine($"Cannot set entity property -> {value.Key} = {value.Value} . Error -> {ex.GetDetails()}");
+                    errors.Add($"Cannot set entity property {field.Name} to {value}. Error: {ex.GetDetails()}");
                 }
             }
 
@@ -300,7 +306,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                error.AppendLine($"Cannot update entity in the context. Error -> {ex.GetDetails()}");
+                errors.Add($"Cannot update entity in the context. Error: {ex.GetDetails()}");
             }
 
             try
@@ -309,33 +315,20 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                error.AppendLine($"Cannot save entity. Error -> {ex.GetDetails()}");
+                errors.Add($"Cannot save entity. Error: {ex.GetDetails()}");
             }
 
             return new AppDbContextEntityResult
             {
                 Entity = entity,
-                Error = error.ToString()
+                Errors = errors
             };
         }
 
-            //public AppDbContextSqlResults GetRows(HttpContext httpContext, string appDbContextName, AppDbContextEntityInfo entityInfo)
-            //{
-
-            //    StringBuilder sb = new StringBuilder();
-            //    sb.Append("SELECT ");
-            //    entityInfo.Fields.ForEach(x => sb.Append(x.Name + ", "));
-            //    sb.Remove(sb.Length - 2, 2);
-            //    sb.AppendLine();
-            //    sb.Append(" FROM ");
-            //    sb.Append(entityInfo.SchemaAndTableName);
-            //    return RunSql(httpContext, appDbContextName, sb.ToString());
-            //}
-
-            public List<AppDbContextInfo> GetAppDbContexts(HttpContext httpContext)
+        public List<AppDbContextInfo> GetDbContexts(HttpContext httpContext)
         {
             List<AppDbContextInfo> appDbContexts = new List<AppDbContextInfo>();
-            foreach (var addDbContextType in GetAppDbContextTypes())
+            foreach (var addDbContextType in GetDbContextTypes())
             {
                 AppDbContextInfo appDbContextInfo = new AppDbContextInfo();
                 appDbContexts.Add(appDbContextInfo);
@@ -360,15 +353,15 @@ namespace Comandante.Services
                     var model = addDbContextType.GetProperty("Model")?.GetValue(addDbContext);
                     if (model != null)
                     {
-                        var entitiesTypes = model.InvokeMethod("GetEntityTypes") as  System.Collections.IEnumerable;
-                        foreach(var entityType in entitiesTypes)
+                        var entitiesTypes = model.InvokeMethod("GetEntityTypes") as System.Collections.IEnumerable;
+                        foreach (var entityType in entitiesTypes)
                         {
                             var relationalEntity = relationalMetadataExtensions.InvokeStaticMethod("Relational", entityType);
                             var schema = relationalEntity.GetPropertyValue("Schema")?.ToString();
                             var tableName = relationalEntity.GetPropertyValue("TableName")?.ToString();
 
                             var debugView = entityType.GetPropertyValue("DebugView")?.GetPropertyValue("View"); ;
-                            
+
                             var properties = entityType.GetFieldValue("_properties") as System.Collections.IEnumerable;
                             var entityFields = new List<AppDbContextEntityFieldInfo>();
                             foreach (var property in properties)
@@ -376,6 +369,7 @@ namespace Comandante.Services
                                 entityFields.Add(new AppDbContextEntityFieldInfo
                                 {
                                     Name = property.GetPropertyValue("Value")?.GetPropertyValue("Name")?.ToString(),
+                                    ClrType = property.GetPropertyValue("Value")?.GetPropertyValue("ClrType") as Type,
                                     FieldInfo = property.GetPropertyValue("Value")?.GetPropertyValue("FieldInfo") as FieldInfo,
                                     IsPrimaryKey = property.GetPropertyValue("Value")?.GetPropertyValue("PrimaryKey") != null,
                                 });
@@ -405,7 +399,7 @@ namespace Comandante.Services
             return appDbContexts;
         }
 
-        public List<Type> GetAppDbContextTypes()
+        public List<Type> GetDbContextTypes()
         {
             var entityFrameworkCoreAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.FullName.StartsWith("Microsoft.EntityFrameworkCore,"));
             Type dbContexType = entityFrameworkCoreAssembly.GetType("Microsoft.EntityFrameworkCore.DbContext");
@@ -582,6 +576,7 @@ namespace Comandante.Services
         public string Name;
         public FieldInfo FieldInfo;
         public bool IsPrimaryKey;
+        public Type ClrType;
     }
 
     public class AppDbContextSqlResult
@@ -589,8 +584,16 @@ namespace Comandante.Services
         public int AffectedRecords;
         public List<object[]> Rows = new List<object[]>();
         public List<string> Columns = new List<string>();
-        public string Error;
-        
+        public List<string> Errors = new List<string>();
+
+        public bool IsSuccess => Errors.Count == 0;
+
+        public static AppDbContextSqlResult Error(string error)
+        {
+            AppDbContextSqlResult result = new AppDbContextSqlResult();
+            result.Errors.Add(error);
+            return result;
+        }
     }
 
     public class AppDbContextEntitiesResult
@@ -598,15 +601,40 @@ namespace Comandante.Services
         public int AffectedRecords;
         public List<object[]> Rows = new List<object[]>();
         public List<AppDbContextEntityFieldInfo> Fields = new List<AppDbContextEntityFieldInfo>();
-        public string Error;
+        public List<string> Errors = new List<string>();
+
+        public bool IsSuccess => Errors.Count == 0;
+
+        public static AppDbContextEntitiesResult Error(string error)
+        {
+            AppDbContextEntitiesResult result = new AppDbContextEntitiesResult();
+            result.Errors.Add(error);
+            return result;
+        }
     }
 
     public class AppDbContextEntityResult
     {
         public object Entity;
-        public string Error;
+        public Dictionary<string, object> FieldsValues = new Dictionary<string, object>();
+        public List<string> Errors = new List<string>();
 
-        public bool IsSuccess => Entity != null && string.IsNullOrEmpty(Error);
+        public bool IsSuccess => Entity != null && Errors.Count == 0;
+
+        public static AppDbContextEntityResult Error(string error)
+        {
+            AppDbContextEntityResult result = new AppDbContextEntityResult();
+            result.Errors.Add(error);
+            return result;
+        }
+
+        public static AppDbContextEntityResult Error(List<string> errors)
+        {
+            AppDbContextEntityResult result = new AppDbContextEntityResult();
+            result.Errors = errors;
+            return result;
+        }
+
     }
     
 }

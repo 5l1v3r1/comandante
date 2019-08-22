@@ -18,11 +18,12 @@ namespace Comandante.Pages
         {
             Model = new EFContextModel();
 
-            var appDbContext = this.HttpContext.Request.Query.FirstOrDefault(x => x.Key == "_dbContext").Value.ToString().Trim();
+            var dbContext = this.HttpContext.Request.Query.FirstOrDefault(x => x.Key == "_dbContext").Value.ToString().Trim();
 
+            Model.DbContext = dbContext;
             Model.AppDbContext = new EntityFrameworkService()
-                .GetAppDbContexts(this.HttpContext)
-                .FirstOrDefault(x => x.Name == appDbContext);
+                .GetDbContexts(this.HttpContext)
+                .FirstOrDefault(x => x.Name == dbContext);
             return await View();
         }
     }
@@ -30,6 +31,7 @@ namespace Comandante.Pages
     public class EFContextModel
     {
         public AppDbContextInfo AppDbContext;
+        public string DbContext;
     }
 
 }

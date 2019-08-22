@@ -38,63 +38,85 @@ namespace Comandante.Services
             obj.GetType().GetProperty(propertyName)?.SetValue(obj, propertyValue);
         }
 
-        public static void SetPropertyValueAndConvertIfNeeded(this object obj, string propertyName, object propertyValue)
-        {
-            if (obj == null)
-                return;
-            var property = obj.GetType().GetProperty(propertyName);
-            property.SetValue(obj, propertyValue.ConvertIfNeeded(property.PropertyType));
-        }
-
-        public static object ConvertIfNeeded(this object obj, Type type)
+        public static object ConvertToType(this object obj, Type targetType)
         {
             if (obj == null)
                 return null;
-            if (type.IsNumericType())
+
+            string objStr = obj.ToString();
+            if (string.IsNullOrEmpty(objStr))
+                return Activator.CreateInstance(targetType);
+
+            var targetUnderlyingType = targetType;
+            if (targetType.IsNulable())
+                targetUnderlyingType = Nullable.GetUnderlyingType(targetType);
+
+            if (targetUnderlyingType.IsNumericType())
             {
                 long numericValue;
-                if (long.TryParse(obj?.ToString(), out numericValue))
-                    return Convert.ChangeType(numericValue, type);
-                else if (type.IsNulable())
-                    return Activator.CreateInstance(type);
+                if (long.TryParse(objStr, out numericValue))
+                {
+                    object targetValue = Convert.ChangeType(numericValue, targetUnderlyingType);
+                    if (targetType.IsNulable())
+                        return Activator.CreateInstance(targetType, targetValue);
+                    else
+                        return targetValue;
+                }
+                else
+                    throw new ArgumentException($"Cannot convert value to {targetType.GetFriendlyName()}: {objStr}");
             }
-            if (type == typeof(bool) || type == typeof(bool?))
+            if (targetType == typeof(bool) || targetType == typeof(bool?))
             {
                 bool boolValue;
-                if (bool.TryParse(obj?.ToString(), out boolValue))
-                    return boolValue;
-                else if (type.IsNulable())
-                    return null;
+                if (bool.TryParse(objStr, out boolValue))
+                {
+                    object targetUnderlyingValue = boolValue;
+                    if (targetType.IsNulable())
+                        return Activator.CreateInstance(targetType, targetUnderlyingValue);
+                    else
+                        return targetUnderlyingValue;
+                }
                 else
-                    return Activator.CreateInstance(type);
+                    throw new ArgumentException($"Cannot convert value to {targetType.GetFriendlyName()}: {objStr}");
             }
-            if (type == typeof(DateTime) || type == typeof(DateTime?))
+            if (targetType == typeof(DateTime) || targetType == typeof(DateTime?))
             {
                 DateTime dateTimeValue;
-                if (DateTime.TryParse(obj?.ToString(), out dateTimeValue))
-                    return dateTimeValue;
-                else if (type.IsNulable())
-                    return null;
+                if (DateTime.TryParse(objStr, out dateTimeValue))
+                {
+                    object targetUnderlyingValue = dateTimeValue;
+                    if (targetType.IsNulable())
+                        return Activator.CreateInstance(targetType, targetUnderlyingValue);
+                    else
+                        return targetUnderlyingValue;
+                }
                 else
-                    return Activator.CreateInstance(type);
+                    throw new ArgumentException($"Cannot convert value to {targetType.GetFriendlyName()}: {objStr}");
             }
-            if (type == typeof(DateTimeOffset) || type == typeof(DateTimeOffset?))
+            if (targetType == typeof(DateTimeOffset) || targetType == typeof(DateTimeOffset?))
             {
                 DateTimeOffset dateTimeOffsetValue;
-                if (DateTimeOffset.TryParse(obj?.ToString(), out dateTimeOffsetValue))
-                    return dateTimeOffsetValue;
-                else if (type.IsNulable())
-                    return null;
+                if (DateTimeOffset.TryParse(objStr, out dateTimeOffsetValue))
+                {
+                    object targetUnderlyingValue = dateTimeOffsetValue;
+                    if (targetType.IsNulable())
+                        return Activator.CreateInstance(targetType, targetUnderlyingValue);
+                    else
+                        return targetUnderlyingValue;
+                }
                 else
-                    return Activator.CreateInstance(type);
+                    throw new ArgumentException($"Cannot convert value to {targetType.GetFriendlyName()}: {objStr}");
             }
             return obj;
         }
 
         public static string GetDetails(this Exception ex)
         {
+            if (ex is TargetInvocationException)
+                ex = ex.InnerException;
+
             List<string> messages = new List<string>();
-            while(ex != null)
+            while (ex != null)
             {
                 messages.Add(ex.Message);
                 ex = ex.InnerException;
@@ -160,6 +182,8 @@ namespace Comandante.Services
 
         public static bool IsNumericType(this Type type)
         {
+            if (type.IsNulable())
+                type = Nullable.GetUnderlyingType(type);
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
@@ -181,7 +205,7 @@ namespace Comandante.Services
 
         public static bool IsNulable(this Type type)
         {
-            return type == typeof(Nullable<>);
+            return Nullable.GetUnderlyingType(type) != null;
         }
 
         public static string GetFriendlyName(this Type type)

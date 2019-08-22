@@ -17,7 +17,7 @@ namespace Comandante.Pages
         {
             Model = new EFModel();
 
-            Model.AppDbContexts = new EntityFrameworkService().GetAppDbContexts(this.HttpContext);
+            Model.AppDbContexts = new EntityFrameworkService().GetDbContexts(this.HttpContext);
             return await View();
         }
     }

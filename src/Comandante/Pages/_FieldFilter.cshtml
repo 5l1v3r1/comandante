@@ -3,12 +3,12 @@
 @using  Comandante;
 @using  Comandante.Services;
 
-@if (Model.FieldInfo.FieldType == typeof(string) || Model.FieldInfo.FieldType.IsNumericType())
+@if (Model.ClrType == typeof(string) || Model.ClrType.IsNumericType())
 {
     <input name="@Model.Name" value="@Value" />
 }
 
-@if (Model.FieldInfo.FieldType == typeof(bool) || Model.FieldInfo.FieldType == typeof(bool?))
+@if (Model.ClrType == typeof(bool) || Model.ClrType == typeof(bool?))
 {
     <select name="@Model.Name">
         <option value="">Not specofied</option>
@@ -17,7 +17,7 @@
     </select>
 }
 
-@if (Model.FieldInfo.FieldType == typeof(DateTime) || Model.FieldInfo.FieldType == typeof(DateTime?) || Model.FieldInfo.FieldType == typeof(DateTimeOffset) || Model.FieldInfo.FieldType == typeof(DateTimeOffset?))
+@if (Model.ClrType == typeof(DateTime) || Model.ClrType == typeof(DateTime?) || Model.ClrType == typeof(DateTimeOffset) || Model.ClrType == typeof(DateTimeOffset?))
 {
     <input name="@Model.Name" value="@Value" type="datetime-local" />
 }

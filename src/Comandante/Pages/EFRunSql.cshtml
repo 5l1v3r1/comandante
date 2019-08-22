@@ -1,13 +1,17 @@
-﻿<h2>Entity Framework Core - Run Sql</h2>
+﻿<ul class="breadcrumb">
+    <li><a href="/debug/EF">EntityFrameworkCore</a></li>
+    <li><a href="/debug/EFContext?_dbContext=@(Model.DbContext)"><span class="small text-muted">DbContext: </span>@(Model.DbContext)</a></li>
+    <li>Run Sql</li>
+</ul>
 <script>
     window.onload = function () {
-        var sql = new URL(document.location).searchParams.get("Sql");
+        var sql = new URL(document.location).searchParams.get("_sql");
         document.getElementById("sql").value = sql;
     }
     function sql_onchange(value) {
         if (history.pushState) {
             var url = new URL(document.location);
-            url.searchParams.set("Sql", value);
+            url.searchParams.set("_sql", value);
             window.history.replaceState({ path: String(url) }, '', String(url));
         }
     }
@@ -16,8 +20,8 @@
         document.getElementById("sql_affectedRecords").innerHTML = null;
         document.getElementById("sql_results").innerHTML = null;
         var sql = document.getElementById("sql").value
-        var appDbContextSelect = document.getElementById("appDbContext");
-        var appDbContext = appDbContextSelect.options[appDbContextSelect.selectedIndex].value;
+        var dbContextSelect = document.getElementById("dbContext");
+        var dbContext = dbContextSelect.options[dbContextSelect.selectedIndex].value;
 
         xhr = new XMLHttpRequest();
         xhr.open('POST', window.location.href);
@@ -54,7 +58,7 @@
                 getElementById("sql_error").innerHTML = "Request failed.  Returned status of " + xhr.status;
             }
         };
-        xhr.send(encodeURI('Sql=' + sql) + "&"+ encodeURI('AppDbContext=' + appDbContext));
+        xhr.send(encodeURI('_sql=' + sql) + "&"+ encodeURI('_dbContext=' + dbContext));
     }
 </script>
 
@@ -62,10 +66,10 @@
     <div>
         <table class="form">
             <tr>
-                <td>AppDbContext</td>
+                <td>DbContext</td>
                 <td>
-                    <select id="appDbContext">
-                        @foreach (var dbContext in Model.AppDbContexts)
+                    <select id="dbContext">
+                        @foreach (var dbContext in Model.DbContexts)
                         {
                         <option value="@dbContext.Name">@dbContext.Name</option>
                         }

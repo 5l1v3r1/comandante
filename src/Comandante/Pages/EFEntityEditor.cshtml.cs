@@ -21,11 +21,15 @@ namespace Comandante.Pages
             var contextName = this.HttpContext.Request.Query.FirstOrDefault(x => x.Key == "_dbContext").Value.ToString().Trim();
             var entityName = this.HttpContext.Request.Query.FirstOrDefault(x => x.Key == "_entity").Value.ToString().Trim();
             var entityInfo = new EntityFrameworkService()
-                .GetAppDbContexts(this.HttpContext)
+                .GetDbContexts(this.HttpContext)
                 .FirstOrDefault(x => x.Name == contextName)
                 .Entities
                 .FirstOrDefault(x => x.ClrTypeName == entityName);
-            
+
+            Model.EntityName = entityName;
+            Model.EntityNamePart1 = string.Join(".", entityName?.Split(".").Reverse().Skip(1).Reverse());
+            Model.EntityNamePart2 = entityName?.Split(".").Last();
+
             var fieldsValues = new Dictionary<string, string>();
             var isSubmit = false;
 
@@ -47,7 +51,7 @@ namespace Comandante.Pages
             {
                 var entity = new EntityFrameworkService().GetEntityByPrimaryKey(this.HttpContext, contextName, entityInfo, pkValues);
                 if (entity != null)
-                    fieldsValues = entityInfo.Fields.ToDictionary(x => x.Name, x => entity.GetPropertyOrFieldValue(x.Name)?.ToString());
+                    fieldsValues = entity.FieldsValues.ToDictionary(x => x.Key, x => x.Value?.ToString());
             }
 
             Model.DbContext = contextName;
@@ -67,7 +71,7 @@ namespace Comandante.Pages
                     var url = $"/debug/EFEntityEditor?_dbContext={contextName}&_entity={entityInfo.ClrTypeName}&{pk}";
                     return new EmbededViewRedirectResult(url);
                 }
-                Model.Error = result.Error;
+                Model.Errors = result.Errors;
             }
 
             return await View();
@@ -79,8 +83,11 @@ namespace Comandante.Pages
         public string DbContext;
         public AppDbContextEntityInfo Entity;
         public List<(AppDbContextEntityFieldInfo Field, string Value)> FieldsWithValues;
-        public string Error;
+        public List<string> Errors;
         public bool IsUpdate;
+        public string EntityName;
+        public string EntityNamePart1;
+        public string EntityNamePart2;
     }
 
    

@@ -21,7 +21,7 @@ namespace Comandante.Pages
         public override async Task<EmbededViewResult> InitView()
         {
             Model = new EFRunSqlModel();
-            Model.AppDbContexts = _entityFrameworkCoreService.GetAppDbContexts(this.HttpContext);
+            Model.DbContexts = _entityFrameworkCoreService.GetDbContexts(this.HttpContext);
 
             if (this.HttpContext.Request.Query.ContainsKey("EFExecutedDbCommand"))
             {
@@ -33,7 +33,7 @@ namespace Comandante.Pages
             string appDbContext = null;
             if (this.HttpContext.Request.Query.ContainsKey("AppDbContext"))
                 appDbContext = this.HttpContext.Request.Query["AppDbContext"].ToString().Trim();
-            Model.AppDbContext = appDbContext;
+            Model.DbContext = appDbContext;
 
             if (string.Equals(this.HttpContext.Request.Method, "POST", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -57,8 +57,8 @@ namespace Comandante.Pages
 
     public class EFRunSqlModel
     {
-        public string AppDbContext;
-        public List<AppDbContextInfo> AppDbContexts = new List<AppDbContextInfo>();
+        public string DbContext;
+        public List<AppDbContextInfo> DbContexts = new List<AppDbContextInfo>();
     }
 
 }
