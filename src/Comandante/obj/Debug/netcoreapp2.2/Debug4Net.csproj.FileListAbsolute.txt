@@ -1,8 +1,0 @@
-C:\Projects\Debug4Net\Debug4Net\bin\Debug\netcoreapp2.2\Debug4Net.deps.json
-C:\Projects\Debug4Net\Debug4Net\bin\Debug\netcoreapp2.2\Debug4Net.dll
-C:\Projects\Debug4Net\Debug4Net\obj\Debug\netcoreapp2.2\Debug4Net.csproj.CoreCompileInputs.cache
-C:\Projects\Debug4Net\Debug4Net\obj\Debug\netcoreapp2.2\Debug4Net.AssemblyInfoInputs.cache
-C:\Projects\Debug4Net\Debug4Net\obj\Debug\netcoreapp2.2\Debug4Net.AssemblyInfo.cs
-C:\Projects\Debug4Net\Debug4Net\bin\Debug\netcoreapp2.2\Debug4Net.pdb
-C:\Projects\Debug4Net\Debug4Net\obj\Debug\netcoreapp2.2\Debug4Net.dll
-C:\Projects\Debug4Net\Debug4Net\obj\Debug\netcoreapp2.2\Debug4Net.pdb

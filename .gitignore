@@ -1,10 +1,10 @@
-/src/Comandante.Tests/bin/
-/src/Comandante.Tests/obj/
-/src/Comandante.TestsWeb/bin/
-/src/Comandante.TestsWeb/obj/
-/src/Comandante/bin/
-/src/Comandante/obj/
 
-*.dll
+src/.vs
 
-*.pdb
+src/Comandante/bin
+src/Comandante/obj
+src/Comandante.Tests/bin
+src/Comandante.Tests/obj
+src/Comandante.TestsWeb/bin
+src/Comandante.TestsWeb/obj
+
