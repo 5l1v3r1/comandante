@@ -4,19 +4,10 @@
     <li><span class="small text-muted">Entity: </span>@Model.EntityNamePart2</li>
 </ul>
 
-<h3><span class="text-muted" style="font-weight: normal;">@(Model.EntityNamePart1).</span>@(Model.EntityNamePart2)</h3>
-
 <h3 style="margin-bottom: 10px;">Rows</h3>
 <a style="margin-left: 5px;" class="button small" href="/debug/EFEntityEditor?_dbContext=@(Model.DbContext)&_entity=@(Model.Entity.ClrTypeName)">Create</a>
 <br />
 <br />
-@if (Model.Rows?.Errors != null)
-{
-    foreach (var error in Model.Rows?.Errors)
-    {
-        <div class="text-danger">@error</div>
-    }
-}
 @if (Model.Rows != null)
 {
     <form autocomplete="off" method="get">
@@ -33,6 +24,18 @@
                 <tr>
                     <td colspan="1000">
                         <button class="small" name="find">Find</button>
+                        <br />
+                        <br />
+                        @if (Model.Rows?.Errors != null && Model.Rows?.Errors.Count > 0)
+                        {
+                        <div class="errors">Please check the following errors:</div>
+                        <ul class="errors">
+                            @foreach (var error in Model.Rows?.Errors)
+                            {
+                            <li>@error</li>
+                            }
+                        </ul>
+                        }
                     </td>
                 </tr>
                 <tr>

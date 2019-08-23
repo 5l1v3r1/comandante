@@ -223,16 +223,17 @@ namespace Comandante.Services
             if (dbContext == null)
                 return AppDbContextEntityResult.Error("Cannot find DbContext: " + contextName);
 
-            List<string> errors = new List<string>();
             var entity = Activator.CreateInstance(entityInfo.ClrType);
-            foreach(var field in fieldsValues)
+            AppDbContextEntityResult result = new AppDbContextEntityResult();
+            result.Entity = entity;
+            foreach (var field in fieldsValues)
             {
                 try
                 {
                     var entityField = entityInfo.Fields.FirstOrDefault(x => x.Name == field.Key);
                     if (entityField == null)
                     {
-                        errors.Add($"Property {field.Key} does not exist in the entity {entityInfo.ClrTypeName}");
+                        result.Errors.Add($"Property {field.Key} does not exist in the entity {entityInfo.ClrTypeName}");
                         continue;
                     }
                     var value = field.Value.ConvertToType(entityField.ClrType);
@@ -242,9 +243,12 @@ namespace Comandante.Services
                         .SetPropertyValue("CurrentValue", value);
                 }catch(Exception ex)
                 {
-                    errors.Add($"Cannot set entity property {field.Key} to {field.Value}. Error: {ex.GetDetails()}");
+                    result.Errors.Add($"Cannot set entity property {field.Key} to {field.Value}. Error: {ex.GetDetails()}");
                 }
             }
+
+            if (result.Errors.Count > 0)
+                return result;
 
             try
             {
@@ -252,7 +256,8 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                errors.Add($"Cannot add entity to the context. Error: {ex.GetDetails()}");
+                result.Errors.Add($"Cannot add entity to the context. Error: {ex.GetDetails()}");
+                return result;
             }
 
             try
@@ -261,14 +266,12 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                errors.Add($"Cannot save entity. Error: {ex.GetDetails()}");
+                result.Errors.Add($"Cannot save entity. Error: {ex.GetDetails()}");
+                return result;
             }
 
-            return new AppDbContextEntityResult
-            {
-                Entity = entity,
-                Errors = errors
-            };
+            return result;
+
         }
 
         public AppDbContextEntityResult Update(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> pkValues , Dictionary<string, string> fieldsValues)
@@ -283,7 +286,8 @@ namespace Comandante.Services
                 return AppDbContextEntityResult.Error(entityResult.Errors);
             object entity = entityResult.Entity;
 
-            List<string> errors = new List<string>();
+            AppDbContextEntityResult result = new AppDbContextEntityResult();
+            result.Entity = entity;
             foreach (var field in entityInfo.Fields)
             {
                 object value = fieldsValues.FirstOrDefault(x => x.Key == field.Name).Value;
@@ -297,16 +301,20 @@ namespace Comandante.Services
                 }
                 catch (Exception ex)
                 {
-                    errors.Add($"Cannot set entity property {field.Name} to {value}. Error: {ex.GetDetails()}");
+                    result.Errors.Add($"Cannot set entity property {field.Name} to {value}. Error: {ex.GetDetails()}");
                 }
             }
+
+            if (result.Errors.Count > 0)
+                return result;
 
             try {
                 dbContext.InvokeMethod("Update", entity);
             }
             catch (Exception ex)
             {
-                errors.Add($"Cannot update entity in the context. Error: {ex.GetDetails()}");
+                result.Errors.Add($"Cannot update entity in the context. Error: {ex.GetDetails()}");
+                return result;
             }
 
             try
@@ -315,14 +323,11 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                errors.Add($"Cannot save entity. Error: {ex.GetDetails()}");
+                result.Errors.Add($"Cannot save entity. Error: {ex.GetDetails()}");
+                return result;
             }
 
-            return new AppDbContextEntityResult
-            {
-                Entity = entity,
-                Errors = errors
-            };
+            return result;
         }
 
         public List<AppDbContextInfo> GetDbContexts(HttpContext httpContext)
