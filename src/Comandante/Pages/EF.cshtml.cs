@@ -24,7 +24,7 @@ namespace Comandante.Pages
 
     public class EFModel
     {
-        public List<AppDbContextInfo> AppDbContexts;
+        public List<DbContextInfo> AppDbContexts;
     }
 
 }

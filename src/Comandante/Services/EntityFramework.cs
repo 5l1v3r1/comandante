@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,13 +51,13 @@ namespace Comandante.Services
         //    return lambda;
         //}
 
-        public AppDbContextSqlResult RunSql(HttpContext httpContext, string contextName, string sql, int maxRowsReads = 1000)
+        public DbContextSqlResult RunSql(HttpContext httpContext, string contextName, string sql, int maxRowsReads = 1000)
         {
             try {
                 Type dbContextType = GetDbContextTypes().FirstOrDefault(x => x.Name == contextName);
                 object dbContext = httpContext?.RequestServices?.GetService(dbContextType);
                 if (dbContext == null)
-                    return AppDbContextSqlResult.Error("Cannot find DbContext: " + contextName);
+                    return DbContextSqlResult.Error("Cannot find DbContext: " + contextName);
 
                 object database = dbContext.GetPropertyValue("Database");
                 List<string> columns = new List<string>();
@@ -94,7 +95,7 @@ namespace Comandante.Services
                         }
                     }
                 }
-                return new AppDbContextSqlResult
+                return new DbContextSqlResult
                 {
                     Columns = columns,
                     Rows = rows,
@@ -103,24 +104,24 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                return AppDbContextSqlResult.Error(ex.GetDetails());
+                return DbContextSqlResult.Error(ex.GetDetails());
             }
         }
 
-        public AppDbContextEntitiesResult GetAll(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo)
+        public DbContextEntitiesResult GetAll(HttpContext httpContext, string contextName, DbContextEntityInfo entityInfo)
         {
             return GetAll(httpContext, contextName, entityInfo, new Dictionary<string, string>());
         }
-        public AppDbContextEntitiesResult GetAll(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> where)
+        public DbContextEntitiesResult GetAll(HttpContext httpContext, string contextName, DbContextEntityInfo entityInfo, Dictionary<string, string> where)
         {
-            AppDbContextEntitiesResult results = new AppDbContextEntitiesResult();
+            DbContextEntitiesResult results = new DbContextEntitiesResult();
             results.Fields = entityInfo.Fields;
             try
             {
                 Type dbContextType = GetDbContextTypes().FirstOrDefault(y => y.Name == contextName);
-                object dbContext = httpContext?.RequestServices?.GetService(dbContextType);
+                DbContext dbContext = httpContext?.RequestServices?.GetService(dbContextType) as DbContext;
                 if (dbContext == null)
-                    return AppDbContextEntitiesResult.Error("Cannot find DbContext: " + contextName);
+                    return DbContextEntitiesResult.Error("Cannot find DbContext: " + contextName);
 
                 object dbSet = dbContext.InvokeGenericMethod("Set", new[] { entityInfo.ClrType });
 
@@ -128,9 +129,11 @@ namespace Comandante.Services
                 BinaryExpression lastOperation = null;
                 foreach (var whereCondition in where)
                 {
-                    MemberExpression leftSide = Expression.Property(x, whereCondition.Key);
-                    ConstantExpression rightSide = Expression.Constant(whereCondition.Value);
-                    BinaryExpression operation = Expression.Equal(leftSide, rightSide);
+                    var fieldInfo = entityInfo.Fields.FirstOrDefault(f => f.Name == whereCondition.Key);
+                    var operation = Expression.Equal(
+                        Expression.Call(typeof(EF), nameof(EF.Property), new[] { fieldInfo.ClrType }, x, Expression.Constant(whereCondition.Key)),
+                        Expression.Constant(whereCondition.Value.ConvertToType(fieldInfo.ClrType), fieldInfo.ClrType));
+
                     if (lastOperation == null)
                         lastOperation = operation;
                     else
@@ -156,14 +159,10 @@ namespace Comandante.Services
 
                 foreach (var entity in dbSet as System.Collections.IEnumerable)
                 {
+                    var entityEntry = dbContext.Entry(entity);
                     object[] row = new object[entityInfo.Fields.Count];
                     for (int i = 0; i < entityInfo.Fields.Count; i++)
-                    {
-                        row[i] = dbContext
-                            .InvokeMethod("Entry", entity)
-                            .InvokeMethod("Property", entityInfo.Fields[i].Name)
-                            .GetPropertyValue("CurrentValue");
-                    }
+                        row[i] = entityEntry.Property(entityInfo.Fields[i].Name).CurrentValue;
                     results.Rows.Add(row);
                 }
                 return results;
@@ -175,12 +174,12 @@ namespace Comandante.Services
             return results;
         }
 
-        public AppDbContextEntityResult GetEntityByPrimaryKey(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> pkValues)
+        public DbContextEntityResult GetEntityByPrimaryKey(HttpContext httpContext, string contextName, DbContextEntityInfo entityInfo, Dictionary<string, string> pkValues)
         {
             Type dbContextType = GetDbContextTypes().FirstOrDefault(y => y.Name == contextName);
-            object dbContext = httpContext?.RequestServices?.GetService(dbContextType);
+            DbContext dbContext = httpContext?.RequestServices?.GetService(dbContextType) as DbContext;
             if (dbContext == null)
-                return AppDbContextEntityResult.Error("Cannot find DbContext: " + contextName);
+                return DbContextEntityResult.Error("Cannot find DbContext: " + contextName);
 
             try
             {
@@ -189,22 +188,17 @@ namespace Comandante.Services
                     .Select(x => pkValues.FirstOrDefault(v => v.Key == x.Name).Value.ConvertToType(x.FieldInfo.FieldType))
                     .ToArray();
 
-                var entity = dbContext.InvokeMethod("Find", entityInfo.ClrType, primaryKeys);
+                var entity = dbContext.Find(entityInfo.ClrType, primaryKeys);
                 if (entity == null)
                 {
                     var pkString = string.Join(";", pkValues.Select(x => x.Key + "=" + x.Value).ToArray());
-                    return AppDbContextEntityResult.Error($"Cannot find entity {entityInfo.ClrTypeName} with primary key: {pkString}");
+                    return DbContextEntityResult.Error($"Cannot find entity {entityInfo.ClrTypeName} with primary key: {pkString}");
                 }
+                var entityEntry = dbContext.Entry(entity);
                 var fieldsValues = entityInfo.Fields.ToDictionary(
                     x => x.Name,
-                    x =>
-                    {
-                        return dbContext
-                            .InvokeMethod("Entry", entity)
-                            .InvokeMethod("Property", x.Name)
-                            .GetPropertyValue("CurrentValue");
-                    });
-                return new AppDbContextEntityResult
+                    x => entityEntry.Property(x.Name).CurrentValue);
+                return new DbContextEntityResult
                 {
                     Entity = entity,
                     FieldsValues = fieldsValues
@@ -212,20 +206,21 @@ namespace Comandante.Services
             } catch (Exception ex)
             {
                 var pkString = string.Join(";", pkValues.Select(x => x.Key + "=" + x.Value).ToArray());
-                return AppDbContextEntityResult.Error($"Cannot find entity {entityInfo.ClrTypeName} with primary key: {pkString}. ex.GetDetails()");
+                return DbContextEntityResult.Error($"Cannot find entity {entityInfo.ClrTypeName} with primary key: {pkString}. ex.GetDetails()");
             }
         }
 
-        public AppDbContextEntityResult Add(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> fieldsValues)
+        public DbContextEntityResult Add(HttpContext httpContext, string contextName, DbContextEntityInfo entityInfo, Dictionary<string, string> fieldsValues)
         {
             Type dbContextType = GetDbContextTypes().FirstOrDefault(y => y.Name == contextName);
-            object dbContext = httpContext?.RequestServices?.GetService(dbContextType);
+            DbContext dbContext = httpContext?.RequestServices?.GetService(dbContextType) as DbContext;
             if (dbContext == null)
-                return AppDbContextEntityResult.Error("Cannot find DbContext: " + contextName);
+                return DbContextEntityResult.Error("Cannot find DbContext: " + contextName);
 
             var entity = Activator.CreateInstance(entityInfo.ClrType);
-            AppDbContextEntityResult result = new AppDbContextEntityResult();
+            DbContextEntityResult result = new DbContextEntityResult();
             result.Entity = entity;
+            var entityEntry = dbContext.Entry(entity);
             foreach (var field in fieldsValues)
             {
                 try
@@ -237,10 +232,7 @@ namespace Comandante.Services
                         continue;
                     }
                     var value = field.Value.ConvertToType(entityField.ClrType);
-                    dbContext
-                        .InvokeMethod("Entry", entity)
-                        .InvokeMethod("Property", field.Key)
-                        .SetPropertyValue("CurrentValue", value);
+                    entityEntry.Property(field.Key).CurrentValue = value;
                 }catch(Exception ex)
                 {
                     result.Errors.Add($"Cannot set entity property {field.Key} to {field.Value}. Error: {ex.GetDetails()}");
@@ -252,7 +244,7 @@ namespace Comandante.Services
 
             try
             {
-                dbContext.InvokeMethod("Add", entity);
+                dbContext.Add(entity);
             }
             catch (Exception ex)
             {
@@ -262,7 +254,7 @@ namespace Comandante.Services
 
             try
             {
-                dbContext.InvokeMethod("SaveChanges");
+                dbContext.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -271,33 +263,30 @@ namespace Comandante.Services
             }
 
             return result;
-
         }
 
-        public AppDbContextEntityResult Update(HttpContext httpContext, string contextName, AppDbContextEntityInfo entityInfo, Dictionary<string, string> pkValues , Dictionary<string, string> fieldsValues)
+        public DbContextEntityResult Update(HttpContext httpContext, string contextName, DbContextEntityInfo entityInfo, Dictionary<string, string> pkValues , Dictionary<string, string> fieldsValues)
         {
             Type dbContextType = GetDbContextTypes().FirstOrDefault(y => y.Name == contextName);
-            object dbContext = httpContext?.RequestServices?.GetService(dbContextType);
+            DbContext dbContext = httpContext?.RequestServices?.GetService(dbContextType) as DbContext;
             if (dbContext == null)
-                return AppDbContextEntityResult.Error("Cannot find DbContext: " + contextName);
+                return DbContextEntityResult.Error("Cannot find DbContext: " + contextName);
 
             var entityResult = GetEntityByPrimaryKey(httpContext, contextName, entityInfo, pkValues);
             if (entityResult.IsSuccess == false)
-                return AppDbContextEntityResult.Error(entityResult.Errors);
+                return DbContextEntityResult.Error(entityResult.Errors);
             object entity = entityResult.Entity;
 
-            AppDbContextEntityResult result = new AppDbContextEntityResult();
+            DbContextEntityResult result = new DbContextEntityResult();
             result.Entity = entity;
+            var entityEntry = dbContext.Entry(entity);
             foreach (var field in entityInfo.Fields)
             {
                 object value = fieldsValues.FirstOrDefault(x => x.Key == field.Name).Value;
                 try
                 {
                     value = value.ConvertToType(field.ClrType);
-                    dbContext
-                        .InvokeMethod("Entry", entity)
-                        .InvokeMethod("Property", field.Name)
-                        .SetPropertyValue("CurrentValue", value);
+                    entityEntry.Property(field.Name).CurrentValue = value;
                 }
                 catch (Exception ex)
                 {
@@ -309,7 +298,7 @@ namespace Comandante.Services
                 return result;
 
             try {
-                dbContext.InvokeMethod("Update", entity);
+                dbContext.Update(entity);
             }
             catch (Exception ex)
             {
@@ -319,7 +308,7 @@ namespace Comandante.Services
 
             try
             {
-                dbContext.InvokeMethod("SaveChanges");
+                dbContext.SaveChanges();
             }
             catch (Exception ex)
             {
@@ -330,24 +319,24 @@ namespace Comandante.Services
             return result;
         }
 
-        public List<AppDbContextInfo> GetDbContexts(HttpContext httpContext)
+        public List<DbContextInfo> GetDbContexts(HttpContext httpContext)
         {
-            List<AppDbContextInfo> appDbContexts = new List<AppDbContextInfo>();
-            foreach (var addDbContextType in GetDbContextTypes())
+            List<DbContextInfo> appDbContexts = new List<DbContextInfo>();
+            foreach (var dbContextType in GetDbContextTypes())
             {
-                AppDbContextInfo appDbContextInfo = new AppDbContextInfo();
+                DbContextInfo appDbContextInfo = new DbContextInfo();
                 appDbContexts.Add(appDbContextInfo);
-                appDbContextInfo.Type = addDbContextType;
-                appDbContextInfo.Name = addDbContextType.Name;
-                var addDbContext = httpContext?.RequestServices?.GetService(addDbContextType);
-                if (addDbContext != null)
+                appDbContextInfo.Type = dbContextType;
+                appDbContextInfo.Name = dbContextType.Name;
+                DbContext dbContext = httpContext?.RequestServices?.GetService(dbContextType) as DbContext;
+                if (dbContext != null)
                 {
-                    var database = addDbContext.GetPropertyValue("Database");
+                    var database = dbContext.Database;
                     var relationalDatabaseExtensionType = GetRelationalDatabaseExtensionType();
                     var relationalMetadataExtensions = GetRelationalMetadataExtensionsType();
                     if (database != null)
                     {
-                        appDbContextInfo.ProviderName = database.GetPropertyValue("ProviderName")?.ToString();
+                        appDbContextInfo.ProviderName = database.ProviderName;
                         if (relationalDatabaseExtensionType != null)
                         {
                             appDbContextInfo.Migrations = (relationalDatabaseExtensionType.InvokeStaticMethod("GetMigrations", database) as IEnumerable<string>)?.ToList() ?? new List<string>();
@@ -355,33 +344,36 @@ namespace Comandante.Services
                             appDbContextInfo.AppliedMigrations = (relationalDatabaseExtensionType.InvokeStaticMethod("GetAppliedMigrations", database) as IEnumerable<string>)?.ToList() ?? new List<string>();
                         }
                     }
-                    var model = addDbContextType.GetProperty("Model")?.GetValue(addDbContext);
+                    var model = dbContext.Model;
                     if (model != null)
                     {
-                        var entitiesTypes = model.InvokeMethod("GetEntityTypes") as System.Collections.IEnumerable;
-                        foreach (var entityType in entitiesTypes)
+                        foreach (var entityType in model.GetEntityTypes())
                         {
                             var relationalEntity = relationalMetadataExtensions.InvokeStaticMethod("Relational", entityType);
                             var schema = relationalEntity.GetPropertyValue("Schema")?.ToString();
                             var tableName = relationalEntity.GetPropertyValue("TableName")?.ToString();
 
                             var debugView = entityType.GetPropertyValue("DebugView")?.GetPropertyValue("View"); ;
-
+                            
                             var properties = entityType.GetFieldValue("_properties") as System.Collections.IEnumerable;
-                            var entityFields = new List<AppDbContextEntityFieldInfo>();
-                            foreach (var property in properties)
+                            var entityFields = new List<DbContextEntityFieldInfo>();
+                            foreach (KeyValuePair<string, Microsoft.EntityFrameworkCore.Metadata.Internal.Property> property in properties)
                             {
-                                entityFields.Add(new AppDbContextEntityFieldInfo
+                                entityFields.Add(new DbContextEntityFieldInfo
                                 {
-                                    Name = property.GetPropertyValue("Value")?.GetPropertyValue("Name")?.ToString(),
-                                    ClrType = property.GetPropertyValue("Value")?.GetPropertyValue("ClrType") as Type,
-                                    FieldInfo = property.GetPropertyValue("Value")?.GetPropertyValue("FieldInfo") as FieldInfo,
-                                    IsPrimaryKey = property.GetPropertyValue("Value")?.GetPropertyValue("PrimaryKey") != null,
+                                    Name = property.Value.Name,
+                                    ClrType = property.Value.ClrType,
+                                    FieldInfo = property.Value.FieldInfo,
+                                    IsPrimaryKey = property.Value.IsPrimaryKey(),
+                                    IsForeignKey = property.Value.IsForeignKey(),
+                                    ForeignEntityName = property.Value.ForeignKeys?.FirstOrDefault()?.PrincipalEntityType?.Name,
+                                    ForeignEntityClrType = property.Value.ForeignKeys?.FirstOrDefault()?.PrincipalEntityType?.ClrType,
+                                    ForeignEntityFieldName = property.Value.ForeignKeys?.FirstOrDefault().PrincipalKey.Properties.FirstOrDefault().Name
                                 });
                             }
 
                             var schemaAndTableName = string.IsNullOrEmpty(schema) == false ? schema + "." + tableName : tableName;
-                            appDbContextInfo.Entities.Add(new AppDbContextEntityInfo
+                            appDbContextInfo.Entities.Add(new DbContextEntityInfo
                             {
                                 NavigationName = entityType.GetPropertyValue("DefiningNavigationName")?.ToString(),
                                 ClrTypeName = entityType.GetPropertyValue("ClrType")?.ToString(),
@@ -406,11 +398,6 @@ namespace Comandante.Services
 
         public List<Type> GetDbContextTypes()
         {
-            var entityFrameworkCoreAssembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(x => x.FullName.StartsWith("Microsoft.EntityFrameworkCore,"));
-            Type dbContexType = entityFrameworkCoreAssembly.GetType("Microsoft.EntityFrameworkCore.DbContext");
-            if (dbContexType == null)
-                return new List<Type>();
-
             List<Type> appDbCotexts = new List<Type>();
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
@@ -420,7 +407,7 @@ namespace Comandante.Services
                     continue;
                 foreach (TypeInfo type in assembly.DefinedTypes)
                 {
-                    if (type.IsSubclassOf(dbContexType))
+                    if (type.IsSubclassOf(typeof(DbContext)))
                         appDbCotexts.Add(type);
                 }
             }
@@ -444,7 +431,7 @@ namespace Comandante.Services
             Type relationalDatabaseFacadeExtensionsType = entityFrameworkCoreAssembly.GetType("Microsoft.EntityFrameworkCore.RelationalMetadataExtensions");
             return relationalDatabaseFacadeExtensionsType;
         }
-
+        
         public string DecodeSqlFromLogEntry(string logDetails)
         {
             Regex paramRegex = new Regex(@"(@p\d+|@__\w*?_\d+)='(.*?)'(\s\(\w*?\s=\s\w*\))*(?:,\s|\]).*?");
@@ -545,7 +532,7 @@ namespace Comandante.Services
         
     }
 
-    public class AppDbContextInfo
+    public class DbContextInfo
     {
         public string Name;
 
@@ -559,12 +546,12 @@ namespace Comandante.Services
         //.Database.GetAppliedMigrations()
         public List<string> AppliedMigrations = new List<string>();
         //.Model.GetEntityTypes() : IEnumerable<IEntityType>
-        public List<AppDbContextEntityInfo> Entities = new List<AppDbContextEntityInfo>();
+        public List<DbContextEntityInfo> Entities = new List<DbContextEntityInfo>();
         public string DebugView;
 
     }
 
-    public class AppDbContextEntityInfo
+    public class DbContextEntityInfo
     {
         public string NavigationName;
         public Type ClrType;
@@ -572,19 +559,23 @@ namespace Comandante.Services
         public string Schema;
         public string TableName;
         public string SchemaAndTableName;
-        public List<AppDbContextEntityFieldInfo> Fields;
+        public List<DbContextEntityFieldInfo> Fields;
         public string DebugView;
     }
 
-    public class AppDbContextEntityFieldInfo
+    public class DbContextEntityFieldInfo
     {
         public string Name;
         public FieldInfo FieldInfo;
         public bool IsPrimaryKey;
+        public bool IsForeignKey;
         public Type ClrType;
+        public string ForeignEntityName;
+        public Type ForeignEntityClrType;
+        public string ForeignEntityFieldName;
     }
 
-    public class AppDbContextSqlResult
+    public class DbContextSqlResult
     {
         public int AffectedRecords;
         public List<object[]> Rows = new List<object[]>();
@@ -593,32 +584,32 @@ namespace Comandante.Services
 
         public bool IsSuccess => Errors.Count == 0;
 
-        public static AppDbContextSqlResult Error(string error)
+        public static DbContextSqlResult Error(string error)
         {
-            AppDbContextSqlResult result = new AppDbContextSqlResult();
+            DbContextSqlResult result = new DbContextSqlResult();
             result.Errors.Add(error);
             return result;
         }
     }
 
-    public class AppDbContextEntitiesResult
+    public class DbContextEntitiesResult
     {
         public int AffectedRecords;
         public List<object[]> Rows = new List<object[]>();
-        public List<AppDbContextEntityFieldInfo> Fields = new List<AppDbContextEntityFieldInfo>();
+        public List<DbContextEntityFieldInfo> Fields = new List<DbContextEntityFieldInfo>();
         public List<string> Errors = new List<string>();
 
         public bool IsSuccess => Errors.Count == 0;
 
-        public static AppDbContextEntitiesResult Error(string error)
+        public static DbContextEntitiesResult Error(string error)
         {
-            AppDbContextEntitiesResult result = new AppDbContextEntitiesResult();
+            DbContextEntitiesResult result = new DbContextEntitiesResult();
             result.Errors.Add(error);
             return result;
         }
     }
 
-    public class AppDbContextEntityResult
+    public class DbContextEntityResult
     {
         public object Entity;
         public Dictionary<string, object> FieldsValues = new Dictionary<string, object>();
@@ -626,16 +617,16 @@ namespace Comandante.Services
 
         public bool IsSuccess => Entity != null && Errors.Count == 0;
 
-        public static AppDbContextEntityResult Error(string error)
+        public static DbContextEntityResult Error(string error)
         {
-            AppDbContextEntityResult result = new AppDbContextEntityResult();
+            DbContextEntityResult result = new DbContextEntityResult();
             result.Errors.Add(error);
             return result;
         }
 
-        public static AppDbContextEntityResult Error(List<string> errors)
+        public static DbContextEntityResult Error(List<string> errors)
         {
-            AppDbContextEntityResult result = new AppDbContextEntityResult();
+            DbContextEntityResult result = new DbContextEntityResult();
             result.Errors = errors;
             return result;
         }

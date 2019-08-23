@@ -35,7 +35,7 @@ namespace Comandante.Pages
 
             var pkValues = this.HttpContext.Request.Query
                 .Where(x => x.Key.StartsWith("_") == false && string.IsNullOrEmpty(x.Value.FirstOrDefault()) == false)
-                .ToDictionary(x => x.Key, x => x.Value.FirstOrDefault()?.ToString());
+                .ToDictionary(x => x.Key.Trim(), x => x.Value.FirstOrDefault()?.ToString()?.Trim());
             var isUpdate = pkValues.Count > 0;
 
             if (string.Equals(this.HttpContext.Request.Method, "POST", StringComparison.CurrentCultureIgnoreCase))
@@ -60,7 +60,7 @@ namespace Comandante.Pages
             Model.IsUpdate = isUpdate;
             if (isSubmit)
             {
-                AppDbContextEntityResult result = null;
+                DbContextEntityResult result = null;
                 if (isUpdate)
                     result = new EntityFrameworkService().Update(this.HttpContext, contextName, entityInfo, pkValues, fieldsValues);
                 else
@@ -81,8 +81,8 @@ namespace Comandante.Pages
     public class EFEntityEditorModel
     {
         public string DbContext;
-        public AppDbContextEntityInfo Entity;
-        public List<(AppDbContextEntityFieldInfo Field, string Value)> FieldsWithValues;
+        public DbContextEntityInfo Entity;
+        public List<(DbContextEntityFieldInfo Field, string Value)> FieldsWithValues;
         public List<string> Errors;
         public bool IsUpdate;
         public string EntityName;

@@ -15,7 +15,7 @@ namespace Comandante.Pages
 {
     public class _FieldEditor : EmbeddedViewModel
     {
-        public (AppDbContextEntityFieldInfo Field, string Value) Model { get; set; }
+        public (DbContextEntityFieldInfo Field, string Value) Model { get; set; }
 
         public async override Task<EmbededViewResult> InitView()
         {

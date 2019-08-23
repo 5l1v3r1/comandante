@@ -51,31 +51,37 @@
                     <tr>
                         @for (int i = 0; i < Model.Rows.Fields.Count; i++)
                         {
-                            <td>
+                        @{ var field = Model.Rows.Fields[i];}
+                        <td>
 
-                                @if (Model.Rows.Fields[i].IsPrimaryKey)
+                            @if (Model.Rows.Fields[i].IsPrimaryKey)
+                            {
+                                var pk = "";
+                                @foreach (var pkField in Model.Rows.Fields)
                                 {
-                                    var pk = "";
-                                    @foreach (var pkField in Model.Rows.Fields)
+                                    if (pkField.IsPrimaryKey)
                                     {
-                                        if (pkField.IsPrimaryKey)
-                                        {
-                                            int pkIndex = Model.Rows.Fields.IndexOf(pkField);
-                                            var pkValue = row[pkIndex];
-                                            pk = pk + "&" + pkField.Name + "=" + pkValue;
-                                        }
+                                        int pkIndex = Model.Rows.Fields.IndexOf(pkField);
+                                        var pkValue = row[pkIndex];
+                                        pk = pk + "&" + pkField.Name + "=" + pkValue;
                                     }
-
-                                    <a href="/debug/EFEntityEditor?_dbContext=@(Model.DbContext)&_entity=@(Model.Entity.ClrTypeName)@(pk)">
-                                        @row[i]
-                                    </a>
                                 }
-                                else
-                                {
+
+                                <a href="/debug/EFEntityEditor?_dbContext=@(Model.DbContext)&_entity=@(Model.Entity.ClrTypeName)@(pk)">
                                     @row[i]
-                                }
+                                </a>
+                            } else if (Model.Rows.Fields[i].IsForeignKey)
+                            {
+                                <a href="/debug/EFEntityEditor?_dbContext=@(Model.DbContext)&_entity=@(field.ForeignEntityName)&@(field.ForeignEntityFieldName)=@(row[i])">
+                                    @row[i]
+                                </a>
+                            }
+                            else
+                            {
+                                @row[i]
+                            }
 
-                            </td>
+                        </td>
                         }
                     </tr>
                 }
@@ -103,6 +109,8 @@
                     <td>@(field?.ClrType?.GetFriendlyName())</td>
                     <td>
                         @(field.IsPrimaryKey ? "PrimaryKey" : "")
+                        @(field.IsForeignKey ? "ForeignKey" : "")
+                        @(field.ForeignEntityName)
                     </td>
                 </tr>
             }

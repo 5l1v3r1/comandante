@@ -142,6 +142,7 @@ namespace Comandante.Services
             return generic.Invoke(obj, methodParameters);
         }
 
+        
         public static object InvokeStaticMethod(this Type type, string methodName, params object[] methodParameters)
         {
             if (type == null)
@@ -149,6 +150,16 @@ namespace Comandante.Services
             MethodInfo method = FindMethod(type, methodName, methodParameters);
             return method.Invoke(null, methodParameters);
         }
+
+        public static object InvokeStaticGenericMethod(this Type type, string methodName, Type[] typeArguments, params object[] methodParameters)
+        {
+            if (type == null)
+                return null;
+            MethodInfo method = FindMethod(type, methodName, methodParameters);
+            MethodInfo generic = method.MakeGenericMethod(typeArguments);
+            return generic.Invoke(null, methodParameters);
+        }
+
 
         private static MethodInfo FindMethod(Type type, string methodName, object[] methodParameters)
         {

@@ -15,7 +15,7 @@ namespace Comandante.Pages
 {
     public class _FieldFilter : EmbeddedViewModel
     {
-        public AppDbContextEntityFieldInfo Model { get; set; }
+        public DbContextEntityFieldInfo Model { get; set; }
         public string Value { get; set; }
 
         public async override Task<EmbededViewResult> InitView()

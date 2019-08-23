@@ -58,7 +58,7 @@ namespace Comandante.Pages
     public class EFRunSqlModel
     {
         public string DbContext;
-        public List<AppDbContextInfo> DbContexts = new List<AppDbContextInfo>();
+        public List<DbContextInfo> DbContexts = new List<DbContextInfo>();
     }
 
 }

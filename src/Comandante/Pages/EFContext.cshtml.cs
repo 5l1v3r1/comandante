@@ -30,7 +30,7 @@ namespace Comandante.Pages
 
     public class EFContextModel
     {
-        public AppDbContextInfo AppDbContext;
+        public DbContextInfo AppDbContext;
         public string DbContext;
     }
 

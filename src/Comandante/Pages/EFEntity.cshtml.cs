@@ -41,8 +41,8 @@ namespace Comandante.Pages
     public class EFEntityModel
     {
         public string DbContext;
-        public AppDbContextEntityInfo Entity;
-        public AppDbContextEntitiesResult Rows;
+        public DbContextEntityInfo Entity;
+        public DbContextEntitiesResult Rows;
         public string EntityName;
         public string EntityNamePart1;
         public string EntityNamePart2;
