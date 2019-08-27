@@ -110,9 +110,9 @@ namespace Comandante.Services
 
         public DbContextEntitiesResult GetAll(HttpContext httpContext, string contextName, DbContextEntityInfo entityInfo)
         {
-            return GetAll(httpContext, contextName, entityInfo, new Dictionary<string, string>());
+            return GetAll(httpContext, contextName, entityInfo, new Dictionary<string, string>(), null);
         }
-        public DbContextEntitiesResult GetAll(HttpContext httpContext, string contextName, DbContextEntityInfo entityInfo, Dictionary<string, string> where)
+        public DbContextEntitiesResult GetAll(HttpContext httpContext, string contextName, DbContextEntityInfo entityInfo, Dictionary<string, string> where, int? page)
         {
             DbContextEntitiesResult results = new DbContextEntitiesResult();
             results.Fields = entityInfo.Fields;
@@ -151,6 +151,21 @@ namespace Comandante.Services
                     MethodInfo genericWhereMethod = whereMethod.MakeGenericMethod(new[] { entityInfo.ClrType });
                     dbSet = genericWhereMethod.Invoke(null, new object[] { dbSet, predicate });
                 }
+
+                int take = 200;
+                int skip = (page.GetValueOrDefault(1) - 1) * 200;
+
+                var skipMethod = typeof(System.Linq.Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public)
+                        .FirstOrDefault(m => m.Name == "Skip" && m.GetParameters().Count() == 2);
+                MethodInfo genericSkipMethod = skipMethod.MakeGenericMethod(new[] { entityInfo.ClrType });
+                dbSet = genericSkipMethod.Invoke(null, new object[] { dbSet, skip });
+                //dbSet = typeof(System.Linq.Enumerable).InvokeStaticGenericMethod("Skip", new[] { entityInfo.ClrType }, dbSet, take);
+
+                var takeMethod = typeof(System.Linq.Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public)
+                        .FirstOrDefault(m => m.Name == "Take" && m.GetParameters().Count() == 2);
+                MethodInfo genericTakeMethod = takeMethod.MakeGenericMethod(new[] { entityInfo.ClrType });
+                dbSet = genericTakeMethod.Invoke(null, new object[] { dbSet, take });
+                //dbSet = typeof(System.Linq.Enumerable).InvokeStaticGenericMethod("Take", new[] { entityInfo.ClrType }, dbSet, take);
 
                 var toListMethod = typeof(System.Linq.Enumerable).GetMethods(BindingFlags.Static | BindingFlags.Public)
                         .FirstOrDefault(m => m.Name == "ToList" && m.GetParameters().Count() == 1);

@@ -1,0 +1,32 @@
+﻿<h2>Routing</h2>
+
+@if (Model.Services != null)
+{
+    <table>
+        <thead class="small">
+            <tr>
+                <th>ServiceType</th>
+                <th>Lifetime</th>
+                <th>ImplementationType</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var route in Model.Services)
+            {
+
+            <tr>
+                <td>@route.ServiceType</td>
+                <td>@route.Lifetime</td>
+                <td>@route.ImplementationType</td>
+            </tr>
+
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div>Sorry, cannot get service IServiceCollection, that provides services information.</div>
+}
+
+

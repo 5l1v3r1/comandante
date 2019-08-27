@@ -177,6 +177,7 @@ namespace Comandante.Services
                     if (typeMethodParameters[i].ParameterType != methodParameters[i].GetType() &&
                         typeMethodParameters[i].ParameterType.IsAssignableFrom(methodParameters[i].GetType()) == false)
                     {
+                        
                         allSame = false;
                         break;
                     }
@@ -244,6 +245,15 @@ namespace Comandante.Services
             if (timeSpan.Milliseconds >= 1)
                 sb.AppendFormat("{0}ms ", timeSpan.Milliseconds);
             return sb.ToString();
+        }
+
+        public static int? ToIntOrDefault(this string text)
+        {
+            int number;
+            if (int.TryParse(text, out number))
+                return number;
+            return null;
+
         }
     }
 }
