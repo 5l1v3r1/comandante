@@ -27,20 +27,20 @@ namespace Comandante.Pages
             {
                 var efExecutedDbCommand = this.HttpContext.Request.Query["EFExecutedDbCommand"].ToString().Trim();
                 var decodedSql = _entityFrameworkCoreService.DecodeSqlFromLogEntry(efExecutedDbCommand);
-                return new EmbededViewRedirectResult("/debug/EntityFrameworkCoreRunSql?Sql=" + WebUtility.UrlEncode(decodedSql));
+                return new EmbededViewRedirectResult("/debug/EFRunSql?_sql=" + WebUtility.UrlEncode(decodedSql));
             }
 
             string appDbContext = null;
-            if (this.HttpContext.Request.Query.ContainsKey("AppDbContext"))
-                appDbContext = this.HttpContext.Request.Query["AppDbContext"].ToString().Trim();
+            if (this.HttpContext.Request.Query.ContainsKey("_dbContext"))
+                appDbContext = this.HttpContext.Request.Query["_dbContext"].ToString().Trim();
             Model.DbContext = appDbContext;
 
             if (string.Equals(this.HttpContext.Request.Method, "POST", StringComparison.CurrentCultureIgnoreCase))
             {
                 try
                 {
-                    string sql = this.HttpContext.Request.Form["Sql"];
-                    appDbContext = this.HttpContext.Request.Form["AppDbContext"];
+                    string sql = this.HttpContext.Request.Form["_sql"];
+                    appDbContext = this.HttpContext.Request.Form["_dbContext"];
                     
                     var results = new EntityFrameworkService().RunSql(this.HttpContext, appDbContext, sql);
                     return await Json(JsonConvert.SerializeObject(results));

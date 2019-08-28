@@ -13,14 +13,12 @@
 <body>
     <div class="nav">
         <a class="nav-link nav-brand" href="/debug">
-	   <span style="font-size:30px;">&#9734;</span><span style="display:inline-block;margin-left:-2px">Comandante</span>
+            <span style="font-size:30px;">&#9734;</span><span style="display:inline-block;margin-left:-2px">Comandante</span>
         </a>
         <a class="nav-link @(ViewName == "Index" ? "active" : "")" href="/debug">Home</a>
-        <a class="nav-link @(ViewName == "Logs" || ViewName == "Log" ? "active" : "")" href="/debug/Logs">Logs</a>
-        <a class="nav-link @(ViewName == "Requests" || ViewName == "Request" ? "active" : "")" href="/debug/Requests">Requests</a>
-        <a class="nav-link @(ViewName == "Hosting" ? "active" : "")" href="/debug/Hosting">Hosting</a>
-        <a class="nav-link @(ViewName == "Routing" ? "active" : "")" href="/debug/Routing">Routing</a>
-        <a class="nav-link @(ViewName == "EntityFrameworkCore" ? "active" : "")" href="/debug/EF">EntityFrameworkCore</a>
+        <a class="nav-link @(ViewName == "Requests" || ViewName == "Request" || ViewName == "Logs" || ViewName == "Log" || ViewName == "Monitoring" ? "active" : "")" href="/debug/Requests">Monitoring</a>
+        <a class="nav-link @(ViewName == "Hosting" || ViewName == "Routing" || ViewName == "Services" ? "active" : "")" href="/debug/Hosting">MVC</a>
+        <a class="nav-link @(ViewName == "EntityFrameworkCore" ? "active" : "")" href="/debug/EF">EntityFramework</a>
     </div>
     <div class="container">
         <main role="main" class="pb-3">

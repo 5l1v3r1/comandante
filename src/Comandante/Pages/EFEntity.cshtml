@@ -1,5 +1,5 @@
 ﻿<ul class="breadcrumb">
-    <li><a href="/debug/EF">EntityFrameworkCore</a></li>
+    <li><a href="/debug/EF">EntityFramework</a></li>
     <li><a href="/debug/EFContext?_dbContext=@(Model.DbContext)"><span class="small text-muted">DbContext: </span>@(Model.DbContext)</a></li>
     <li><span class="small text-muted">Entity: </span>@Model.EntityNamePart2</li>
 </ul>
@@ -18,7 +18,7 @@
         document.getElementById("tab-button-" + tabName).className += " active";
     }
 </script>
-<div>
+<div class="tab-buttons">
     <button id="tab-button-Rows" class="tab-button active" onclick="openTab('Rows')">ROWS</button>
     <button id="tab-button-Details" class="tab-button" onclick="openTab('Details')">DETAILS</button>
 </div>

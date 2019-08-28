@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using System.Threading;
 using Comandante.PagesRenderer;
 using Comandante.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Comandante
 {
@@ -129,6 +130,14 @@ namespace Comandante
         }
     }
 
+    public static class ComandanteServiceCollectionExtensions
+    {
+        static internal IServiceCollection Services;
 
+        public static void AddComandante(this IServiceCollection services)
+        {
+            Services = services;
+        }
+    }
 
 }

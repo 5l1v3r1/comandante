@@ -22,10 +22,10 @@ namespace Comandante.Pages
         public override async Task<EmbededViewResult> InitView()
         {
             Model = new ServicesModel();
-            var serviceCollection = this.HttpContext.RequestServices.GetService(typeof(IServiceCollection)) as IServiceCollection;
+            var serviceCollection = ComandanteServiceCollectionExtensions.Services;
             if (serviceCollection != null)
             {
-                Model.Services = serviceCollection.Select(x => new ServiceInfo { ServiceType = x.ServiceType.FullName, Lifetime = x.Lifetime.ToString(), ImplementationType = x.ImplementationType?.FullName }).ToList();
+                Model.Services = serviceCollection.Select(x => new ServiceInfo { ServiceType = x.ServiceType.GetFriendlyName(), Lifetime = x.Lifetime.ToString(), ImplementationType = x.ImplementationType?.GetFriendlyName() }).ToList();
             }
             return await View();
         }

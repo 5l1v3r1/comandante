@@ -187,10 +187,16 @@ button {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     color: #1A73E8;
+    background-color: #fff;
+    color: #333;
+    border: 0,5px solid #002041;
+    border-radius: 3px;
 }
+
 .button:hover,
 button:hover {
-    background-color: rgb(242, 242, 242);
+    background-color: #337ab7;
+    color: white;
     cursor: pointer;
 }
 
@@ -253,11 +259,12 @@ div.errors {
     color: #dc3545 !important;
     font-size: 16px;
 }
-.tab {
-    margin-top: 30px;
+.tab-buttons {
+    margin-bottom: 30px;
 }
 .tab-button {
     border: 0px none;
+    padding: 5px;
     padding-left: 10px;
     padding-right: 20px;
     font-family: Segoe UI,SegoeUI,Segoe WP,Helvetica Neue,Helvetica,Tahoma,Arial,sans-serif;
@@ -265,9 +272,13 @@ div.errors {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     color: rgb(51, 51, 51);
+    background-color: #efefef;
+    border-radius: 3px;
 }
 .tab-button.active,
 .tab-button:hover {
-    border-bottom: 2px solid #6c757d;
+    border: 0px none;
+    background-color: #337ab7;
+    color: #fff;
 }
 

@@ -1,4 +1,11 @@
-﻿<h2>Routing</h2>
+﻿<h2>MVC</h2>
+
+<div class="tab-buttons">
+    <a href="/debug/Hosting" class="tab-button">HOSTING</a>
+    <a href="/debug/Routing" class="tab-button">ROUTING</a>
+    <a href="/debug/Services" class="tab-button active">SERVICES</a>
+</div>
+
 
 @if (Model.Services != null)
 {
@@ -14,11 +21,11 @@
             @foreach (var route in Model.Services)
             {
 
-            <tr>
-                <td>@route.ServiceType</td>
-                <td>@route.Lifetime</td>
-                <td>@route.ImplementationType</td>
-            </tr>
+                <tr>
+                    <td>@route.ServiceType</td>
+                    <td>@route.Lifetime</td>
+                    <td>@route.ImplementationType</td>
+                </tr>
 
             }
         </tbody>
@@ -26,7 +33,14 @@
 }
 else
 {
-    <div>Sorry, cannot get service IServiceCollection, that provides services information.</div>
+    <div>Sorry, cannot find services. Make sure you call AddComandante method in ConfigureServices</div>
+    <pre>
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddComandante();
+            ...
+        }
+    </pre>
 }
 
 

@@ -24,6 +24,7 @@
     <None Remove="Pages\Index.cshtml" />
     <None Remove="Pages\Log.cshtml" />
     <None Remove="Pages\Logs.cshtml" />
+    <None Remove="Pages\Monitoring.cshtml" />
     <None Remove="Pages\Request.cshtml" />
     <None Remove="Pages\Requests.cshtml" />
     <None Remove="Pages\Routing.cshtml" />
@@ -44,6 +45,7 @@
     <EmbeddedResource Include="Pages\EFEntity.cshtml" />
     <EmbeddedResource Include="Pages\EFContext.cshtml" />
     <EmbeddedResource Include="Pages\EFRunSql.cshtml" />
+    <EmbeddedResource Include="Pages\Monitoring.cshtml" />
     <EmbeddedResource Include="Pages\Log.cshtml" />
     <EmbeddedResource Include="Pages\Services.cshtml" />
     <EmbeddedResource Include="Pages\Routing.cshtml" />

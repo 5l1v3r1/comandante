@@ -1,5 +1,5 @@
 ﻿<ul class="breadcrumb">
-    <li><a href="/debug/EF">EntityFrameworkCore</a></li>
+    <li><a href="/debug/EF">EntityFramework</a></li>
     <li><a href="/debug/EFContext?_dbContext=@(Model.DbContext)"><span class="small text-muted">DbContext: </span>@(Model.DbContext)</a></li>
     <li>Run Sql</li>
 </ul>
@@ -31,8 +31,9 @@
             if (xhr.status === 200) {
                 var response = JSON.parse(xhr.responseText);
 
-                if (response.Error) {
-                    document.getElementById("sql_error").innerHTML = response.Error;
+                if (response.Errors && response.Errors.length > 0) {
+                    for (i = 0; i < response.Errors.length; i++)
+                        document.getElementById("sql_error").innerHTML += (response.Errors[i] + "");
                     return;
                 }
 
@@ -50,15 +51,15 @@
                 }
                 table = table + "</tbody></html>";
 
+
                 document.getElementById("sql_results").innerHTML = table;
                 document.getElementById("sql_affectedRecords").innerHTML = "AffectedRecords: " + response.AffectedRecords;
-
             }
             else if (xhr.status !== 200) {
                 getElementById("sql_error").innerHTML = "Request failed.  Returned status of " + xhr.status;
             }
         };
-        xhr.send(encodeURI('_sql=' + sql) + "&"+ encodeURI('_dbContext=' + dbContext));
+        xhr.send('_sql=' + encodeURI(sql) + "&" + '_dbContext=' + encodeURI(dbContext));
     }
 </script>
 
@@ -87,9 +88,9 @@
         <div id="sql_isRunning" class="text-warning"></div>
     </div>
 </form>
-
 <div>
-    <div class="text-danger" id="sql_error"></div><br /><br />
-    <div id="sql_affectedRecords"></div><br /><br />
+    <br />
+    <div id="sql_error" class="text-danger"></div>
     <div id="sql_results"></div>
+    <div id="sql_affectedRecords"></div>
 </div>
