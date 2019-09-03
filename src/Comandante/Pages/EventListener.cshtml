@@ -1,0 +1,30 @@
+﻿<h2>Monitoring</h2>
+
+<div class="tab-buttons">
+    <a href="@Url.Link("/Requests", new { })" class="tab-button">REQUESTS</a>
+    <a href="@Url.Link("/Logs", new { })" class="tab-button active">LOGS</a>
+    <a href="@Url.Link("/Monitoring", new { })" class="tab-button">CONFIGURATION</a>
+</div>
+
+<table>
+    @foreach (var e in Model.Events)
+    {
+    <tr>
+        <td>@e.TimeStamp</td>
+        <td>
+            @e.ActivityId <br/>
+            @e.RelatedActivityId
+        </td>
+        <td>@e.OSThreadId</td>
+        <td>@e.EventName</td>
+        <td>@e.Message</td>
+        <td>
+            @for(int i = 0; i < e.PayloadNames.Count; i++)
+            {
+                @(e.PayloadNames[i])<span>: </span> @(e.Payload[i])<br />
+            }
+        </td>
+    </tr>
+    }
+</table>
+

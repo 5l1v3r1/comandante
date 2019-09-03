@@ -1,6 +1,6 @@
 ﻿<ul class="breadcrumb">
-    <li><a href="/debug/EF">EntityFramework</a></li>
-    <li><a href="/debug/EFContext?_dbContext=@(Model.DbContext)"><span class="small text-muted">DbContext: </span>@(Model.DbContext)</a></li>
+    <li><a href="@Url.Link("/EF", new { })">EntityFramework</a></li>
+    <li><a href="@Url.Link("/EFContext", new { _dbContext = Model.DbContext })"><span class="small text-muted">DbContext: </span>@(Model.DbContext)</a></li>
     <li><span class="small text-muted">Entity: </span>@Model.EntityNamePart2</li>
 </ul>
 
@@ -25,7 +25,7 @@
 <div>
     <div id="tab-Rows" class="tab">
         
-        <a style="margin-left: 5px;" class="button small" href="/debug/EFEntityEditor?_dbContext=@(Model.DbContext)&_entity=@(Model.Entity.ClrTypeName)">Create a record</a>
+        <a style="margin-left: 5px;" class="button small" href="@Url.Link("/EFEntityEditor", new { _dbContext = Model.DbContext, _entity = Model.Entity.ClrTypeName })">Create a record</a>
         <br />
         <br />
         @if (Model.Rows != null)
@@ -73,27 +73,29 @@
                                 {
                                     @{ var field = Model.Rows.Fields[i];}
                                     <td>
-
+                                        
                                         @if (Model.Rows.Fields[i].IsPrimaryKey)
                                         {
-                                            var pk = "";
+                                            Dictionary<string, string> pk = new Dictionary<string, string>();
+                                            pk.TryAdd("_dbContext", Model.DbContext);
+                                            pk.TryAdd("_entity", Model.Entity.ClrTypeName);
                                             @foreach (var pkField in Model.Rows.Fields)
                                             {
                                                 if (pkField.IsPrimaryKey)
                                                 {
                                                     int pkIndex = Model.Rows.Fields.IndexOf(pkField);
                                                     var pkValue = row[pkIndex];
-                                                    pk = pk + "&" + pkField.Name + "=" + pkValue;
+                                                    pk.TryAdd(pkField.Name, pkValue?.ToString());
                                                 }
                                             }
 
-                                            <a href="/debug/EFEntityEditor?_dbContext=@(Model.DbContext)&_entity=@(Model.Entity.ClrTypeName)@(pk)">
+                                            <a href="@Url.Link("/EFEntityEditor", pk)">
                                                 @row[i]
                                             </a>
                                         }
                                         else if (Model.Rows.Fields[i].IsForeignKey)
                                         {
-                                            <a href="/debug/EFEntityEditor?_dbContext=@(Model.DbContext)&_entity=@(field.ForeignEntityName)&@(field.ForeignEntityFieldName)=@(row[i])">
+                                            <a href="@Url.Link("/EFEntityEditor", new { _dbContext = Model.DbContext, _entity = field.ForeignEntityName })&@(field.ForeignEntityFieldName)=@(row[i])">
                                                 @row[i]
                                             </a>
                                         }
@@ -111,9 +113,9 @@
                 <div class="mt-2">
                     @if (Model.Page.GetValueOrDefault(1) > 1)
                     {
-                        <a href="/debug/EFEntity?_dbContext=@(Model.DbContext)&_entity=@(Model.Entity.ClrTypeName)&_p=@(Model.Page.GetValueOrDefault(1) - 1)">Previous page</a>
+                        <a href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = Model.Entity.ClrTypeName, _p = Model.Page.GetValueOrDefault(1) - 1 })" style="margin-right: 20px;">Previous page</a>
                     }
-                    <a href="/debug/EFEntity?_dbContext=@(Model.DbContext)&_entity=@(Model.Entity.ClrTypeName)&_p=@(Model.Page.GetValueOrDefault(1) + 1)">Next page</a>
+                    <a href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = Model.Entity.ClrTypeName, _p = Model.Page.GetValueOrDefault(1) + 1 })">Next page</a>
                 </div>
             </form>
         }
@@ -128,8 +130,8 @@
             <tr>
                 <td></td>
                 <td>
-                    <a class="button small" href="/debug/EFContext?_dbContext=@(Model.DbContext)">Details</a>
-                    <a class="button small" href="/debug/EFRunSql?_dbContext=@(Model.DbContext)">Run Sql</a>
+                    <a class="button small" href="@Url.Link("/EFContext", new { _dbContext = Model.DbContext })">Details</a>
+                    <a class="button small" href="@Url.Link("/EFRunSql", new { _dbContext = Model.DbContext })">Run Sql</a>
                 </td>
             </tr>
             <tr>

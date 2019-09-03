@@ -74,11 +74,11 @@ namespace Comandante
 
         public (bool IsComandanteRequest, string ViewName) IsComandanteRequest(HttpContext context)
         {
-            var matchSubPage = Regex.Match(context.Request.Path, "/debug/([A-Za-z0-9]*).*");
+            var matchSubPage = Regex.Match(context.Request.Path, ComandanteMiddlewareExtensions.BaseUrl + "/([A-Za-z0-9]*).*");
             if (matchSubPage != null && matchSubPage.Success && matchSubPage.Index == 0 && matchSubPage.Groups.Count == 2 && matchSubPage.Groups[1].Success)
                 return (true, matchSubPage.Groups[1].Value);
 
-            var matchIndexPage = Regex.Match(context.Request.Path, "/debug[\\?#/$]*");
+            var matchIndexPage = Regex.Match(context.Request.Path, ComandanteMiddlewareExtensions.BaseUrl + "[\\?#/$]*");
             if (matchIndexPage != null && matchIndexPage.Success && matchIndexPage.Index == 0)
                 return (true, "Index");
 

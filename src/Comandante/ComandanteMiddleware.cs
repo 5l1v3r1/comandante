@@ -16,6 +16,7 @@ using System.Threading;
 using Comandante.PagesRenderer;
 using Comandante.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Comandante.Services.EventListeners;
 
 namespace Comandante
 {
@@ -23,8 +24,8 @@ namespace Comandante
     {
         private readonly RequestDelegate _next;
         private HttpContextHelper _httpContextHelper = new HttpContextHelper();
-        private RequestsService _requestsService = new RequestsService();
-        private RequestsService _logsService = new RequestsService();
+        private MonitoringService _requestsService = new MonitoringService();
+        private MonitoringService _logsService = new MonitoringService();
 
         public ComandanteMiddleware(RequestDelegate next)
         {
@@ -36,10 +37,10 @@ namespace Comandante
             try
             {
                 _httpContextHelper.HttpContext = context;
-                var isDebugRequest = _httpContextHelper.IsComandanteRequest(context);
-                if (isDebugRequest.IsComandanteRequest)
+                var isComandanteRequest = _httpContextHelper.IsComandanteRequest(context);
+                if (isComandanteRequest.IsComandanteRequest)
                 {
-                    await RenderComandanteView(context, isDebugRequest.ViewName);
+                    await RenderComandanteView(context, isComandanteRequest.ViewName);
                     return;
                 }
             }
@@ -115,6 +116,8 @@ namespace Comandante
 
     public static class ComandanteMiddlewareExtensions
     {
+        static internal string BaseUrl = "/comandante";
+
         public static IApplicationBuilder UseComandante(this IApplicationBuilder builder)
         {
             if (builder == null)
@@ -133,10 +136,11 @@ namespace Comandante
     public static class ComandanteServiceCollectionExtensions
     {
         static internal IServiceCollection Services;
-
+        //static internal DotNETRuntimeEventListener GcFinalizersEventListener;
         public static void AddComandante(this IServiceCollection services)
         {
             Services = services;
+            //GcFinalizersEventListener = new DotNETRuntimeEventListener();
         }
     }
 

@@ -32,8 +32,8 @@ h3 {
 
 a {
     text-decoration: none;
+    color: #007bff;
 }
-
 
 a.visited {
     color: #551A8B;

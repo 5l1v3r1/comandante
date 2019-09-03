@@ -1,9 +1,9 @@
 ﻿<h2>Monitoring</h2>
 
 <div class="tab-buttons">
-    <a href="/debug/Requests" class="tab-button active">REQUESTS</a>
-    <a href="/debug/Logs" class="tab-button">LOGS</a>
-    <a href="/debug/Monitoring" class="tab-button">CONFIGURATION</a>
+    <a href="@Url.Link("/Requests", new { })" class="tab-button active">REQUESTS</a>
+    <a href="@Url.Link("/Logs", new {})" class="tab-button">LOGS</a>
+    <a href="@Url.Link("/Monitoring", new {})" class="tab-button">CONFIGURATION</a>
 </div>
 
 <table>
@@ -12,7 +12,7 @@
     <tr>
         <td>
             <div class="text-nowrap">
-                <a href="/debug/Request?TraceIdentifier=@(request.TraceIdentifier)">
+                <a href="@Url.Link("/Request", new { TraceIdentifier = request.TraceIdentifier })">
                     <span>@request.Started.ToString("yyyy-MM-dd")</span><span class="text-muted">T</span><span>@request.Started.ToString("HH:mm:ss")</span><span class="text-muted">@request.Started.ToString("zzz")</span>
                 </a>
             </div>
@@ -25,7 +25,7 @@
             </div>
         </td>
         <td>
-            <a href="/debug/Request?TraceIdentifier=@(request.TraceIdentifier)">
+            <a href="@Url.Link("/Request", new { TraceIdentifier = request.TraceIdentifier })">
                 @request.Request.Method @request.Request.Path
             </a>
         </td>

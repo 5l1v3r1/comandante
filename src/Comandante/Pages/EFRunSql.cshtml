@@ -1,6 +1,6 @@
 ﻿<ul class="breadcrumb">
-    <li><a href="/debug/EF">EntityFramework</a></li>
-    <li><a href="/debug/EFContext?_dbContext=@(Model.DbContext)"><span class="small text-muted">DbContext: </span>@(Model.DbContext)</a></li>
+    <li><a href="@Url.Link("/EF", new { })" >EntityFramework</a></li>
+    <li><a href="@Url.Link("/EFContext", new { _dbContext = Model.DbContext })"><span class="small text-muted">DbContext: </span>@(Model.DbContext)</a></li>
     <li>Run Sql</li>
 </ul>
 <script>

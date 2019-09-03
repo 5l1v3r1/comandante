@@ -11,7 +11,7 @@ namespace Comandante.Pages
 {
     public class Requests : EmbeddedViewModel
     {
-        private RequestsService _requestsService = new RequestsService();
+        private MonitoringService _requestsService = new MonitoringService();
         public RequestsModel Model { get; set; }
 
         public override async Task<EmbededViewResult> InitView()

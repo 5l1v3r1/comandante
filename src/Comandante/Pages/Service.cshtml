@@ -1,0 +1,58 @@
+﻿<h2>MVC</h2>
+
+<div class="tab-buttons">
+    <a href="@Url.Link("/Hosting", new { })" class="tab-button">HOSTING</a>
+    <a href="@Url.Link("/Routing", new { })" class="tab-button">ROUTING</a>
+    <a href="@Url.Link("/Services", new { })" class="tab-button active">SERVICES</a>
+</div>
+
+@if (Model.Service != null)
+{
+    <table class="form">
+        <tr>
+            <td>ServiceType</td>
+            <td>@Model.Service.ServiceFriendlyName</td>
+        </tr>
+        <tr>
+            <td>Lifetime</td>
+            <td>@Model.Service.Lifetime</td>
+        </tr>
+        <tr>
+            <td>ImplementationType</td>
+            <td>@Model.Service.ImplementationType</td>
+        </tr>
+    </table>
+
+    <h3>Properties</h3>
+    @foreach (var p in Model.Service.Properties)
+    {
+        <table>
+            <tr>
+                <td>@p.Key</td>
+                <td>@p.Value</td>
+            </tr>
+        </table>
+    }
+
+    <h3>Fields</h3>
+    @foreach (var f in Model.Service.Fields)
+    {
+        <table>
+            <tr>
+                <td>@f.Key</td>
+                <td>@f.Value</td>
+            </tr>
+        </table>
+    }
+
+    <h3>Methods</h3>
+    @foreach (var m in Model.Service.Methods)
+    {
+        <table>
+            <tr>
+                <td>@m</td>
+            </tr>
+        </table>
+    }
+    
+}

@@ -1,5 +1,5 @@
 ﻿<ul class="breadcrumb">
-    <li><a href="/debug/EF">EntityFramework</a></li>
+    <li><a href="@Url.Link("/EF", new { })" >EntityFramework</a></li>
     <li><span class="small text-muted">DbContext: </span>@(Model.DbContext)</li>
 </ul>
 
@@ -15,7 +15,7 @@
     </tr>
     <tr>
         <td></td>
-        <td><a class="button small" href="/debug/EFRunSql?_dbContext=@(@Model.AppDbContext?.Name)">Run Sql</a></td>
+        <td><a class="button small" href="@Url.Link("/EFRunSql", new { _dbContext = Model.AppDbContext?.Name })">Run Sql</a></td>
     </tr>
 </table>
 
@@ -34,7 +34,7 @@
             {
                 <tr>
                     <td>
-                        <a href="/debug/EFEntity?_dbContext=@(Model.AppDbContext?.Name)&_entity=@(entity.ClrTypeName)">
+                        <a href="@Url.Link("/EFEntity", new { _dbContext = Model.AppDbContext?.Name, _entity = entity.ClrTypeName })">
                             @(entity.SchemaAndTableName)
                         </a>
                     </td>

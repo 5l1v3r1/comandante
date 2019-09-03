@@ -37,6 +37,13 @@ namespace Comandante.TestsWeb.Controllers
             return View();
         }
 
+        public IActionResult Privacy(string isPrivate)
+        {
+            Logger.LogWarning("Privacy: test warning");
+            throw new Exception("Test error");
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

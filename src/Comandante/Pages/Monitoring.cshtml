@@ -1,9 +1,9 @@
 ﻿<h2>Monitoring</h2>
 
 <div class="tab-buttons">
-    <a href="/debug/Requests" class="tab-button">REQUESTS</a>
-    <a href="/debug/Logs" class="tab-button">LOGS</a>
-    <a href="/debug/Monitoring" class="tab-button active">CONFIGURATION</a>
+    <a href="@Url.Link("/Requests", new { })" class="tab-button">REQUESTS</a>
+    <a href="@Url.Link("/Logs", new {})" class="tab-button">LOGS</a>
+    <a href="@Url.Link("/Monitoring", new {})" class="tab-button active">CONFIGURATION</a>
 </div>
 
 
@@ -53,7 +53,7 @@
                 <input id="EnableWebHostLogs" name="EnableWebHostLogs" type="checkbox" @(Model.EnableWebHostLogs ? "checked" : "") onclick="enableWebHostLogsChanged()" />
                 <label for="EnableWebHostLogs" class="pb-0 mb-0">Enable WebHost Logs</label>
             </legend>
-            <small class="form-text text-muted ml-4 mb-4">Logs for which HttpContext does not exist. For example: Request starting HTTP/1.1 GET http://localhost:63790/debug".</small>
+            <small class="form-text text-muted ml-4 mb-4">Logs for which HttpContext does not exist. For example: Request starting HTTP/1.1 GET http://localhost:63790/comandante".</small>
             <div class="form-group ml-4">
                 <label for="MaxNumberOfWebHostLogs">Max number of WebHost logs kept in memory:</label>
                 <input id="MaxNumberOfWebHostLogs" name="MaxNumberOfWebHostLogs" class="form-control form-control-sm d-inline-block" value="@(Model.MaxNumberOfWebHostLogs)" style="width: 100px;" />

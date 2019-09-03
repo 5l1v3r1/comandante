@@ -26,8 +26,8 @@ namespace Comandante.Pages
             {
                 if (this.HttpContext.Request.Form.ContainsKey("ClearLogs"))
                 {
-                    new RequestsService().ClearLogs();
-                    this.HttpContext.Response.Redirect("/debug");
+                    new MonitoringService().ClearLogs();
+                    this.HttpContext.Response.Redirect(Url.Link("", new { }));
                 }
                 if (this.HttpContext.Request.Form.ContainsKey("UpdateLogsConfiguration"))
                 {
@@ -49,7 +49,7 @@ namespace Comandante.Pages
                         if (Model.MaxNumberOfWebHostLogs.HasValue)
                             ConfigurationInfo.MaxNumberOfWebHostLogs = Model.MaxNumberOfWebHostLogs.Value;
                     }
-                    this.HttpContext.Response.Redirect("/debug");
+                    this.HttpContext.Response.Redirect(Url.Link("", new { }));
                 }
             }
             else

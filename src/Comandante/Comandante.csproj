@@ -20,6 +20,7 @@
     <None Remove="Pages\EFEntity.cshtml" />
     <None Remove="Pages\EFEntityEditor.cshtml" />
     <None Remove="Pages\EFRunSql.cshtml" />
+    <None Remove="Pages\EventListener.cshtml" />
     <None Remove="Pages\Hosting.cshtml" />
     <None Remove="Pages\Index.cshtml" />
     <None Remove="Pages\Log.cshtml" />
@@ -28,6 +29,7 @@
     <None Remove="Pages\Request.cshtml" />
     <None Remove="Pages\Requests.cshtml" />
     <None Remove="Pages\Routing.cshtml" />
+    <None Remove="Pages\Service.cshtml" />
     <None Remove="Pages\Services.cshtml" />
     <None Remove="Pages\_FieldEditor.cshtml" />
     <None Remove="Pages\_FieldFilter.cshtml" />
@@ -45,8 +47,10 @@
     <EmbeddedResource Include="Pages\EFEntity.cshtml" />
     <EmbeddedResource Include="Pages\EFContext.cshtml" />
     <EmbeddedResource Include="Pages\EFRunSql.cshtml" />
+    <EmbeddedResource Include="Pages\EventListener.cshtml" />
     <EmbeddedResource Include="Pages\Monitoring.cshtml" />
     <EmbeddedResource Include="Pages\Log.cshtml" />
+    <EmbeddedResource Include="Pages\Service.cshtml" />
     <EmbeddedResource Include="Pages\Services.cshtml" />
     <EmbeddedResource Include="Pages\Routing.cshtml" />
     <EmbeddedResource Include="Pages\_FieldEditor.cshtml" />

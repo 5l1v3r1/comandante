@@ -1,9 +1,9 @@
 ﻿<h2>Monitoring</h2>
 
 <div class="tab-buttons">
-    <a href="/debug/Requests" class="tab-button">REQUESTS</a>
-    <a href="/debug/Logs" class="tab-button active">LOGS</a>
-    <a href="/debug/Monitoring" class="tab-button">CONFIGURATION</a>
+    <a href="@Url.Link("/Requests", new { })" class="tab-button">REQUESTS</a>
+    <a href="@Url.Link("/Logs", new { })" class="tab-button active">LOGS</a>
+    <a href="@Url.Link("/Monitoring", new { })" class="tab-button">CONFIGURATION</a>
 </div>
 
 <table>
@@ -12,7 +12,7 @@
         <tr>
             <td>
                 <div class="text-nowrap">
-                    <a href="/debug/Log?Id=@(log.Id)">
+                    <a href="@Url.Link("/Log", new { Id = log.Id })">
                         <span>@log.Created.ToString("yyyy-MM-dd")</span><span class="text-muted">T</span><span>@log.Created.ToString("HH:mm:ss")</span><span class="text-muted">@log.Created.ToString("zzz")</span>
                     </a>
                 </div>
@@ -28,14 +28,14 @@
                 <pre>@log.Details</pre>
                 @if (log.IsEFExecutedDbCommand)
                 {
-                    <a class="small visited" href="/debug/EntityFrameworkCoreRunSql?EFExecutedDbCommand=@System.Net.WebUtility.UrlEncode(log.Details)">Run SQL</a>
+                    <a class="small visited" href="@Url.Link("/EFRunSql", new { EFExecutedDbCommand = log.Details })">Run SQL</a>
                 }
             </td>
             <td>
                 <div class="small">
                     @if (log.TraceIdentifier != null)
                     {
-                        <a href="/debug/Request?TraceIdentifier=@(log.TraceIdentifier)">@log.RequestUrl</a>
+                        <a href="@Url.Link("/Request", new { TraceIdentifier = log.TraceIdentifier })">@log.RequestUrl</a>
                     }
                     else
                     {

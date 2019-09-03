@@ -1,9 +1,9 @@
 ﻿<h2>MVC</h2>
 
 <div class="tab-buttons">
-    <a href="/debug/Hosting" class="tab-button">HOSTING</a>
-    <a href="/debug/Routing" class="tab-button">ROUTING</a>
-    <a href="/debug/Services" class="tab-button active">SERVICES</a>
+    <a href="@Url.Link("/Hosting", new { })" class="tab-button">HOSTING</a>
+    <a href="@Url.Link("/Routing", new { })" class="tab-button">ROUTING</a>
+    <a href="@Url.Link("/Services", new { })" class="tab-button active">SERVICES</a>
 </div>
 
 
@@ -18,13 +18,13 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var route in Model.Services)
+            @foreach (var s in Model.Services)
             {
 
                 <tr>
-                    <td>@route.ServiceType</td>
-                    <td>@route.Lifetime</td>
-                    <td>@route.ImplementationType</td>
+                    <td><a href="@Url.Link("/Service", new { s = s.ServiceFullName })">@s.ServiceFriendlyName</a></td>
+                    <td>@s.Lifetime</td>
+                    <td>@s.ImplementationType</td>
                 </tr>
 
             }

@@ -27,7 +27,7 @@ namespace Comandante.Pages
             {
                 var efExecutedDbCommand = this.HttpContext.Request.Query["EFExecutedDbCommand"].ToString().Trim();
                 var decodedSql = _entityFrameworkCoreService.DecodeSqlFromLogEntry(efExecutedDbCommand);
-                return new EmbededViewRedirectResult("/debug/EFRunSql?_sql=" + WebUtility.UrlEncode(decodedSql));
+                return new EmbededViewRedirectResult(Url.Link("/EFRunSql", new { _sql = decodedSql }));
             }
 
             string appDbContext = null;

@@ -3,15 +3,19 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Comandante.PagesRenderer
 {
@@ -20,6 +24,7 @@ namespace Comandante.PagesRenderer
         public HttpContext HttpContext { get; set; }
         public string ViewName { get; set; }
         public Html Html { get; set; }
+        public Url Url { get; set; }
 
         public abstract Task<EmbededViewResult> InitView();
 
@@ -46,7 +51,7 @@ namespace Comandante.PagesRenderer
         {
             if (AttributeValues != null)
             {
-                var attributes = string.Join(" ", AttributeValues);
+                var attributes = string.Join("", AttributeValues);
                 HttpContext.Response.WriteAsync(attributes);
             }
 
@@ -335,7 +340,65 @@ namespace Comandante.PagesRenderer
             throw new NotImplementedException();
         }
     }
-    
+
+    public class Url : IUrlHelper
+    {
+        public ActionContext ActionContext => throw new NotImplementedException();
+
+        public string Action(UrlActionContext actionContext)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string Content(string contentPath)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsLocalUrl(string url)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string Link(string routeName, object values)
+        {
+            string path = ComandanteMiddlewareExtensions.BaseUrl + routeName;
+            string queryString = null;
+            if (values is IDictionary<string, string>)
+            {
+                queryString =
+                  string.Join("&",
+                        ((IDictionary<string, string>)values).Select(x => x.Key + "=" + HttpUtility.UrlEncode(x.Value))
+                        );
+            }
+            else if (values is IDictionary<string, object>)
+            {
+                queryString =
+                  string.Join("&",
+                        ((IDictionary<string, object>)values).Select(x => x.Key + "=" + HttpUtility.UrlEncode(x.Value?.ToString()))
+                        );
+            }
+            else
+            {
+                queryString =
+                  string.Join("&",
+                          values
+                          .GetType()
+                          .GetProperties()
+                          .Select(x => x.Name + "=" + HttpUtility.UrlEncode(x.GetValue(values)?.ToString()))
+                      );
+            }
+            if (string.IsNullOrEmpty(queryString) == false)
+                return path + "?" + queryString;
+            return path;
+        }
+
+        public string RouteUrl(UrlRouteContext routeContext)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 
     public class EmbededViewResult
     {

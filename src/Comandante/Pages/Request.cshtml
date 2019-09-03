@@ -1,9 +1,9 @@
 ﻿<h2>Monitoring</h2>
 
 <div class="tab-buttons">
-    <a href="/debug/Requests" class="tab-button active">REQUESTS</a>
-    <a href="/debug/Logs" class="tab-button">LOGS</a>
-    <a href="/debug/Monitoring" class="tab-button">CONFIGURATION</a>
+    <a href="@Url.Link("/Requests", new { })" class="tab-button active">REQUESTS</a>
+    <a href="@Url.Link("/Logs", new { })" class="tab-button">LOGS</a>
+    <a href="@Url.Link("/Monitoring", new { })" class="tab-button">CONFIGURATION</a>
 </div>
 
 @if (Model?.Request != null)
@@ -20,12 +20,12 @@ else
 {
     <table>
         <tbody>
-            @foreach (var log in Model.Request.Logs)
+            @foreach (var log in Model.Request.Logs.OrderBy(x => x.Created))
             {
                 <tr>
                     <td>
                         <div class="text-nowrap">
-                            <a href="/debug/Log?Id=@(log.Id)">
+                            <a href="@Url.Link("/Log", new { Id = log.Id })">
                                 <span>@log.Created.ToString("yyyy-MM-dd")</span><span class="text-muted">T</span><span>@log.Created.ToString("HH:mm:ss")</span><span class="text-muted">@log.Created.ToString("zzz")</span>
                             </a>
                         </div>
@@ -41,8 +41,11 @@ else
                         <pre>@log.Details</pre>
                         @if (log.IsEFExecutedDbCommand)
                         {
-                            <a class="small visited" href="/debug/EntityFrameworkCoreRunSql?EFExecutedDbCommand=@System.Net.WebUtility.UrlEncode(log.Details)">Run SQL</a>
+                            <a class="small visited" href="@Url.Link("/EFRunSql", new { EFExecutedDbCommand = log.Details })">Run SQL</a>
                         }
+                    </td>
+                    <td style="background-color: #efefef;">
+                            <div style="margin-left:@(ToLogTimelineValue(log.Created) + "px" ); width: @(ToLogTimelineValue(log.ExecutionTime) + "px"); height:16px; background-color: #337ab7; )"></div>
                     </td>
                 </tr>
             }

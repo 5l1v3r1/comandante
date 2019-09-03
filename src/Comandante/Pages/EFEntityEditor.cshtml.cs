@@ -67,8 +67,10 @@ namespace Comandante.Pages
                     result = new EntityFrameworkService().Add(this.HttpContext, contextName, entityInfo, fieldsValues);
                 if ((result?.IsSuccess).GetValueOrDefault(false))
                 {
-                    var pk = string.Join("&", entityInfo.Fields.Where(x => x.IsPrimaryKey).Select(x => x.Name + "=" + result.Entity.GetPropertyOrFieldValue(x.Name)));
-                    var url = $"/debug/EFEntityEditor?_dbContext={contextName}&_entity={entityInfo.ClrTypeName}&{pk}";
+                    var routeValues = entityInfo.Fields.Where(x => x.IsPrimaryKey).ToDictionary(x => x.Name, x => result.Entity.GetPropertyOrFieldValue(x.Name));
+                    routeValues.TryAdd("_dbContext", contextName);
+                    routeValues.TryAdd("_entity", entityInfo.ClrTypeName);
+                    var url = Url.Link("/EFEntityEditor", routeValues);
                     return new EmbededViewRedirectResult(url);
                 }
                 Model.Errors = result.Errors;

@@ -7,16 +7,16 @@
 {
     <h3 style="margin-bottom: 10px;">@appDbContext?.Name</h3>
     <div>
-        <a class="button small" href="/debug/EFContext?_dbContext=@(appDbContext?.Name)">Details</a>
-        <a class="button small" href="/debug/EFRunSql?_dbContext=@(appDbContext?.Name)">Run Sql</a>
+        <a class="button small" href="@Url.Link("/EFContext", new { _dbContext = appDbContext?.Name })">Details</a>
+        <a class="button small" href="@Url.Link("/EFRunSql", new { _dbContext = appDbContext?.Name })">Run Sql</a>
         <table style="margin-top: 20px;">
             <tbody>
                 @foreach (var entity in appDbContext.Entities)
                 {
                     <tr>
                         <td>
-                            <a href="/debug/EFEntity?_dbContext=@(appDbContext?.Name)&_entity=@(entity.ClrTypeName)">
-                                @entity.ClrTypeName
+                            <a href="@Url.Link("/EFEntity", new { _dbContext = appDbContext?.Name, _entity = entity.ClrTypeName })">
+                                <span class="text-muted">@(entity.ClrType.Namespace + ".")</span>@(entity.ClrType.GetFriendlyName())
                             </a>
                         </td>
                         <td>@(entity.SchemaAndTableName)</td>

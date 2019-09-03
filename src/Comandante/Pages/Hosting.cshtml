@@ -1,9 +1,9 @@
 ﻿<h2>MVC</h2>
 
 <div class="tab-buttons">
-    <a href="/debug/Hosting" class="tab-button active">HOSTING</a>
-    <a href="/debug/Routing" class="tab-button">ROUTING</a>
-    <a href="/debug/Services" class="tab-button">SERVICES</a>
+    <a href="@Url.Link("/Hosting", new { })" class="tab-button active">HOSTING</a>
+    <a href="@Url.Link("/Routing", new { })" class="tab-button">ROUTING</a>
+    <a href="@Url.Link("/Services", new { })" class="tab-button">SERVICES</a>
 </div>
 
 <table class="form">

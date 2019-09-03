@@ -7,7 +7,7 @@ namespace Comandante
     public class ComandanteLogger : ILogger
     {
         private readonly string _name;
-        private RequestsService _requestsService = new RequestsService();
+        private MonitoringService _requestsService = new MonitoringService();
 
         public ComandanteLogger(string name)
         {

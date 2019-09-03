@@ -154,6 +154,7 @@ namespace Comandante.PagesRenderer
             view.HttpContext = httpContext;
             view.ViewName = viewName;
             view.Html = new Html(httpContext);
+            view.Url = new Url();
             if (model != null)
                 item.Type.GetProperty("Model").SetValue(view, model);
             var result = await view.InitView();

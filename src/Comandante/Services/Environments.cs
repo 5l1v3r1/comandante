@@ -8,7 +8,7 @@ namespace Comandante
 {
     public class EnvironmentService
     {
-        public Environments Create()
+        public Environments GetEnvironmentInfo()
         {
             Environments info = new Environments();
             info.CurrentDirectory = Environment.CurrentDirectory;
@@ -62,6 +62,7 @@ namespace Comandante
         {
             var currentProcess = Process.GetCurrentProcess();
             var info = new ProcessInfo();
+            
             info.Id = currentProcess.Id;
             info.BasePriority = currentProcess.BasePriority;
             info.MachineName = currentProcess.MachineName;
@@ -88,7 +89,6 @@ namespace Comandante
             info.PagedSystemMemorySize64 = SizeSuffix(currentProcess.PagedSystemMemorySize64);
             info.PeakPagedMemorySize = SizeSuffix(currentProcess.PeakPagedMemorySize);
             info.PeakPagedMemorySize64 = SizeSuffix(currentProcess.PeakPagedMemorySize64);
-           
             return info;
         }
 

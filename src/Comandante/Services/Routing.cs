@@ -25,9 +25,12 @@ namespace Comandante.Services
                     {
                         Action = x.RouteValues["Action"],
                         Controller = x.RouteValues["Controller"],
+                        RouteValues = JsonConvert.SerializeObject(x.RouteValues),
+                        Parameters = x.Parameters != null ? string.Join(", ", x.Parameters.Select(p => p.ParameterType.GetFriendlyName() + " " + p.Name)) : "",
                         Name = x.AttributeRouteInfo?.Name,
                         Template = x.AttributeRouteInfo?.Template,
-                        Constraint = x.ActionConstraints == null ? "" : JsonConvert.SerializeObject(x.ActionConstraints)
+                        Constraint = x.ActionConstraints == null ? "" : JsonConvert.SerializeObject(x.ActionConstraints),
+                        
                     })
                 .OrderBy(r => r.Template)
                 .ToList();
@@ -41,5 +44,7 @@ namespace Comandante.Services
         public string Controller { get; set; }
         public string Action { get; set; }
         public string Constraint { get; set; }
+        public string RouteValues { get; set; }
+        public string Parameters { get; set; }
     }
 }

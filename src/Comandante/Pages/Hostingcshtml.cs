@@ -15,7 +15,7 @@ namespace Comandante.Pages
         public override async Task<EmbededViewResult> InitView()
         {
             Model = new HostingModel();
-            Model.Environment = new EnvironmentService().Create();
+            Model.Environment = new EnvironmentService().GetEnvironmentInfo();
             Model.Process = new ProcessService().GetProcessInfo();
             return await View();
         }

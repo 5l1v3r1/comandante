@@ -11,7 +11,7 @@ namespace Comandante.Pages
 {
     public class Logs : EmbeddedViewModel
     {
-        private RequestsService _requestsService = new RequestsService();
+        private MonitoringService _requestsService = new MonitoringService();
 
         public LogsModel Model { get; set; }
 
