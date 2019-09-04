@@ -15,7 +15,7 @@ namespace Comandante.Pages
 
         public LogsModel Model { get; set; }
 
-        public override async Task<EmbededViewResult> InitView()
+        public override async Task<EmbededViewResult> Execute()
         {
             Model = new LogsModel();
             Model.Logs = _requestsService.AllLogs.Take(1000).ToList();

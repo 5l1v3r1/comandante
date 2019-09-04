@@ -17,7 +17,7 @@ namespace Comandante.Pages
 
         public EventListenerModel Model { get; set; }
 
-        public override async Task<EmbededViewResult> InitView()
+        public override async Task<EmbededViewResult> Execute()
         {
             Model = new EventListenerModel();
             Model.Events = DotNETRuntimeEventListener.Events;

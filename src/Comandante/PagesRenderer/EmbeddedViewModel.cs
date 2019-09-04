@@ -26,7 +26,7 @@ namespace Comandante.PagesRenderer
         public Html Html { get; set; }
         public Url Url { get; set; }
 
-        public abstract Task<EmbededViewResult> InitView();
+        public abstract Task<EmbededViewResult> Execute();
 
 
         private string AttributeEnding { get; set; }
@@ -398,7 +398,6 @@ namespace Comandante.PagesRenderer
             throw new NotImplementedException();
         }
     }
-
 
     public class EmbededViewResult
     {

@@ -18,7 +18,7 @@ namespace Comandante.Pages
     {
         public MonitoringModel Model { get; set; }
 
-        public override async Task<EmbededViewResult> InitView()
+        public override async Task<EmbededViewResult> Execute()
         {
             Model = new MonitoringModel();
 

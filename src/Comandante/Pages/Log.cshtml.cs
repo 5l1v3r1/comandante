@@ -15,7 +15,7 @@ namespace Comandante.Pages
 
         public LogModel Model { get; set; }
 
-        public override async Task<EmbededViewResult> InitView()
+        public override async Task<EmbededViewResult> Execute()
         {
             Model = new LogModel();
             if (this.HttpContext.Request.Query.ContainsKey("Id"))

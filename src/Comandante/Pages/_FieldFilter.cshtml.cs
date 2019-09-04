@@ -18,7 +18,7 @@ namespace Comandante.Pages
         public DbContextEntityFieldInfo Model { get; set; }
         public string Value { get; set; }
 
-        public async override Task<EmbededViewResult> InitView()
+        public async override Task<EmbededViewResult> Execute()
         {
             if (string.Equals(this.HttpContext.Request.Method, "GET", StringComparison.CurrentCultureIgnoreCase))
             {

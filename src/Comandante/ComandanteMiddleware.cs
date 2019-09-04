@@ -17,6 +17,8 @@ using Comandante.PagesRenderer;
 using Comandante.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Comandante.Services.EventListeners;
+using System.IO;
+using System.IO.Compression;
 
 namespace Comandante
 {
@@ -92,17 +94,46 @@ namespace Comandante
         public async Task RenderComandanteView(HttpContext context, string ViewName)
         {
             DisableCache(context);
+            await EnableCompression(context);
             var renderer = new EmbeddedViewRenderer();
             await renderer.RenderView(ViewName, context);
         }
 
-        public void DisableCache(HttpContext httpContext)
+        public void DisableCache(HttpContext context)
         {
-            httpContext.Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
-            httpContext.Response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
-            httpContext.Response.Headers.Add("Expires", "0"); // Proxies.
+            context.Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+            context.Response.Headers.Add("Pragma", "no-cache"); // HTTP 1.0.
+            context.Response.Headers.Add("Expires", "0"); // Proxies.
         }
-        
+
+        public async Task EnableCompression(HttpContext httpContext)
+        {
+            bool isGZipSupported = false;
+            string acceptEncoding = httpContext.Request.Headers["Accept-Encoding"];
+            if (!string.IsNullOrEmpty(acceptEncoding) && (acceptEncoding.Contains("gzip") || acceptEncoding.Contains("deflate")))
+                isGZipSupported = true;
+
+            if (isGZipSupported)
+            {
+                if (acceptEncoding.Contains("gzip"))
+                {
+                    httpContext.Response.Body = new BufferedStream(new GZipStream(
+                        httpContext.Response.Body,
+                        CompressionMode.Compress));
+                    httpContext.Response.Headers.Remove("Content-Encoding");
+                    httpContext.Response.Headers.Append("Content-Encoding", "gzip");
+                }
+                else
+                {
+                    httpContext.Response.Body = new BufferedStream(new DeflateStream(
+                        httpContext.Response.Body,
+                        CompressionMode.Compress));
+                    httpContext.Response.Headers.Remove("Content-Encoding");
+                    httpContext.Response.Headers.Append("Content-Encoding", "deflate");
+                }
+            }
+        }
+
         public void LogException(HttpContext context, Exception ex)
         {
             try
@@ -144,4 +175,6 @@ namespace Comandante
         }
     }
 
+
+    
 }

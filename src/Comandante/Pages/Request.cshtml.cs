@@ -13,7 +13,7 @@ namespace Comandante.Pages
     {
         public RequestModel Model { get; set; }
 
-        public override async Task<EmbededViewResult> InitView()
+        public override async Task<EmbededViewResult> Execute()
         {
             var logsService = new MonitoringService();
             Model = new RequestModel();

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using System;
 
 namespace Comandante.TestsWeb.Migrations
 {
@@ -19,7 +20,7 @@ namespace Comandante.TestsWeb.Migrations
                 {
                     table.PrimaryKey("PK_Blogs", x => x.BlogId);
                 });
-
+            
             migrationBuilder.CreateTable(
                 name: "Posts",
                 columns: table => new

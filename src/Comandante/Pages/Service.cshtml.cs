@@ -22,7 +22,7 @@ namespace Comandante.Pages
     {
         public ServiceModel Model { get; set; }
 
-        public override async Task<EmbededViewResult> InitView()
+        public override async Task<EmbededViewResult> Execute()
         {
             Model = new ServiceModel();
             if (this.HttpContext.Request.Query.ContainsKey("s"))

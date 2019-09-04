@@ -14,7 +14,7 @@ namespace Comandante.Pages
         private MonitoringService _requestsService = new MonitoringService();
         public RequestsModel Model { get; set; }
 
-        public override async Task<EmbededViewResult> InitView()
+        public override async Task<EmbededViewResult> Execute()
         {
             Model = new RequestsModel();
             Model.Requests = _requestsService.AllRequests;

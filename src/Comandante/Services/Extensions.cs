@@ -8,6 +8,21 @@ namespace Comandante.Services
 {
     public static class Extensions
     {
+        public static string GetDetails(this Exception ex)
+        {
+            if (ex is TargetInvocationException)
+                ex = ex.InnerException;
+
+            List<string> messages = new List<string>();
+            while (ex != null)
+            {
+                messages.Add(ex.Message);
+                ex = ex.InnerException;
+            }
+            messages.Reverse();
+            return string.Join(". ", messages);
+        }
+
         public static object GetPropertyValue(this object obj, string propertyName)
         {
             if (obj == null)
@@ -19,7 +34,7 @@ namespace Comandante.Services
         {
             if (obj == null)
                 return null;
-            return 
+            return
                 (
                     obj.GetType().GetField(fieldName) ??
                     obj.GetType().GetRuntimeFields().FirstOrDefault(x => x.Name == fieldName)
@@ -38,93 +53,6 @@ namespace Comandante.Services
             obj.GetType().GetProperty(propertyName)?.SetValue(obj, propertyValue);
         }
 
-        public static object ConvertToType(this object obj, Type targetType)
-        {
-            if (obj == null)
-                return null;
-
-            string objStr = obj.ToString();
-            if (string.IsNullOrEmpty(objStr))
-                return Activator.CreateInstance(targetType);
-
-            var targetUnderlyingType = targetType;
-            if (targetType.IsNulable())
-                targetUnderlyingType = Nullable.GetUnderlyingType(targetType);
-
-            if (targetUnderlyingType.IsNumericType())
-            {
-                long numericValue;
-                if (long.TryParse(objStr, out numericValue))
-                {
-                    object targetValue = Convert.ChangeType(numericValue, targetUnderlyingType);
-                    if (targetType.IsNulable())
-                        return Activator.CreateInstance(targetType, targetValue);
-                    else
-                        return targetValue;
-                }
-                else
-                    throw new ArgumentException($"Cannot convert value to {targetType.GetFriendlyName()}: {objStr}");
-            }
-            if (targetType == typeof(bool) || targetType == typeof(bool?))
-            {
-                bool boolValue;
-                if (bool.TryParse(objStr, out boolValue))
-                {
-                    object targetUnderlyingValue = boolValue;
-                    if (targetType.IsNulable())
-                        return Activator.CreateInstance(targetType, targetUnderlyingValue);
-                    else
-                        return targetUnderlyingValue;
-                }
-                else
-                    throw new ArgumentException($"Cannot convert value to {targetType.GetFriendlyName()}: {objStr}");
-            }
-            if (targetType == typeof(DateTime) || targetType == typeof(DateTime?))
-            {
-                DateTime dateTimeValue;
-                if (DateTime.TryParse(objStr, out dateTimeValue))
-                {
-                    object targetUnderlyingValue = dateTimeValue;
-                    if (targetType.IsNulable())
-                        return Activator.CreateInstance(targetType, targetUnderlyingValue);
-                    else
-                        return targetUnderlyingValue;
-                }
-                else
-                    throw new ArgumentException($"Cannot convert value to {targetType.GetFriendlyName()}: {objStr}");
-            }
-            if (targetType == typeof(DateTimeOffset) || targetType == typeof(DateTimeOffset?))
-            {
-                DateTimeOffset dateTimeOffsetValue;
-                if (DateTimeOffset.TryParse(objStr, out dateTimeOffsetValue))
-                {
-                    object targetUnderlyingValue = dateTimeOffsetValue;
-                    if (targetType.IsNulable())
-                        return Activator.CreateInstance(targetType, targetUnderlyingValue);
-                    else
-                        return targetUnderlyingValue;
-                }
-                else
-                    throw new ArgumentException($"Cannot convert value to {targetType.GetFriendlyName()}: {objStr}");
-            }
-            return obj;
-        }
-
-        public static string GetDetails(this Exception ex)
-        {
-            if (ex is TargetInvocationException)
-                ex = ex.InnerException;
-
-            List<string> messages = new List<string>();
-            while (ex != null)
-            {
-                messages.Add(ex.Message);
-                ex = ex.InnerException;
-            }
-            messages.Reverse();
-            return string.Join(". ", messages);
-        }
-
         public static object InvokeMethod(this object obj, string methodName, params object[] methodParameters)
         {
             if (obj == null)
@@ -141,7 +69,6 @@ namespace Comandante.Services
             MethodInfo generic = method.MakeGenericMethod(typeArguments);
             return generic.Invoke(obj, methodParameters);
         }
-
         
         public static object InvokeStaticMethod(this Type type, string methodName, params object[] methodParameters)
         {
@@ -159,7 +86,6 @@ namespace Comandante.Services
             MethodInfo generic = method.MakeGenericMethod(typeArguments);
             return generic.Invoke(null, methodParameters);
         }
-
 
         private static MethodInfo FindMethod(Type type, string methodName, object[] methodParameters)
         {

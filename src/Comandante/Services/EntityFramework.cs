@@ -18,39 +18,6 @@ namespace Comandante.Services
 
         }
 
-        //private Expression<Func<Goods, bool>> LambdaConstructor(string propertyName, string inputText, Condition condition)
-        //{
-
-        //    var item = Expression.Parameter(typeof(Goods), "item");
-        //    var prop = Expression.Property(item, propertyName);
-        //    var propertyInfo = typeof(Goods).GetProperty(propertyName);
-        //    var value = Expression.Constant(Convert.ChangeType(inputText, propertyInfo.PropertyType));
-        //    BinaryExpression equal;
-        //    switch (condition)
-        //    {
-        //        case Condition.eq:
-        //            equal = Expression.Equal(prop, value);
-        //            break;
-        //        case Condition.gt:
-        //            equal = Expression.GreaterThan(prop, value);
-        //            break;
-        //        case Condition.gte:
-        //            equal = Expression.GreaterThanOrEqual(prop, value);
-        //            break;
-        //        case Condition.lt:
-        //            equal = Expression.LessThan(prop, value);
-        //            break;
-        //        case Condition.lte:
-        //            equal = Expression.LessThanOrEqual(prop, value);
-        //            break;
-        //        default:
-        //            equal = Expression.Equal(prop, value);
-        //            break;
-        //    }
-        //    var lambda = Expression.Lambda<Func<Goods, bool>>(equal, item);
-        //    return lambda;
-        //}
-
         public DbContextSqlResult RunSql(HttpContext httpContext, string contextName, string sql, int maxRowsReads = 1000)
         {
             try {
@@ -112,6 +79,7 @@ namespace Comandante.Services
         {
             return GetAll(httpContext, contextName, entityInfo, new Dictionary<string, string>(), null);
         }
+
         public DbContextEntitiesResult GetAll(HttpContext httpContext, string contextName, DbContextEntityInfo entityInfo, Dictionary<string, string> where, int? page)
         {
             DbContextEntitiesResult results = new DbContextEntitiesResult();
@@ -132,7 +100,7 @@ namespace Comandante.Services
                     var fieldInfo = entityInfo.Fields.FirstOrDefault(f => f.Name == whereCondition.Key);
                     var operation = Expression.Equal(
                         Expression.Call(typeof(EF), nameof(EF.Property), new[] { fieldInfo.ClrType }, x, Expression.Constant(whereCondition.Key)),
-                        Expression.Constant(whereCondition.Value.ConvertToType(fieldInfo.ClrType), fieldInfo.ClrType));
+                        Expression.Constant(Binder.ConvertToType(whereCondition.Value, fieldInfo.ClrType), fieldInfo.ClrType));
 
                     if (lastOperation == null)
                         lastOperation = operation;
@@ -200,7 +168,7 @@ namespace Comandante.Services
             {
                 var primaryKeys = entityInfo.Fields
                     .Where(x => x.IsPrimaryKey)
-                    .Select(x => pkValues.FirstOrDefault(v => v.Key == x.Name).Value.ConvertToType(x.FieldInfo.FieldType))
+                    .Select(x => Binder.ConvertToType(pkValues.FirstOrDefault(v => v.Key == x.Name).Value, x.FieldInfo.FieldType))
                     .ToArray();
 
                 var entity = dbContext.Find(entityInfo.ClrType, primaryKeys);
@@ -246,7 +214,7 @@ namespace Comandante.Services
                         result.Errors.Add($"Property {field.Key} does not exist in the entity {entityInfo.ClrTypeName}");
                         continue;
                     }
-                    var value = field.Value.ConvertToType(entityField.ClrType);
+                    var value = Binder.ConvertToType(field.Value, entityField.ClrType);
                     entityEntry.Property(field.Key).CurrentValue = value;
                 }catch(Exception ex)
                 {
@@ -300,7 +268,12 @@ namespace Comandante.Services
                 object value = fieldsValues.FirstOrDefault(x => x.Key == field.Name).Value;
                 try
                 {
-                    value = value.ConvertToType(field.ClrType);
+                    if (Binder.IsConvertionSupported(field.ClrType) == false)
+                    {
+                        result.Warnings.Add($"Type of property {field.Name} is not supported.");
+                        continue;
+                    }
+                    value = Binder.ConvertToType(value, field.ClrType);
                     entityEntry.Property(field.Name).CurrentValue = value;
                 }
                 catch (Exception ex)
@@ -629,7 +602,8 @@ namespace Comandante.Services
         public object Entity;
         public Dictionary<string, object> FieldsValues = new Dictionary<string, object>();
         public List<string> Errors = new List<string>();
-
+        public List<string> Warnings = new List<string>();
+        
         public bool IsSuccess => Entity != null && Errors.Count == 0;
 
         public static DbContextEntityResult Error(string error)

@@ -19,7 +19,7 @@ namespace Comandante.Pages
     {
         public ServicesModel Model { get; set; }
 
-        public override async Task<EmbededViewResult> InitView()
+        public override async Task<EmbededViewResult> Execute()
         {
             Model = new ServicesModel();
             Model.Services = new ServicesService().GetServices();

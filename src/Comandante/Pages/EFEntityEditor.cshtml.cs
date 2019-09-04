@@ -14,7 +14,7 @@ namespace Comandante.Pages
     {
         public EFEntityEditorModel Model { get; set; }
 
-        public override async Task<EmbededViewResult> InitView()
+        public override async Task<EmbededViewResult> Execute()
         {
             Model = new EFEntityEditorModel();
 
@@ -51,7 +51,7 @@ namespace Comandante.Pages
             {
                 var entity = new EntityFrameworkService().GetEntityByPrimaryKey(this.HttpContext, contextName, entityInfo, pkValues);
                 if (entity != null)
-                    fieldsValues = entity.FieldsValues.ToDictionary(x => x.Key, x => x.Value?.ToString());
+                    fieldsValues =  entity.FieldsValues.ToDictionary(x => x.Key, x => Binder.ConvertToString(x.Value));
             }
 
             Model.DbContext = contextName;
@@ -74,6 +74,7 @@ namespace Comandante.Pages
                     return new EmbededViewRedirectResult(url);
                 }
                 Model.Errors = result.Errors;
+                Model.Warnings = result.Warnings;
             }
 
             return await View();
@@ -86,6 +87,7 @@ namespace Comandante.Pages
         public DbContextEntityInfo Entity;
         public List<(DbContextEntityFieldInfo Field, string Value)> FieldsWithValues;
         public List<string> Errors;
+        public List<string> Warnings;
         public bool IsUpdate;
         public string EntityName;
         public string EntityNamePart1;

@@ -12,7 +12,7 @@ namespace Comandante.Pages
     {
         public HostingModel Model { get; set; }
 
-        public override async Task<EmbededViewResult> InitView()
+        public override async Task<EmbededViewResult> Execute()
         {
             Model = new HostingModel();
             Model.Environment = new EnvironmentService().GetEnvironmentInfo();

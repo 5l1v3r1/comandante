@@ -16,7 +16,7 @@ namespace Comandante.Pages
     {
         public RequestResponseInfo Model { get; set; }
 
-        public async override Task<EmbededViewResult> InitView()
+        public async override Task<EmbededViewResult> Execute()
         {
             return await View();
         }

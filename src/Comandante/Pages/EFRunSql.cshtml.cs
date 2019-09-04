@@ -18,7 +18,7 @@ namespace Comandante.Pages
         private EntityFrameworkService _entityFrameworkCoreService = new EntityFrameworkService();
         public EFRunSqlModel Model { get; set; }
 
-        public override async Task<EmbededViewResult> InitView()
+        public override async Task<EmbededViewResult> Execute()
         {
             Model = new EFRunSqlModel();
             Model.DbContexts = _entityFrameworkCoreService.GetDbContexts(this.HttpContext);

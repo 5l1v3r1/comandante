@@ -28,6 +28,17 @@
             }
         </ul>
     }
+    @if (Model.Warnings != null && Model.Warnings.Count > 0)
+    {
+        <div class="warnings">Please check the following warnings:</div>
+        <ul class="warnings">
+            @foreach (var warning in Model.Warnings)
+            {
+                <li>@warning</li>
+            }
+        </ul>
+    }
+    
     <button name="_submit">Save Changes</button>
 </form>
 <br />

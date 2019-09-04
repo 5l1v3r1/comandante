@@ -14,7 +14,7 @@ namespace Comandante.Pages
     {
         public EFEntityModel Model { get; set; }
 
-        public override async Task<EmbededViewResult> InitView()
+        public override async Task<EmbededViewResult> Execute()
         {
             Model = new EFEntityModel();
 

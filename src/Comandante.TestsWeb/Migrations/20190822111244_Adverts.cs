@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using System;
 
 namespace Comandante.TestsWeb.Migrations
 {
@@ -6,7 +7,6 @@ namespace Comandante.TestsWeb.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-
             migrationBuilder.CreateTable(
                 name: "Adverts",
                 columns: table => new

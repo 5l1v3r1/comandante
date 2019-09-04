@@ -49,8 +49,8 @@ namespace Comandante
             {
                 return
                   WebHostlogs
-                  .Union(RequestsActive.SelectMany(x => x.Logs.ToArray().Where(y => y != null)))
-                  .Union(RequestsEnded.SelectMany(x => x.Logs.ToArray().Where(y => y != null)))
+                  .Union(RequestsActive.SelectMany(x => x.Logs.ToList().Where(y => y != null)))
+                  .Union(RequestsEnded.SelectMany(x => x.Logs.ToList().Where(y => y != null)))
                   .OrderByDescending(x => x.Created)
                   .ToList();
             }

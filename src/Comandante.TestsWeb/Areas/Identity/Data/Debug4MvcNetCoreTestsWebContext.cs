@@ -45,6 +45,8 @@ namespace Comandante.TestsWeb.Models
 
         public int BlogId { get; set; }
         public Blog Blog { get; set; }
+
+        public DateTime? Published { get; set; }
     }
 
     public class Advert
@@ -53,5 +55,7 @@ namespace Comandante.TestsWeb.Models
         public Blog Blog { get; set; }
         public int? NumberOfDisplays { get; set; }
         public bool? IsActive { get; set; }
+
+        public bool IsDeleted { get; set; }
     }
 }

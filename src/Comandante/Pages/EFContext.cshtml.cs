@@ -14,7 +14,7 @@ namespace Comandante.Pages
     {
         public EFContextModel Model { get; set; }
 
-        public override async Task<EmbededViewResult> InitView()
+        public override async Task<EmbededViewResult> Execute()
         {
             Model = new EFContextModel();
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Comandante.Services;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor.TagHelpers;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -14,15 +15,17 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Comandante.PagesRenderer
 {
     public class EmbeddedViewRenderer
     {
+        private static Dictionary<string, Assembly> _viewAsemblyCache = new Dictionary<string, Assembly>();
+
         public EmbeddedViewRenderer()
         {
- 
         }
 
         public async Task RenderView(string view, HttpContext httpContext)
@@ -34,6 +37,13 @@ namespace Comandante.PagesRenderer
         {
             try
             {
+                var cachedAssembly = _viewAsemblyCache.GetValueOrDefault(view);
+                if (cachedAssembly != null)
+                {
+                    await RunAsync(cachedAssembly, httpContext, view, model);
+                    return;
+                }
+
                 var fs = new EmbeddedViewRazorProject();
                 var engine = RazorProjectEngine.Create(RazorConfiguration.Default, fs, (builder) =>
                 {
@@ -87,17 +97,13 @@ namespace Comandante.PagesRenderer
                     metadataReferences,
                     new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)); // we want a dll
 
-
                 var assembly = LoadAssembly(compilation);
+                _viewAsemblyCache.Add(view, assembly);
+                
                 await RunAsync(assembly, httpContext, view, model);
             } catch(Exception ex)
             {
-                while (ex != null)
-                {
-                    await httpContext.Response.WriteAsync(ex.Message);
-                    await httpContext.Response.WriteAsync(ex.StackTrace);
-                    ex = ex.InnerException;
-                }
+                await httpContext.Response.WriteAsync(ex.GetDetails());
             }
         }
 
@@ -148,25 +154,34 @@ namespace Comandante.PagesRenderer
 
         public async Task RunAsync(Assembly assembly, HttpContext httpContext, string viewName, object model)
         {
-            RazorCompiledItemLoader loader = new RazorCompiledItemLoader();
-            RazorCompiledItem item = loader.LoadItems(assembly).SingleOrDefault();
-            EmbeddedViewModel view = (EmbeddedViewModel)Activator.CreateInstance(item.Type);
-            view.HttpContext = httpContext;
-            view.ViewName = viewName;
-            view.Html = new Html(httpContext);
-            view.Url = new Url();
-            if (model != null)
-                item.Type.GetProperty("Model").SetValue(view, model);
-            var result = await view.InitView();
-            if (httpContext.Response.StatusCode == 200 && result is EmbededViewViewResult)
-                await view.ExecuteAsync();
-            if (httpContext.Response.StatusCode == 200 && result is EmbededViewJsonResult)
+            try
             {
-                httpContext.Response.ContentType = "application/json";
-                await httpContext.Response.WriteAsync(((EmbededViewJsonResult)result).Json);
+                RazorCompiledItemLoader loader = new RazorCompiledItemLoader();
+                RazorCompiledItem item = loader.LoadItems(assembly).SingleOrDefault();
+                EmbeddedViewModel view = (EmbeddedViewModel)Activator.CreateInstance(item.Type);
+                view.HttpContext = httpContext;
+                view.ViewName = viewName;
+                view.Html = new Html(httpContext);
+                view.Url = new Url();
+                if (model != null)
+                    item.Type.GetProperty("Model").SetValue(view, model);
+                var result = await view.Execute();
+                if (httpContext.Response.StatusCode == 200 && result is EmbededViewViewResult)
+                    await view.ExecuteAsync();
+                if (httpContext.Response.StatusCode == 200 && result is EmbededViewJsonResult)
+                {
+                    httpContext.Response.ContentType = "application/json";
+                    await httpContext.Response.WriteAsync(((EmbededViewJsonResult)result).Json);
+                }
+                if (httpContext.Response.StatusCode == 200 && result is EmbededViewRedirectResult)
+                    httpContext.Response.Redirect(((EmbededViewRedirectResult)result).Url);
             }
-            if (httpContext.Response.StatusCode == 200 && result is EmbededViewRedirectResult)
-                httpContext.Response.Redirect(((EmbededViewRedirectResult)result).Url);
+            finally
+            {
+                BufferedStream bufferedStream = httpContext.Response.Body as BufferedStream;
+                if (bufferedStream != null)
+                    await bufferedStream.FlushAsync();
+            }
         }
 
         private static MetadataReference GetMetadataReference(Type type) =>
