@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Comandante.Pages;
@@ -13,9 +14,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Comandante.Pages
 {
-    public class _FieldEditor : EmbeddedViewModel
+    public class _MethodFieldEditor : EmbeddedViewModel
     {
-        public (DbContextEntityFieldInfo Field, string Value) Model { get; set; }
+        public (ParameterInfo Field, string Value) Model { get; set; }
 
         public async override Task<EmbededViewResult> Execute()
         {

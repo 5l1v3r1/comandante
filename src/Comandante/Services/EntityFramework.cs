@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,7 +72,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                return DbContextSqlResult.Error(ex.GetDetails());
+                return DbContextSqlResult.Error(ex.GetAllMessages());
             }
         }
 
@@ -152,7 +153,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                results.Errors.Add(ex.GetDetails());
+                results.Errors.Add(ex.GetAllMessages());
             }
             return results;
         }
@@ -218,7 +219,7 @@ namespace Comandante.Services
                     entityEntry.Property(field.Key).CurrentValue = value;
                 }catch(Exception ex)
                 {
-                    result.Errors.Add($"Cannot set entity property {field.Key} to {field.Value}. Error: {ex.GetDetails()}");
+                    result.Errors.Add($"Cannot set entity property {field.Key} to {field.Value}. Error: {ex.GetAllMessages()}");
                 }
             }
 
@@ -231,7 +232,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                result.Errors.Add($"Cannot add entity to the context. Error: {ex.GetDetails()}");
+                result.Errors.Add($"Cannot add entity to the context. Error: {ex.GetAllMessages()}");
                 return result;
             }
 
@@ -241,7 +242,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                result.Errors.Add($"Cannot save entity. Error: {ex.GetDetails()}");
+                result.Errors.Add($"Cannot save entity. Error: {ex.GetAllMessages()}");
                 return result;
             }
 
@@ -278,7 +279,7 @@ namespace Comandante.Services
                 }
                 catch (Exception ex)
                 {
-                    result.Errors.Add($"Cannot set entity property {field.Name} to {value}. Error: {ex.GetDetails()}");
+                    result.Errors.Add($"Cannot set entity property {field.Name} to {value}. Error: {ex.GetAllMessages()}");
                 }
             }
 
@@ -290,7 +291,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                result.Errors.Add($"Cannot update entity in the context. Error: {ex.GetDetails()}");
+                result.Errors.Add($"Cannot update entity in the context. Error: {ex.GetAllMessages()}");
                 return result;
             }
 
@@ -300,7 +301,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                result.Errors.Add($"Cannot save entity. Error: {ex.GetDetails()}");
+                result.Errors.Add($"Cannot save entity. Error: {ex.GetAllMessages()}");
                 return result;
             }
 
@@ -342,21 +343,25 @@ namespace Comandante.Services
                             var tableName = relationalEntity.GetPropertyValue("TableName")?.ToString();
 
                             var debugView = entityType.GetPropertyValue("DebugView")?.GetPropertyValue("View"); ;
+
+                            var clrProperties = entityType.ClrType.GetProperties();
+                            var clrPropertiesOrder = clrProperties.ToDictionary(x => x.Name, x => clrProperties.IndexOf(x));
+
+                            var entityProperties = entityType.GetProperties().OrderBy(x => x.IsShadowProperty ? clrPropertiesOrder.GetValueOrDefault(x.Name.Substring(0, x.Name.Length - 2), 0) : clrPropertiesOrder.GetValueOrDefault(x.Name, 0));
                             
-                            var properties = entityType.GetFieldValue("_properties") as System.Collections.IEnumerable;
                             var entityFields = new List<DbContextEntityFieldInfo>();
-                            foreach (KeyValuePair<string, Microsoft.EntityFrameworkCore.Metadata.Internal.Property> property in properties)
+                            foreach (Microsoft.EntityFrameworkCore.Metadata.Internal.Property property in entityProperties)
                             {
                                 entityFields.Add(new DbContextEntityFieldInfo
                                 {
-                                    Name = property.Value.Name,
-                                    ClrType = property.Value.ClrType,
-                                    FieldInfo = property.Value.FieldInfo,
-                                    IsPrimaryKey = property.Value.IsPrimaryKey(),
-                                    IsForeignKey = property.Value.IsForeignKey(),
-                                    ForeignEntityName = property.Value.ForeignKeys?.FirstOrDefault()?.PrincipalEntityType?.Name,
-                                    ForeignEntityClrType = property.Value.ForeignKeys?.FirstOrDefault()?.PrincipalEntityType?.ClrType,
-                                    ForeignEntityFieldName = property.Value.ForeignKeys?.FirstOrDefault().PrincipalKey.Properties.FirstOrDefault().Name
+                                    Name = property.Name,
+                                    ClrType = property.ClrType,
+                                    FieldInfo = property.FieldInfo,
+                                    IsPrimaryKey = property.IsPrimaryKey(),
+                                    IsForeignKey = property.IsForeignKey(),
+                                    ForeignEntityName = property.ForeignKeys?.FirstOrDefault()?.PrincipalEntityType?.Name,
+                                    ForeignEntityClrType = property.ForeignKeys?.FirstOrDefault()?.PrincipalEntityType?.ClrType,
+                                    ForeignEntityFieldName = property.ForeignKeys?.FirstOrDefault().PrincipalKey.Properties.FirstOrDefault().Name
                                 });
                             }
 

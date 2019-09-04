@@ -8,7 +8,7 @@ namespace Comandante.Services
 {
     public static class Extensions
     {
-        public static string GetDetails(this Exception ex)
+        public static string GetAllMessages(this Exception ex)
         {
             if (ex is TargetInvocationException)
                 ex = ex.InnerException;
@@ -21,6 +21,21 @@ namespace Comandante.Services
             }
             messages.Reverse();
             return string.Join(". ", messages);
+        }
+
+        public static string GetAllDetails(this Exception ex)
+        {
+            if (ex is TargetInvocationException)
+                ex = ex.InnerException;
+
+            List<string> details = new List<string>();
+            while (ex != null)
+            {
+                details.Add(ex.Message);
+                details.Add(ex.StackTrace);
+                ex = ex.InnerException;
+            }
+            return string.Join("\n\n", details);
         }
 
         public static object GetPropertyValue(this object obj, string propertyName)

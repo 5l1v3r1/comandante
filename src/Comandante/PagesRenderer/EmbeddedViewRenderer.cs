@@ -103,7 +103,10 @@ namespace Comandante.PagesRenderer
                 await RunAsync(assembly, httpContext, view, model);
             } catch(Exception ex)
             {
-                await httpContext.Response.WriteAsync(ex.GetDetails());
+                await httpContext.Response.WriteAsync(ex.GetAllDetails());
+                BufferedStream bufferedStream = httpContext.Response.Body as BufferedStream;
+                if (bufferedStream != null)
+                    await bufferedStream.FlushAsync();
             }
         }
 

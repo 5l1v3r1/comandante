@@ -1,10 +1,14 @@
-﻿<h2>MVC</h2>
+﻿<ul class="breadcrumb">
+    <li>MVC<br /></li>
+    <li>
+        <div class="tab-buttons">
+            <a href="@Url.Link("/Hosting", new { })" class="tab-button">HOSTING</a>
+            <a href="@Url.Link("/Routing", new { })" class="tab-button active">ROUTING</a>
+            <a href="@Url.Link("/Services", new { })" class="tab-button">SERVICES</a>
+        </div>
+    </li>
+</ul>
 
-<div class="tab-buttons">
-    <a href="@Url.Link("/Hosting", new { })" class="tab-button">HOSTING</a>
-    <a href="@Url.Link("/Routing", new { })" class="tab-button active">ROUTING</a>
-    <a href="@Url.Link("/Services", new { })" class="tab-button">SERVICES</a>
-</div>
 
 @if (Model.Routes != null)
 {
@@ -25,15 +29,15 @@
             @foreach (var route in Model.Routes)
             {
 
-            <tr>
-                <td>@route.Template</td>
-                <td>@route.Controller</td>
-                <td>@route.Action</td>
-                <td>@route.Constraint</td>
-                <td>@route.Name</td>
-                <td>@route.Parameters</td>
-                <td>@route.RouteValues</td>
-            </tr>
+                <tr>
+                    <td>@route.Template</td>
+                    <td>@route.Controller</td>
+                    <td>@route.Action</td>
+                    <td>@route.Constraint</td>
+                    <td>@route.Name</td>
+                    <td>@route.Parameters</td>
+                    <td>@route.RouteValues</td>
+                </tr>
 
             }
         </tbody>

@@ -25,9 +25,9 @@ namespace Comandante.Pages
         public override async Task<EmbededViewResult> Execute()
         {
             Model = new ServiceModel();
-            if (this.HttpContext.Request.Query.ContainsKey("s"))
+            if (this.HttpContext.Request.Query.ContainsKey("_s"))
             {
-                var s = this.HttpContext.Request.Query["s"].ToString().Trim();
+                var s = this.HttpContext.Request.Query["_s"].ToString().Trim();
                 Model.Service = new ServicesService().GetService(s);
             }
 

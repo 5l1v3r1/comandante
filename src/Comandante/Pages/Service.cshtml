@@ -1,13 +1,19 @@
-﻿<h2>MVC</h2>
-
-<div class="tab-buttons">
-    <a href="@Url.Link("/Hosting", new { })" class="tab-button">HOSTING</a>
-    <a href="@Url.Link("/Routing", new { })" class="tab-button">ROUTING</a>
-    <a href="@Url.Link("/Services", new { })" class="tab-button active">SERVICES</a>
-</div>
+﻿<ul class="breadcrumb">
+    <li>MVC<br /></li>
+    <li>
+        <div class="tab-buttons">
+            <a href="@Url.Link("/Hosting", new { })" class="tab-button">HOSTING</a>
+            <a href="@Url.Link("/Routing", new { })" class="tab-button">ROUTING</a>
+            <a href="@Url.Link("/Services", new { })" class="tab-button active">SERVICES</a>
+        </div>
+        <br />
+    </li>
+    <li><span class="small text-muted">Service: </span>@Model.Service.ServiceFriendlyName</li>
+</ul>
 
 @if (Model.Service != null)
 {
+    <h3>Service Details</h3>
     <table class="form">
         <tr>
             <td>ServiceType</td>
@@ -23,36 +29,49 @@
         </tr>
     </table>
 
-    <h3>Properties</h3>
-    @foreach (var p in Model.Service.Properties)
-    {
-        <table>
+    <h3>Methods</h3>
+    <table>
+        @foreach (var m in Model.Service.Methods)
+        {
+
             <tr>
-                <td>@p.Key</td>
-                <td>@p.Value</td>
+                <td>
+                    <a href="@(Url.Link("/ServiceMethod", new { _s = @Model.Service.ServiceFullName, _m = m.Id }))">
+                        <span class="text-muted">@m.MethodReturnType </span>@m.MethodName<span class="text-muted">@m.MethodParameters</span>
+                    </a>
+                </td>
             </tr>
-        </table>
-    }
+
+        }
+    </table>
+
+    <h3>Properties</h3>
+    <table>
+        @foreach (var p in Model.Service.Properties)
+        {
+            <tr>
+                <td>
+                    <a href="@(Url.Link("/ServiceProperty", new { _s = @Model.Service.ServiceFullName, _p = p.Id }))">
+                        <span class="text-muted">@p.PropertyType </span>@p.Name
+                    </a>
+                </td>
+            </tr>
+        }
+    </table>
 
     <h3>Fields</h3>
-    @foreach (var f in Model.Service.Fields)
-    {
-        <table>
-            <tr>
-                <td>@f.Key</td>
-                <td>@f.Value</td>
-            </tr>
-        </table>
-    }
+    <table>
+        @foreach (var f in Model.Service.Fields)
+        {
 
-    <h3>Methods</h3>
-    @foreach (var m in Model.Service.Methods)
-    {
-        <table>
             <tr>
-                <td>@m</td>
+                <td>
+                    <a href="@(Url.Link("/ServiceField", new { _s = @Model.Service.ServiceFullName, _f = f.Id }))">
+                        <span class="text-muted">@f.FieldType </span>@f.Name
+                    </a>
+                </td>
             </tr>
-        </table>
-    }
-    
+
+        }
+    </table>
 }

@@ -1,11 +1,13 @@
-﻿<h2>MVC</h2>
-
-<div class="tab-buttons">
-    <a href="@Url.Link("/Hosting", new { })" class="tab-button">HOSTING</a>
-    <a href="@Url.Link("/Routing", new { })" class="tab-button">ROUTING</a>
-    <a href="@Url.Link("/Services", new { })" class="tab-button active">SERVICES</a>
-</div>
-
+﻿<ul class="breadcrumb">
+    <li>MVC<br /></li>
+    <li>
+        <div class="tab-buttons">
+            <a href="@Url.Link("/Hosting", new { })" class="tab-button">HOSTING</a>
+            <a href="@Url.Link("/Routing", new { })" class="tab-button">ROUTING</a>
+            <a href="@Url.Link("/Services", new { })" class="tab-button active">SERVICES</a>
+        </div>
+    </li>
+</ul>
 
 @if (Model.Services != null)
 {
@@ -22,7 +24,7 @@
             {
 
                 <tr>
-                    <td><a href="@Url.Link("/Service", new { s = s.ServiceFullName })">@s.ServiceFriendlyName</a></td>
+                    <td><a href="@Url.Link("/Service", new { _s = s.ServiceFullName })">@s.ServiceFriendlyName</a></td>
                     <td>@s.Lifetime</td>
                     <td>@s.ImplementationType</td>
                 </tr>

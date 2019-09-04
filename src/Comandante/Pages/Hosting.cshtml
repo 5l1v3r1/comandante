@@ -1,10 +1,14 @@
-﻿<h2>MVC</h2>
+﻿<ul class="breadcrumb">
+    <li>MVC<br /></li>
+    <li>
+        <div class="tab-buttons">
+            <a href="@Url.Link("/Hosting", new { })" class="tab-button active">HOSTING</a>
+            <a href="@Url.Link("/Routing", new { })" class="tab-button">ROUTING</a>
+            <a href="@Url.Link("/Services", new { })" class="tab-button">SERVICES</a>
+        </div>
+    </li>
+</ul>
 
-<div class="tab-buttons">
-    <a href="@Url.Link("/Hosting", new { })" class="tab-button active">HOSTING</a>
-    <a href="@Url.Link("/Routing", new { })" class="tab-button">ROUTING</a>
-    <a href="@Url.Link("/Services", new { })" class="tab-button">SERVICES</a>
-</div>
 
 <table class="form">
         <tr>
