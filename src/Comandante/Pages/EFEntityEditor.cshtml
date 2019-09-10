@@ -1,10 +1,16 @@
 ﻿<ul class="breadcrumb">
-    <li><a href="@Url.Link("/EF", new { })" >EntityFramework</a></li>
-    <li><a href="@Url.Link("/EFContext", new { _dbContext = Model.DbContext })"><span class="small text-muted">DbContext: </span>@(Model.DbContext)</a></li>
-    <li><a href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = Model.EntityName })"><span class="small text-muted">Entity: </span>@Model.EntityNamePart2</a></li>
+    <li><a href="@Url.Link("/EF", new { })">EntityFramework</a><br /></li>
+    <li><a href="@Url.Link("/EFContext", new { _dbContext = Model.DbContext })"><span class="small text-muted">DbContext: </span>@(Model.DbContext)</a><br /></li>
+    <li><a href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = Model.EntityName })"><span class="small text-muted">Entity: </span>@Model.EntityNamePart2</a><br /></li>
+    <li>
+        <span class="small text-muted">View: </span>
+        <a class="active" href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })">Rows</a>
+        <a class="" href="@Url.Link("/EFEntityDesc", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })">Details</a><br />
+    </li>
     <li>@(Model.IsUpdate ? "Update" : "Create")</li>
 </ul>
 
+<h3>@(Model.IsUpdate ? "Create a record" : "Update the record")</h3>
 <form autocomplete="off" method="post">
     <input name="_dbContext" value="@Model.DbContext" type="hidden" />
     <input name="_entity" value="@Model.Entity?.ClrTypeName" type="hidden" />
@@ -41,8 +47,3 @@
     
     <button name="_submit">Save Changes</button>
 </form>
-<br />
-<br />
-<a href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = Model.Entity.ClrTypeName })">
-    Go To Entity
-</a>

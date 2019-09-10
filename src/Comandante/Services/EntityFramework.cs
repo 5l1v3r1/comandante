@@ -27,39 +27,39 @@ namespace Comandante.Services
                 if (dbContext == null)
                     return DbContextSqlResult.Error("Cannot find DbContext: " + contextName);
 
-                object database = dbContext.GetPropertyValue("Database");
+                object database = Reflector.GetPropertyValue(dbContext, "Database");
                 List<string> columns = new List<string>();
                 List<object[]> rows = new List<object[]>();
                 int recordsAffected = -1;
                 var relatoinDatabaseExtensionType = GetRelationalDatabaseExtensionType();
-                using (var dbConnection = relatoinDatabaseExtensionType.InvokeStaticMethod("GetDbConnection", database) as IDisposable)
+                using (var dbConnection = Reflector.InvokeStaticMethod(relatoinDatabaseExtensionType, "GetDbConnection", database) as IDisposable)
                 {
-                    dbConnection.InvokeMethod("Open");
-                    using (var dbCommand = dbConnection.InvokeMethod("CreateCommand") as IDisposable)
+                    Reflector.InvokeMethod(dbConnection, "Open");
+                    using (var dbCommand = Reflector.InvokeMethod(dbConnection, "CreateCommand") as IDisposable)
                     {
-                        dbCommand.SetPropertyValue("CommandText", sql);
-                        using (var reader = dbCommand.InvokeMethod("ExecuteReader") as IDisposable)
+                        Reflector.SetPropertyValue(dbCommand, "CommandText", sql);
+                        using (var reader = Reflector.InvokeMethod(dbCommand, "ExecuteReader") as IDisposable)
                         {
-                            while ((bool)reader.InvokeMethod("Read"))
+                            while ((bool)Reflector.InvokeMethod(reader, "Read"))
                             {
                                 if (columns.Count == 0)
                                 {
-                                    int fieldCount = (int)reader.GetPropertyValue("FieldCount");
+                                    int fieldCount = (int)Reflector.GetPropertyValue(reader, "FieldCount");
                                     for (int i = 0; i < fieldCount; i++)
                                     {
-                                        columns.Add(reader.InvokeMethod("GetName", i)?.ToString());
+                                        columns.Add(Reflector.InvokeMethod(reader, "GetName", i)?.ToString());
                                     }
                                 }
                                 object[] row = new object[columns.Count];
                                 for (int i = 0; i < columns.Count; i++)
                                 {
-                                    row[i] = reader.InvokeMethod("GetValue", i);
+                                    row[i] = Reflector.InvokeMethod(reader, "GetValue", i);
                                 }
                                 rows.Add(row);
                                 if (rows.Count >= maxRowsReads)
                                     break;
                             }
-                            recordsAffected = (int)reader.GetPropertyValue("RecordsAffected");
+                            recordsAffected = (int)Reflector.GetPropertyValue(reader, "RecordsAffected");
                         }
                     }
                 }
@@ -92,7 +92,7 @@ namespace Comandante.Services
                 if (dbContext == null)
                     return DbContextEntitiesResult.Error("Cannot find DbContext: " + contextName);
 
-                object dbSet = dbContext.InvokeGenericMethod("Set", new[] { entityInfo.ClrType });
+                object dbSet = Reflector.InvokeGenericMethod(dbContext, "Set", new[] { entityInfo.ClrType });
 
                 ParameterExpression x = Expression.Parameter(entityInfo.ClrType, "x");
                 BinaryExpression lastOperation = null;
@@ -328,9 +328,9 @@ namespace Comandante.Services
                         appDbContextInfo.ProviderName = database.ProviderName;
                         if (relationalDatabaseExtensionType != null)
                         {
-                            appDbContextInfo.Migrations = (relationalDatabaseExtensionType.InvokeStaticMethod("GetMigrations", database) as IEnumerable<string>)?.ToList() ?? new List<string>();
-                            appDbContextInfo.PendingMigrations = (relationalDatabaseExtensionType.InvokeStaticMethod("GetPendingMigrations", database) as IEnumerable<string>)?.ToList() ?? new List<string>();
-                            appDbContextInfo.AppliedMigrations = (relationalDatabaseExtensionType.InvokeStaticMethod("GetAppliedMigrations", database) as IEnumerable<string>)?.ToList() ?? new List<string>();
+                            appDbContextInfo.Migrations = (Reflector.InvokeStaticMethod(relationalDatabaseExtensionType, "GetMigrations", database) as IEnumerable<string>)?.ToList() ?? new List<string>();
+                            appDbContextInfo.PendingMigrations = (Reflector.InvokeStaticMethod(relationalDatabaseExtensionType, "GetPendingMigrations", database) as IEnumerable<string>)?.ToList() ?? new List<string>();
+                            appDbContextInfo.AppliedMigrations = (Reflector.InvokeStaticMethod(relationalDatabaseExtensionType, "GetAppliedMigrations", database) as IEnumerable<string>)?.ToList() ?? new List<string>();
                         }
                     }
                     var model = dbContext.Model;
@@ -338,11 +338,11 @@ namespace Comandante.Services
                     {
                         foreach (var entityType in model.GetEntityTypes())
                         {
-                            var relationalEntity = relationalMetadataExtensions.InvokeStaticMethod("Relational", entityType);
-                            var schema = relationalEntity.GetPropertyValue("Schema")?.ToString();
-                            var tableName = relationalEntity.GetPropertyValue("TableName")?.ToString();
+                            var relationalEntity = Reflector.InvokeStaticMethod(relationalMetadataExtensions, "Relational", entityType);
+                            var schema = Reflector.GetPropertyValue(relationalEntity, "Schema")?.ToString();
+                            var tableName = Reflector.GetPropertyValue(relationalEntity, "TableName")?.ToString();
 
-                            var debugView = entityType.GetPropertyValue("DebugView")?.GetPropertyValue("View"); ;
+                            var debugView = Reflector.GetPropertyValue(Reflector.GetPropertyValue(entityType, "DebugView"), "View");
 
                             var clrProperties = entityType.ClrType.GetProperties();
                             var clrPropertiesOrder = clrProperties.ToDictionary(x => x.Name, x => clrProperties.IndexOf(x));
@@ -368,9 +368,9 @@ namespace Comandante.Services
                             var schemaAndTableName = string.IsNullOrEmpty(schema) == false ? schema + "." + tableName : tableName;
                             appDbContextInfo.Entities.Add(new DbContextEntityInfo
                             {
-                                NavigationName = entityType.GetPropertyValue("DefiningNavigationName")?.ToString(),
-                                ClrTypeName = entityType.GetPropertyValue("ClrType")?.ToString(),
-                                ClrType = entityType.GetPropertyValue("ClrType") as Type,
+                                NavigationName = Reflector.GetPropertyValue(entityType, "DefiningNavigationName")?.ToString(),
+                                ClrTypeName = Reflector.GetPropertyValue(entityType, "ClrType")?.ToString(),
+                                ClrType = Reflector.GetPropertyValue(entityType, "ClrType") as Type,
                                 Schema = schema,
                                 TableName = tableName,
                                 SchemaAndTableName = schemaAndTableName,
@@ -380,7 +380,7 @@ namespace Comandante.Services
 
                         }
 
-                        var modelDebugView = model.GetPropertyValue("DebugView")?.GetPropertyValue("View"); ;
+                        var modelDebugView = Reflector.GetPropertyValue(Reflector.GetPropertyValue(model, "DebugView"), "View");
                         appDbContextInfo.DebugView = modelDebugView?.ToString();
                     }
                 }
@@ -486,7 +486,7 @@ namespace Comandante.Services
         public void EnableSensitiveDataLogging(HttpContext httpContext)
         {
             var loggingOptions = GetLoggingOptions(httpContext);
-            loggingOptions.SetPropertyValue("IsSensitiveDataLoggingEnabled", true);
+            //loggingOptions.SetPropertyValue("IsSensitiveDataLoggingEnabled", true);
         }
 
         public object GetLoggingOptions(HttpContext httpContext)
@@ -506,7 +506,7 @@ namespace Comandante.Services
         public void EnableSensitiveDataLogging(IServiceProvider serviceProvider)
         {
             var loggingOptions = GetLoggingOptions(serviceProvider);
-            loggingOptions.SetPropertyValue("IsSensitiveDataLoggingEnabled", true);
+            //loggingOptions.SetPropertyValue("IsSensitiveDataLoggingEnabled", true);
         }
 
         public object GetLoggingOptions(IServiceProvider serviceProvider)

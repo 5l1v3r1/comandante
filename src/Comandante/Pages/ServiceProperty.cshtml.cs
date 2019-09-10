@@ -13,6 +13,7 @@ namespace Comandante.Pages
     public class ServiceProperty : EmbeddedViewModel
     {
         public ServicePropertydModel Model { get; set; }
+        private ServicesService _servicesService = new ServicesService();
 
         public override async Task<EmbededViewResult> Execute()
         {
@@ -20,47 +21,14 @@ namespace Comandante.Pages
 
             var serviceName = this.HttpContext.Request.Query["_s"].ToString();
             var propertyName = this.HttpContext.Request.Query["_p"].ToString();
-            Model.Service = new ServicesService().GetService(serviceName);
+            Model.Service = _servicesService.GetService(serviceName);
             Model.Property = Model.Service.Properties.FirstOrDefault(x => x.Id == propertyName);
 
-            bool isSubmit = false;
-            if (string.Equals(this.HttpContext.Request.Method, "POST", StringComparison.CurrentCultureIgnoreCase))
+            if (this.IsSubmit())
             {
-                isSubmit = this.HttpContext.Request.Form.Any(x => x.Key == "_submit");
-            }
-
-            if (isSubmit)
-            {
-                List<string> errors = new List<string>();
-                object result;
-                try
-                {
-                    result = Model.Property.Poperty.GetValue(Model.Service.Service);
-                    if (result is Task)
-                    {
-                        ((Task)result).Wait();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    errors.Add($"Property invocation resulted with the error: {ex.GetAllMessages()}");
-                    Model.Errors = errors;
-                    return await View();
-                }
-
-                try
-                {
-                    if (result == null)
-                    {
-                        Model.ExecutionResult = "null";
-                        return await View();
-                    }
-                    Model.ExecutionResult = JsonConvert.SerializeObject(result, Formatting.Indented);
-                }
-                catch (Exception ex)
-                {
-                    Model.ExecutionResult = ex.GetAllMessages();
-                }
+                var result = _servicesService.InvokeProperty(Model.Service, Model.Property);
+                Model.Errors = result.Errors;
+                Model.ExecutionResult = result.Result;
             }
 
             return await View();

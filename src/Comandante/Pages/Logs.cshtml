@@ -1,11 +1,13 @@
-﻿<h2>Monitoring</h2>
+﻿<ul class="breadcrumb">
+    <li>Monitoring<br /></li>
+    <li>
+        <a href="@Url.Link("/Requests", new { })" class="tab-button">Requests</a>
+        <a href="@Url.Link("/Logs", new { })" class="tab-button active">Logs</a>
+        <a href="@Url.Link("/Monitoring", new { })" class="tab-button">Configuration</a>
+    </li>
+</ul>
 
-<div class="tab-buttons">
-    <a href="@Url.Link("/Requests", new { })" class="tab-button">REQUESTS</a>
-    <a href="@Url.Link("/Logs", new { })" class="tab-button active">LOGS</a>
-    <a href="@Url.Link("/Monitoring", new { })" class="tab-button">CONFIGURATION</a>
-</div>
-
+<h3>Logs List</h3>
 <table>
     @foreach (var log in Model.Logs)
     {

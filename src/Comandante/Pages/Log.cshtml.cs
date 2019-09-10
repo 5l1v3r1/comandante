@@ -23,6 +23,10 @@ namespace Comandante.Pages
             Model.Log = new MonitoringService().AllLogs.FirstOrDefault(x => x.Id == Model.Id);
             if (Model.Log?.TraceIdentifier != null)
                 Model.Request = new MonitoringService().RequestsEnded.FirstOrDefault(x => x.TraceIdentifier == Model.Log.TraceIdentifier);
+
+            Model.Title = Model.Log?.Details ?? "";
+            if (Model.Title.Length > 50)
+                Model.Title = Model.Title.Substring(0, 50);
             return await View();
         }
     }
@@ -30,6 +34,7 @@ namespace Comandante.Pages
     public class LogModel
     {
         public string Id;
+        public string Title;
         public LogEntry Log;
         public RequestResponseInfo Request;
     }

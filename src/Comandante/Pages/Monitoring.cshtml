@@ -1,10 +1,11 @@
-﻿<h2>Monitoring</h2>
-
-<div class="tab-buttons">
-    <a href="@Url.Link("/Requests", new { })" class="tab-button">REQUESTS</a>
-    <a href="@Url.Link("/Logs", new {})" class="tab-button">LOGS</a>
-    <a href="@Url.Link("/Monitoring", new {})" class="tab-button active">CONFIGURATION</a>
-</div>
+﻿<ul class="breadcrumb">
+    <li>Monitoring<br /></li>
+    <li>
+        <a href="@Url.Link("/Requests", new { })" class="tab-button">Requests</a>
+        <a href="@Url.Link("/Logs", new {})" class="tab-button">Logs</a>
+        <a href="@Url.Link("/Monitoring", new {})" class="tab-button active">Configuration</a>
+    </li>
+</ul>
 
 
 <div>

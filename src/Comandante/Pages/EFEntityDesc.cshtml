@@ -1,0 +1,79 @@
+﻿<ul class="breadcrumb">
+    <li><a href="@Url.Link("/EF", new { })">EntityFramework</a><br /></li>
+    <li><a href="@Url.Link("/EFContext", new { _dbContext = Model.DbContext })"><span class="small text-muted">DbContext: </span>@(Model.DbContext)</a><br /></li>
+    <li><a href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })"><span class="small text-muted">Entity: </span> @Model.Entity?.ClrType?.GetFriendlyName()</a><br /></li>
+    <li><span class="small text-muted">View: </span>
+        <a class="" href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })">Rows</a>
+        <a class="active" href="@Url.Link("/EFEntityDesc", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })">Details</a>
+    </li>
+</ul>
+
+<h3>Entity Details</h3>
+<table class="form">
+    <tr>
+        <td>AppDbContext</td>
+        <td>@Model.DbContext</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>
+            <a class="button small" href="@Url.Link("/EFContext", new { _dbContext = Model.DbContext })">Details</a>
+            <a class="button small" href="@Url.Link("/EFRunSql", new { _dbContext = Model.DbContext })">Run Sql</a>
+        </td>
+    </tr>
+    <tr>
+        <td>NavigationName</td>
+        <td>@Model.Entity?.NavigationName</td>
+    </tr>
+    <tr>
+        <td>ClrTypeName</td>
+        <td>@Model.Entity?.ClrTypeName</td>
+    </tr>
+    <tr>
+        <td>Schema</td>
+        <td>@Model.Entity?.Schema</td>
+    </tr>
+    <tr>
+        <td>TableName</td>
+        <td>@Model.Entity?.TableName</td>
+    </tr>
+    <tr>
+        <td>SchemaAndTableName</td>
+        <td>@Model.Entity?.SchemaAndTableName</td>
+    </tr>
+</table>
+
+
+<h3>Fields</h3>
+@if (Model.Entity?.Fields != null)
+{
+    <table>
+        <thead class="small">
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var field in Model.Entity?.Fields)
+            {
+                <tr>
+                    <td>@field.Name</td>
+                    <td>@(field?.ClrType?.GetFriendlyName())</td>
+                    <td>
+                        @(field.IsPrimaryKey ? "PrimaryKey" : "")
+                        @(field.IsForeignKey ? "ForeignKey" : "")
+                        @(field.ForeignEntityName)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h3>DebugView</h3>
+<pre>
+@Model.Entity?.DebugView
+</pre>
+

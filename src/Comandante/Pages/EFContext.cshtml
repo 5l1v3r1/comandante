@@ -1,5 +1,5 @@
 ﻿<ul class="breadcrumb">
-    <li><a href="@Url.Link("/EF", new { })" >EntityFramework</a></li>
+    <li><a href="@Url.Link("/EF", new { })" >EntityFramework</a><br /></li>
     <li><span class="small text-muted">DbContext: </span>@(Model.DbContext)</li>
 </ul>
 
@@ -25,21 +25,25 @@
     <table>
         <thead class="small">
             <tr>
-                <th>DbTable</th>
                 <th>ClrType</th>
+                <th>DbTable</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var entity in Model.AppDbContext.Entities)
             {
-                <tr>
-                    <td>
-                        <a href="@Url.Link("/EFEntity", new { _dbContext = Model.AppDbContext?.Name, _entity = entity.ClrTypeName })">
-                            @(entity.SchemaAndTableName)
-                        </a>
-                    </td>
-                    <td>@entity.ClrTypeName</td>
-                </tr>
+            <tr>
+                <td>
+                    <a href="@Url.Link("/EFEntity", new { _dbContext = Model.AppDbContext?.Name, _entity = entity.ClrTypeName })">
+                        <span class="text-muted">@(entity.ClrType.Namespace + ".")</span>@(entity.ClrType.GetFriendlyName())
+                    </a>
+                </td>
+                <td>
+                    <a href="@Url.Link("/EFEntity", new { _dbContext = Model.AppDbContext?.Name, _entity = entity.ClrTypeName })">
+                        @(entity.SchemaAndTableName)
+                    </a>
+                </td>
+            </tr>
             }
         </tbody>
     </table>

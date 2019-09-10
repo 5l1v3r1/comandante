@@ -177,7 +177,7 @@ fieldset legend label{
 .button,
 button {
     background-color: white;
-    border: 0.5px solid gray;
+    border: 1px solid #cccccc;
     padding: 5px;
     padding-left: 12px;
     padding-right: 12px;
@@ -214,40 +214,6 @@ input {
     padding-right: 10px;
 }
 
-ul.breadcrumb {
-    margin-top: 10px;
-    margin-bottom: 30px;
-    padding-left: 0px;
-    list-style: none;
-}
-
-ul.breadcrumb li {
-    display: inline;
-    font-size: 22px;
-    word-break: keep-all;
-    white-space: nowrap;
-}
-
-ul.breadcrumb li + li:before {
-    padding: 8px;
-    padding-left: px;
-    color: black;
-    content: "/\00a0";
-}
-
-ul.breadcrumb li a {
-    text-decoration: none;
-}
-
-ul.breadcrumb li a:hover {
-    text-decoration: underline;
-}
-
-ul.breadcrumb a,
-ul.breadcrumb a.active,
-ul.breadcrumb a.visited {
-    color: rgb(51, 51, 51);
-}
 
 ul.errors {
 }
@@ -259,34 +225,36 @@ div.errors {
     color: #dc3545 !important;
     font-size: 16px;
 }
-.tab-buttons {
-    margin-bottom: 30px;
-}
-.tab-button {
-    border: 0px none;
-    padding: 5px;
-    padding-left: 10px;
-    padding-right: 20px;
-    font-family: Segoe UI,SegoeUI,Segoe WP,Helvetica Neue,Helvetica,Tahoma,Arial,sans-serif;
-    font-weight: 400;
-    font-size: 16px;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    color: rgb(51, 51, 51);
-    background-color: #efefef;
-    border-radius: 3px;
-}
-ul.breadcrumb .tab-button.active,
-.tab-button.active,
-.tab-button:hover {
-    border: 0px none;
-    background-color: #337ab7;
-    color: #fff;
-}
-ul.breadcrumb .tab-buttons {
-    display: inline-block;
-    margin-bottom: 10px;
-    margin-top: 10px;
-}
 
+ul.breadcrumb {
+    margin-top: 10px;
+    margin-bottom: 30px;
+    padding-left: 0px;
+    list-style: none;
+    padding: 0px !important;
+}
+ul.breadcrumb li {
+    display: inline;
+    font-size: 16px;
+    word-break: keep-all;
+    white-space: nowrap;
+}
+ul.breadcrumb li + li:before {
+    padding: 8px;
+    padding-left: 0px;
+    color: black;
+    content: "/\00a0";
+}
+ul.breadcrumb li a {
+    text-decoration: none;
+}
+ul.breadcrumb a,
+ul.breadcrumb a.active,
+ul.breadcrumb a.visited {
+    color: rgb(51, 51, 51);
+    margin-right: 10px;
+}
+ul.breadcrumb a:hover {
+    text-decoration: underline;
+}
 

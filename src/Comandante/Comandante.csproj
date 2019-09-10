@@ -5,9 +5,9 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/golabek-co-uk/Comandante</RepositoryUrl>
     <Description>ASP Mvc dotNet Core Debug Tool</Description>
-    <Version>1.8.0</Version>
-    <AssemblyVersion>1.8.0.0</AssemblyVersion>
-    <FileVersion>1.8.0.0</FileVersion>
+    <Version>1.9.0</Version>
+    <AssemblyVersion>1.9.0.0</AssemblyVersion>
+    <FileVersion>1.9.0.0</FileVersion>
     <PackageId>Comandante</PackageId>
     <Authors>Comandante</Authors>
     <Company>Comandante</Company>
@@ -18,6 +18,7 @@
     <None Remove="Pages\EF.cshtml" />
     <None Remove="Pages\EFContext.cshtml" />
     <None Remove="Pages\EFEntity.cshtml" />
+    <None Remove="Pages\EFEntityDesc.cshtml" />
     <None Remove="Pages\EFEntityEditor.cshtml" />
     <None Remove="Pages\EFRunSql.cshtml" />
     <None Remove="Pages\EventListener.cshtml" />
@@ -47,6 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Pages\EFEntityDesc.cshtml" />
     <EmbeddedResource Include="Pages\EFEntityEditor.cshtml" />
     <EmbeddedResource Include="Pages\EFEntity.cshtml" />
     <EmbeddedResource Include="Pages\EFContext.cshtml" />

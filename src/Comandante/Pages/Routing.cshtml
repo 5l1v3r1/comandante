@@ -1,15 +1,14 @@
 ﻿<ul class="breadcrumb">
     <li>MVC<br /></li>
     <li>
-        <div class="tab-buttons">
-            <a href="@Url.Link("/Hosting", new { })" class="tab-button">HOSTING</a>
-            <a href="@Url.Link("/Routing", new { })" class="tab-button active">ROUTING</a>
-            <a href="@Url.Link("/Services", new { })" class="tab-button">SERVICES</a>
-        </div>
+        <a href="@Url.Link("/Hosting", new { })" class="tab-button">Hosting</a>
+        <a href="@Url.Link("/Routing", new { })" class="tab-button active">Routing</a>
+        <a href="@Url.Link("/Services", new { })" class="tab-button">Services</a>
     </li>
 </ul>
 
 
+<h3>Registered Routes</h3>
 @if (Model.Routes != null)
 {
     <table>

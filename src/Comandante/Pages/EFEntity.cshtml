@@ -1,196 +1,112 @@
-﻿<ul class="breadcrumb">
-    <li><a href="@Url.Link("/EF", new { })">EntityFramework</a></li>
-    <li><a href="@Url.Link("/EFContext", new { _dbContext = Model.DbContext })"><span class="small text-muted">DbContext: </span>@(Model.DbContext)</a></li>
-    <li><span class="small text-muted">Entity: </span>@Model.EntityNamePart2</li>
+﻿
+<ul class="breadcrumb">
+    <li><a href="@Url.Link("/EF", new { })">EntityFramework</a><br /></li>
+    <li><a href="@Url.Link("/EFContext", new { _dbContext = Model.DbContext })"><span class="small text-muted">DbContext: </span>@(Model.DbContext)</a><br /></li>
+    <li><a href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })"><span class="small text-muted">Entity: </span> @Model.Entity?.ClrType?.GetFriendlyName()</a><br /></li>
+    <li><span class="small text-muted">View: </span>
+        <a class="active" href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })">Rows</a>
+        <a class="" href="@Url.Link("/EFEntityDesc", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })">Details</a>
+    </li>
 </ul>
 
-<script>
-    function openTab(tabName) {
-        var tabs = document.getElementsByClassName("tab");
-        for (i = 0; i < tabs.length; i++) {
-            tabs[i].style.display = "none";
-        }
-        document.getElementById("tab-" + tabName).style.display = "block";
-        var tabsButtons = document.getElementsByClassName("tab-button");
-        for (i = 0; i < tabsButtons.length; i++) {
-            tabsButtons[i].className = tabsButtons[i].className.replace(/\bactive\b/g, "");
-        }
-        document.getElementById("tab-button-" + tabName).className += " active";
-    }
-</script>
-<div class="tab-buttons">
-    <button id="tab-button-Rows" class="tab-button active" onclick="openTab('Rows')">ROWS</button>
-    <button id="tab-button-Details" class="tab-button" onclick="openTab('Details')">DETAILS</button>
-</div>
-<div>
-    <div id="tab-Rows" class="tab">
-        
-        <a style="margin-left: 5px;" class="button small" href="@Url.Link("/EFEntityEditor", new { _dbContext = Model.DbContext, _entity = Model.Entity.ClrTypeName })">Create a record</a>
-        <br />
-        <br />
-        @if (Model.Rows != null)
-        {
-            <form autocomplete="off" method="get">
-                <input name="_dbContext" value="@Model.DbContext" type="hidden" />
-                <input name="_entity" value="@Model.Entity?.ClrTypeName" type="hidden" />
-                <table>
-                    <thead class="small">
-                        <tr>
-                            @foreach (var field in Model.Rows.Fields)
-                            {
-                                <td>@RenderPartialView("_FieldFilter", field)</td>
-                            }
-                        </tr>
-                        <tr>
-                            <td colspan="1000">
-                                <button class="small" name="find">Search</button>
-                                <br />
-                                <br />
-                                @if (Model.Rows?.Errors != null && Model.Rows?.Errors.Count > 0)
-                                {
-                                    <div class="errors">Please check the following errors:</div>
-                                    <ul class="errors">
-                                        @foreach (var error in Model.Rows?.Errors)
-                                        {
-                                            <li>@error</li>
-                                        }
-                                    </ul>
-                                }
-                            </td>
-                        </tr>
-                        <tr>
-                            @foreach (var field in Model.Rows.Fields)
-                            {
-                                <td>@field.Name</td>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var row in Model.Rows.Rows)
+
+<h3>Entity Rows</h3>
+<a style="margin-left: 5px;" class="button small" href="@Url.Link("/EFEntityEditor", new { _dbContext = Model.DbContext, _entity = Model.Entity.ClrTypeName })">Create a record</a>
+<br />
+<br />
+@if (Model.Rows != null)
+{
+    <form autocomplete="off" method="get">
+        <input name="_dbContext" value="@Model.DbContext" type="hidden" />
+        <input name="_entity" value="@Model.Entity?.ClrTypeName" type="hidden" />
+        <table>
+            <thead class="small">
+                <tr>
+                    @foreach (var field in Model.Rows.Fields)
+                    {
+                        <td>@RenderPartialView("_FieldFilter", field)</td>
+                    }
+                </tr>
+                <tr>
+                    <td colspan="1000">
+                        <button class="small" name="find">Search</button>
+                        <br />
+                        <br />
+                        @if (Model.Rows?.Errors != null && Model.Rows?.Errors.Count > 0)
                         {
-                            <tr>
-                                @for (int i = 0; i < Model.Rows.Fields.Count; i++)
+                            <div class="errors">Please check the following errors:</div>
+                            <ul class="errors">
+                                @foreach (var error in Model.Rows?.Errors)
                                 {
-                                    @{ var field = Model.Rows.Fields[i];}
-                                    <td>
-                                        
-                                        @if (Model.Rows.Fields[i].IsPrimaryKey)
-                                        {
-                                            Dictionary<string, string> pk = new Dictionary<string, string>();
-                                            pk.TryAdd("_dbContext", Model.DbContext);
-                                            pk.TryAdd("_entity", Model.Entity.ClrTypeName);
-                                            @foreach (var pkField in Model.Rows.Fields)
-                                            {
-                                                if (pkField.IsPrimaryKey)
-                                                {
-                                                    int pkIndex = Model.Rows.Fields.IndexOf(pkField);
-                                                    var pkValue = row[pkIndex];
-                                                    pk.TryAdd(pkField.Name, pkValue?.ToString());
-                                                }
-                                            }
-
-                                            <a href="@Url.Link("/EFEntityEditor", pk)">
-                                                @row[i]
-                                            </a>
-                                        }
-                                        else if (Model.Rows.Fields[i].IsForeignKey)
-                                        {
-                                            <a href="@Url.Link("/EFEntityEditor", new { _dbContext = Model.DbContext, _entity = field.ForeignEntityName })&@(field.ForeignEntityFieldName)=@(row[i])">
-                                                @row[i]
-                                            </a>
-                                        }
-                                        else
-                                        {
-                                            @row[i]
-                                        }
-
-                                    </td>
+                                    <li>@error</li>
                                 }
-                            </tr>
+                            </ul>
                         }
-                    </tbody>
-                </table>
-                <div class="mt-2">
-                    @if (Model.Page.GetValueOrDefault(1) > 1)
+                    </td>
+                </tr>
+                <tr>
+                    @foreach (var field in Model.Rows.Fields)
                     {
-                        <a href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = Model.Entity.ClrTypeName, _p = Model.Page.GetValueOrDefault(1) - 1 })" style="margin-right: 20px;">Previous page</a>
+                        <td>@field.Name</td>
                     }
-                    <a href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = Model.Entity.ClrTypeName, _p = Model.Page.GetValueOrDefault(1) + 1 })">Next page</a>
-                </div>
-            </form>
-        }
-
-    </div>
-    <div id="tab-Details" class="tab" style="display:none">
-        <table class="form">
-            <tr>
-                <td>AppDbContext</td>
-                <td>@Model.DbContext</td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>
-                    <a class="button small" href="@Url.Link("/EFContext", new { _dbContext = Model.DbContext })">Details</a>
-                    <a class="button small" href="@Url.Link("/EFRunSql", new { _dbContext = Model.DbContext })">Run Sql</a>
-                </td>
-            </tr>
-            <tr>
-                <td>NavigationName</td>
-                <td>@Model.Entity?.NavigationName</td>
-            </tr>
-            <tr>
-                <td>ClrTypeName</td>
-                <td>@Model.Entity?.ClrTypeName</td>
-            </tr>
-            <tr>
-                <td>Schema</td>
-                <td>@Model.Entity?.Schema</td>
-            </tr>
-            <tr>
-                <td>TableName</td>
-                <td>@Model.Entity?.TableName</td>
-            </tr>
-            <tr>
-                <td>SchemaAndTableName</td>
-                <td>@Model.Entity?.SchemaAndTableName</td>
-            </tr>
-        </table>
-
-
-        <h3>Fields</h3>
-        @if (Model.Entity?.Fields != null)
-        {
-            <table>
-                <thead class="small">
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Model.Rows.Rows)
+                {
                     <tr>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var field in Model.Entity?.Fields)
-                    {
-                        <tr>
-                            <td>@field.Name</td>
-                            <td>@(field?.ClrType?.GetFriendlyName())</td>
+                        @for (int i = 0; i < Model.Rows.Fields.Count; i++)
+                        {
+                            @{ var field = Model.Rows.Fields[i];}
                             <td>
-                                @(field.IsPrimaryKey ? "PrimaryKey" : "")
-                                @(field.IsForeignKey ? "ForeignKey" : "")
-                                @(field.ForeignEntityName)
+                                        
+                                @if (Model.Rows.Fields[i].IsPrimaryKey)
+                                {
+                                    Dictionary<string, string> pk = new Dictionary<string, string>();
+                                    pk.TryAdd("_dbContext", Model.DbContext);
+                                    pk.TryAdd("_entity", Model.Entity.ClrTypeName);
+                                    @foreach (var pkField in Model.Rows.Fields)
+                                    {
+                                        if (pkField.IsPrimaryKey)
+                                        {
+                                            int pkIndex = Model.Rows.Fields.IndexOf(pkField);
+                                            var pkValue = row[pkIndex];
+                                            pk.TryAdd(pkField.Name, pkValue?.ToString());
+                                        }
+                                    }
+
+                                    <a href="@Url.Link("/EFEntityEditor", pk)">
+                                        @row[i]
+                                    </a>
+                                }
+                                else if (Model.Rows.Fields[i].IsForeignKey)
+                                {
+                                    <a href="@Url.Link("/EFEntityEditor", new { _dbContext = Model.DbContext, _entity = field.ForeignEntityName })&@(field.ForeignEntityFieldName)=@(row[i])">
+                                        @row[i]
+                                    </a>
+                                }
+                                else
+                                {
+                                    @row[i]
+                                }
+
                             </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="mt-2">
+            @if (Model.Page.GetValueOrDefault(1) > 1)
+            {
+                <a href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = Model.Entity.ClrTypeName, _p = Model.Page.GetValueOrDefault(1) - 1 })" style="margin-right: 20px;">Previous page</a>
+            }
+            <a href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = Model.Entity.ClrTypeName, _p = Model.Page.GetValueOrDefault(1) + 1 })">Next page</a>
+        </div>
+    </form>
+}
 
-        <h3>DebugView</h3>
-        <pre>
-        @Model.Entity?.DebugView
-        </pre>
 
-    </div>
-</div>
+
 
 

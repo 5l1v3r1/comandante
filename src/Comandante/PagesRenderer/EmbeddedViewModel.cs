@@ -132,6 +132,23 @@ namespace Comandante.PagesRenderer
         {
             return await Task.FromResult(new EmbededViewJsonResult(json));
         }
+
+        public bool IsSubmit()
+        {
+            if (string.Equals(this.HttpContext.Request.Method, "POST", StringComparison.CurrentCultureIgnoreCase))
+                return this.HttpContext.Request.Form.Any(x => x.Key == "_submit");
+            return false;
+        }
+
+        public bool IsPost()
+        {
+            return string.Equals(this.HttpContext.Request.Method, "POST", StringComparison.CurrentCultureIgnoreCase);
+        }
+
+        public bool IsGet()
+        {
+            return string.Equals(this.HttpContext.Request.Method, "GET", StringComparison.CurrentCultureIgnoreCase);
+        }
     }
 
     public class Html : IHtmlHelper

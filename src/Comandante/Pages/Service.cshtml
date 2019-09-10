@@ -1,11 +1,9 @@
 ﻿<ul class="breadcrumb">
     <li>MVC<br /></li>
     <li>
-        <div class="tab-buttons">
-            <a href="@Url.Link("/Hosting", new { })" class="tab-button">HOSTING</a>
-            <a href="@Url.Link("/Routing", new { })" class="tab-button">ROUTING</a>
-            <a href="@Url.Link("/Services", new { })" class="tab-button active">SERVICES</a>
-        </div>
+        <a href="@Url.Link("/Hosting", new { })" class="tab-button">Hosting</a>
+        <a href="@Url.Link("/Routing", new { })" class="tab-button">Routing</a>
+        <a href="@Url.Link("/Services", new { })" class="tab-button active">Services</a>
         <br />
     </li>
     <li><span class="small text-muted">Service: </span>@Model.Service.ServiceFriendlyName</li>
@@ -17,7 +15,7 @@
     <table class="form">
         <tr>
             <td>ServiceType</td>
-            <td>@Model.Service.ServiceFriendlyName</td>
+            <td><span class="text-muted">@(Model.Service.ServiceType.Namespace != null ? Model.Service.ServiceType.Namespace + "." : "" )</span>@Model.Service.ServiceFriendlyName</td>
         </tr>
         <tr>
             <td>Lifetime</td>
@@ -25,7 +23,7 @@
         </tr>
         <tr>
             <td>ImplementationType</td>
-            <td>@Model.Service.ImplementationType</td>
+            <td><span class="text-muted">@(Model.Service.ImplementationType?.Namespace != null ? Model.Service.ImplementationType.Namespace + "." : "" )</span>@Model.Service.ImplementationFriendlyName</td>
         </tr>
     </table>
 

@@ -22,7 +22,7 @@ namespace Comandante.PagesRenderer
 {
     public class EmbeddedViewRenderer
     {
-        private static Dictionary<string, Assembly> _viewAsemblyCache = new Dictionary<string, Assembly>();
+        private static Dictionary<string, EmbeddedCompiledView> _viewAsemblyCache = new Dictionary<string, EmbeddedCompiledView>();
 
         public EmbeddedViewRenderer()
         {
@@ -35,12 +35,14 @@ namespace Comandante.PagesRenderer
 
         public async Task RenderView(string view, HttpContext httpContext, object model)
         {
+            string generatedCode = null;
             try
             {
                 var cachedAssembly = _viewAsemblyCache.GetValueOrDefault(view);
                 if (cachedAssembly != null)
                 {
-                    await RunAsync(cachedAssembly, httpContext, view, model);
+                    generatedCode = cachedAssembly.GeneratedCode;
+                    await RunAsync(cachedAssembly.Assembly, httpContext, view, model);
                     return;
                 }
 
@@ -55,6 +57,7 @@ namespace Comandante.PagesRenderer
                 var page = fs.GetItem(view + ".cshtml");
                 var pageCodeDocument = engine.Process(page);
                 var pageCs = pageCodeDocument.GetCSharpDocument();
+                generatedCode = pageCs?.GeneratedCode;
                 var pageTree = CSharpSyntaxTree.ParseText(pageCs.GeneratedCode);
 
                 MetadataReference[] metadataReferences =
@@ -98,12 +101,13 @@ namespace Comandante.PagesRenderer
                     new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)); // we want a dll
 
                 var assembly = LoadAssembly(compilation);
-                _viewAsemblyCache.Add(view, assembly);
+                _viewAsemblyCache.Add(view, new EmbeddedCompiledView { Assembly = assembly, GeneratedCode = pageCs.GeneratedCode });
                 
                 await RunAsync(assembly, httpContext, view, model);
             } catch(Exception ex)
             {
                 await httpContext.Response.WriteAsync(ex.GetAllDetails());
+                await httpContext.Response.WriteAsync(generatedCode);
                 BufferedStream bufferedStream = httpContext.Response.Body as BufferedStream;
                 if (bufferedStream != null)
                     await bufferedStream.FlushAsync();
@@ -193,5 +197,11 @@ namespace Comandante.PagesRenderer
         private static MetadataReference GetMetadataReference(string assemblyName) =>
             MetadataReference.CreateFromFile(Assembly.Load(assemblyName).Location);
 
+    }
+
+    public class EmbeddedCompiledView
+    {
+        public Assembly Assembly;
+        public string GeneratedCode;
     }
 }
