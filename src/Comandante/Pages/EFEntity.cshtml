@@ -2,7 +2,7 @@
 <ul class="breadcrumb">
     <li><a href="@Url.Link("/EF", new { })">EntityFramework</a><br /></li>
     <li><a href="@Url.Link("/EFContext", new { _dbContext = Model.DbContext })"><span class="small text-muted">DbContext: </span>@(Model.DbContext)</a><br /></li>
-    <li><a href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })"><span class="small text-muted">Entity: </span> @Model.Entity?.ClrType?.GetFriendlyName()</a><br /></li>
+    <li><a href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })"><span class="small text-muted">Entity: </span> <span class="active">@Model.Entity?.ClrType?.GetFriendlyName()</span></a><br /></li>
     <li><span class="small text-muted">View: </span>
         <a class="active" href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })">Rows</a>
         <a class="" href="@Url.Link("/EFEntityDesc", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })">Details</a>
@@ -10,7 +10,7 @@
 </ul>
 
 
-<h3>Entity Rows</h3>
+<h3>Rows</h3>
 <a style="margin-left: 5px;" class="button small" href="@Url.Link("/EFEntityEditor", new { _dbContext = Model.DbContext, _entity = Model.Entity.ClrTypeName })">Create a record</a>
 <br />
 <br />
@@ -59,7 +59,7 @@
                         {
                             @{ var field = Model.Rows.Fields[i];}
                             <td>
-                                        
+
                                 @if (Model.Rows.Fields[i].IsPrimaryKey)
                                 {
                                     Dictionary<string, string> pk = new Dictionary<string, string>();

@@ -1,29 +1,19 @@
-﻿<ul class="breadcrumb">
-    <li>Monitoring<br /></li>
-    <li>
-        <div class="tab-buttons">
-            <a href="@Url.Link("/Requests", new { })" class="tab-button">REQUESTS</a>
-            <a href="@Url.Link("/Logs", new {})" class="tab-button">LOGS</a>
-            <a href="@Url.Link("/Monitoring", new {})" class="tab-button">CONFIGURATION</a>
-        </div>
-    </li>
-</ul>
-
-<ul class="breadcrumb">
-    <li>MVC<br /></li>
-    <li>
-        <div class="tab-buttons">
-            <a href="@Url.Link("/Hosting", new { })" class="tab-button">HOSTING</a>
-            <a href="@Url.Link("/Routing", new { })" class="tab-button">ROUTING</a>
-            <a href="@Url.Link("/Services", new { })" class="tab-button">SERVICES</a>
-        </div>
-    </li>
-</ul>
-
-<ul class="breadcrumb">
-    <li><a href="@Url.Link("/EF", new { })">EntityFramework</a><br /></li>
-    @foreach (var dbContext in Model.DbContexts)
-    {
-        <li><a href="@Url.Link("/EFContext", new { _dbContext = @dbContext })">@dbContext</a></li>
-    }
-</ul>
+﻿<br />
+<br />
+<div>Monitoring</div>
+<div style="margin-left: 10px;"><a href="@Url.Link("/Requests", new { })" class="tab-button">Requests</a></div>
+<div style="margin-left: 10px;"><a href="@Url.Link("/Logs", new {})" class="tab-button">Logs</a></div>
+<div style="margin-left: 10px;"><a href="@Url.Link("/Monitoring", new {})" class="tab-button">Configuration</a></div>
+<br />
+<br />
+<div>MVC</div>
+<div style="margin-left: 10px;"><a href="@Url.Link("/Hosting", new { })" class="tab-button">Hosting</a></div>
+<div style="margin-left: 10px;"><a href="@Url.Link("/Routing", new { })" class="tab-button">Routing</a></div>
+<div style="margin-left: 10px;"><a href="@Url.Link("/Services", new { })" class="tab-button">Services</a></div>
+<br />
+<br />
+<div>EntityFramework</div>
+@foreach (var dbContext in Model.DbContexts)
+{
+    <div style="margin-left: 10px;"><a href="@Url.Link("/EFContext", new { _dbContext = @dbContext })">@dbContext</a></div>
+}

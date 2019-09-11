@@ -7,13 +7,13 @@
 {
     <input name="@Model.Field.Name" value="@Model.Value" style="min-width: 250px" />
 }
-
-@if (Model.Field.ParameterType == typeof(bool))
+else
+if (Model.Field.ParameterType == typeof(bool))
 {
     <input name="@Model.Field.Name" value="True" type="checkbox" @(@Model.Value == "True" ? "checked" : "")/>
 }
-
-@if (Model.Field.ParameterType == typeof(bool?))
+else
+if (Model.Field.ParameterType == typeof(bool?))
 {
     <select name="@Model.Field.Name"  style="min-width: 250px">
         <option value="">Not specofied</option>
@@ -21,8 +21,12 @@
         <option value="False" @(@Model.Value == "False" ? "selected" : "")>False</option>
     </select>
 }
-
-@if (Model.Field.ParameterType == typeof(DateTime) || Model.Field.ParameterType == typeof(DateTime?) || Model.Field.ParameterType == typeof(DateTimeOffset) || Model.Field.ParameterType == typeof(DateTimeOffset?))
+else
+if (Model.Field.ParameterType == typeof(DateTime) || Model.Field.ParameterType == typeof(DateTime?) || Model.Field.ParameterType == typeof(DateTimeOffset) || Model.Field.ParameterType == typeof(DateTimeOffset?))
 {
     <input name="@Model.Field.Name" value="@Model.Value" type="datetime-local"  style="min-width: 250px" />
+}
+else
+{
+    <div class="small text-muted">field type is not supported</div>
 }

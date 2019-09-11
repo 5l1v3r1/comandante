@@ -1,17 +1,29 @@
 ﻿<ul class="breadcrumb">
     <li><a href="@Url.Link("/EF", new { })">EntityFramework</a><br /></li>
     <li><a href="@Url.Link("/EFContext", new { _dbContext = Model.DbContext })"><span class="small text-muted">DbContext: </span>@(Model.DbContext)</a><br /></li>
-    <li><a href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })"><span class="small text-muted">Entity: </span> @Model.Entity?.ClrType?.GetFriendlyName()</a><br /></li>
+    <li><a href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })"><span class="small text-muted">Entity: </span> <span class="active">@Model.Entity?.ClrType?.GetFriendlyName()</span></a><br /></li>
     <li><span class="small text-muted">View: </span>
         <a class="" href="@Url.Link("/EFEntity", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })">Rows</a>
         <a class="active" href="@Url.Link("/EFEntityDesc", new { _dbContext = Model.DbContext, _entity = @Model.Entity?.ClrTypeName })">Details</a>
     </li>
 </ul>
 
-<h3>Entity Details</h3>
+<h3>Entity</h3>
 <table class="form">
     <tr>
-        <td>AppDbContext</td>
+        <td>ClrType</td>
+        <td>@Model.Entity?.ClrTypeName</td>
+    </tr>
+    <tr>
+        <td>DbTable</td>
+        <td>@Model.Entity?.SchemaAndTableName</td>
+    </tr>
+    <tr>
+        <td>Navigation</td>
+        <td>@Model.Entity?.NavigationName</td>
+    </tr>
+    <tr>
+        <td>DbContext</td>
         <td>@Model.DbContext</td>
     </tr>
     <tr>
@@ -20,26 +32,6 @@
             <a class="button small" href="@Url.Link("/EFContext", new { _dbContext = Model.DbContext })">Details</a>
             <a class="button small" href="@Url.Link("/EFRunSql", new { _dbContext = Model.DbContext })">Run Sql</a>
         </td>
-    </tr>
-    <tr>
-        <td>NavigationName</td>
-        <td>@Model.Entity?.NavigationName</td>
-    </tr>
-    <tr>
-        <td>ClrTypeName</td>
-        <td>@Model.Entity?.ClrTypeName</td>
-    </tr>
-    <tr>
-        <td>Schema</td>
-        <td>@Model.Entity?.Schema</td>
-    </tr>
-    <tr>
-        <td>TableName</td>
-        <td>@Model.Entity?.TableName</td>
-    </tr>
-    <tr>
-        <td>SchemaAndTableName</td>
-        <td>@Model.Entity?.SchemaAndTableName</td>
     </tr>
 </table>
 

@@ -10,6 +10,12 @@
         <a class="button small" href="@Url.Link("/EFContext", new { _dbContext = appDbContext?.Name })">Details</a>
         <a class="button small" href="@Url.Link("/EFRunSql", new { _dbContext = appDbContext?.Name })">Run Sql</a>
         <table style="margin-top: 20px;">
+            <thead class="small">
+                <tr>
+                    <td>ClrType</td>
+                    <td>DbTable</td>
+                </tr>
+            </thead>
             <tbody>
                 @foreach (var entity in appDbContext.Entities)
                 {
@@ -19,7 +25,11 @@
                                 <span class="text-muted">@(entity.ClrType.Namespace + ".")</span>@(entity.ClrType.GetFriendlyName())
                             </a>
                         </td>
-                        <td>@(entity.SchemaAndTableName)</td>
+                        <td>
+                            <a href="@Url.Link("/EFEntity", new { _dbContext = appDbContext?.Name, _entity = entity.ClrTypeName })">
+                                @(entity.SchemaAndTableName)
+                            </a>
+                        </td>
                     </tr>
                 }
             </tbody>

@@ -39,7 +39,7 @@
 
                 var table = "<table><thead class='small'><tr>"
                 for (i = 0; i < response.Columns.length; i++) {
-                    table = table + "<th>" + escape(response.Columns[i]) + "</th>";
+                    table = table + "<td>" + escape(response.Columns[i]) + "</td>";
                 }
                 table = table + "</tr></thead><tbody>";
                 for (i = 0; i < response.Rows.length; i++) {

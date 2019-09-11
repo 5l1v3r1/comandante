@@ -5,9 +5,9 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/golabek-co-uk/Comandante</RepositoryUrl>
     <Description>ASP Mvc dotNet Core Debug Tool</Description>
-    <Version>1.9.0</Version>
-    <AssemblyVersion>1.9.0.0</AssemblyVersion>
-    <FileVersion>1.9.0.0</FileVersion>
+    <Version>1.10.0</Version>
+    <AssemblyVersion>1.10.0.0</AssemblyVersion>
+    <FileVersion>1.10.0.0</FileVersion>
     <PackageId>Comandante</PackageId>
     <Authors>Comandante</Authors>
     <Company>Comandante</Company>
