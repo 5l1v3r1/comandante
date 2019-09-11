@@ -4,7 +4,7 @@ ASP MVC .Net Core debugging tool.
 * Logs requests details
 * Logs all messages
 
-* Display EntityFramework context details
+
 * Run SQL queryies on EntityFramework context
 
 
@@ -37,11 +37,19 @@ Run the app and navigate to http://localhost/comandante
 
 # Entity Framework
 
+* Display EntityFramework context details
+
 <img src="comandante_entity_framework.png" width="50%">
+
+* Displays entity's rows and let you filter them
 
 <img src="comandante_entity_rows.png" width="50%">
 
+* Let you create and update records
+
 <img src="comandante_entity_create.png" width="50%">
+
+* Let you run custom SQL on EF context
 
 <img src="comandante_run_sql.png" width="50%">
 
@@ -66,6 +74,8 @@ Run the app and navigate to http://localhost/comandante
 <img src="comandante_service_method.png" width="50%">
 
 # Monitoring
+
+* Logs requests details
 
 <img src="comandante_requests.png" width="50%">
 
