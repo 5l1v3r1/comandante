@@ -1,10 +1,6 @@
 # Comandante
 
-ASP MVC .Net Core debugging tool.
-* Logs requests details
-* Logs all messages
-
-
+#### ASP MVC .Net Core debugging tool.
 
 Entity Framework
  * Display EntityFramework context details
