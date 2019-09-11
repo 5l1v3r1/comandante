@@ -3,9 +3,7 @@
 ASP MVC .Net Core debugging tool.
 * Logs requests details
 * Logs all messages
-* Displays server information
-* Display routing information
-* Display hosting information
+
 * Display EntityFramework context details
 * Run SQL queryies on EntityFramework context
 
@@ -51,11 +49,19 @@ Run the app and navigate to http://localhost/comandante
 
 # MVC
 
+* Display hosting information
+
 <img src="comandante_hosting.png" width="50%">
+
+* Display routing information
 
 <img src="comandante_routing.png" width="50%">
 
+* Display services registered in IoC
+
 <img src="comandante_services.png" width="50%">
+
+* Let you invoke method, properties, fields, and displays the results
 
 <img src="comandante_service_method.png" width="50%">
 
