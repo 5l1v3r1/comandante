@@ -1,6 +1,6 @@
-# Debug4MvcNetCore
+# Comandante
 
-ASP Mvc .Net Core debugging tool.
+ASP MVC .Net Core debugging tool.
 * Logs requests details
 * Logs all messages
 * Displays server information
@@ -10,67 +10,56 @@ ASP Mvc .Net Core debugging tool.
 * Run SQL queryies on EntityFramework context
 
 
-## Instalation
+# Instalation
  ```cs
- Install-Package Debug4MvcNetCore
+ Install-Package Comandante
 ```
 
-## Usage
+# Usage
  ```cs
+public void ConfigureServices(IServiceCollection services)
+{
+   // Add Comandante service
+    services.AddComandante();
+}
+        
 public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider, IHostingEnvironment env)
 {
-            // Use Debug4MvcNetCore middleware
-            app.UseDebug4MvcNetCore();
-            
-            app.UseStaticFiles();
-            app.UseCookiePolicy();
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Dashboard}/{action=Index}/{id?}");
-            });
+    // Use Comandante middleware
+    app.UseComandante();
 }
 ```
-Run the app and navigate to http://localhost/debug
+Run the app and navigate to http://localhost/comandante
 
+![Comandante](comandante_index.png)
 &nbsp;
 
 &nbsp;
 
 
-###################################################
-### List all requests with status and max log level
-![Debug4Mvc Requests](Debug4Mvc_Requests.PNG)
+# Entity Framework
 
-&nbsp;
+![Comandante Entity Framework](comandante_entity_framework.png)
 
-###################################################
-###  Show request details, including all logs.
+![Comandante Entity Framework Rows](comandante_entity_rows.png)
 
-![Debug4Mvc Request](Debug4Mvc_Request.PNG)
+![Comandante Entity Framework Create](comandante_entity_create.png)
 
-&nbsp;
+![Comandante Entity Framework Run SQL](comandante_run_sql.png)
 
-###################################################
-###  Show log details
-![Debug4Mvc Log](Debug4Mvc_Log.PNG)
 
-&nbsp;
 
-###################################################
-### Display EntityFramework Core context details
-![Debug4Mvc Routing](Debug4Mvc_EntityFrameworkCore.PNG)
+# MVC
 
-&nbsp;
+![Comandante MVC Hosting](comandante_hosting.png)
 
-###################################################
-### Let you run SQL on context
-![Debug4Mvc Routing](Debug4Mvc_EntityFrameworkCore_RunSql.PNG)
+![Comandante MVC Routing](comandante_routing.png)
 
-&nbsp;
+![Comandante MVC Services](comandante_services.png)
 
-###################################################
-### Display routing information
-![Debug4Mvc Routing](Debug4Mvc_Routing.PNG)
+![Comandante MVC Service Method](comandante_service_method.png)
+
+# Monitoring
+
+![Comandante Monitoring Requests](comandante_requests.png)
 
