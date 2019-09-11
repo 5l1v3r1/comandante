@@ -31,7 +31,7 @@ public void Configure(IApplicationBuilder app, IServiceProvider serviceProvider,
 ```
 Run the app and navigate to http://localhost/comandante
 
-![Comandante](comandante_index.png)
+<img src="comandante_index.png" width="50%">
 &nbsp;
 
 &nbsp;
@@ -39,27 +39,27 @@ Run the app and navigate to http://localhost/comandante
 
 # Entity Framework
 
-![Comandante Entity Framework](comandante_entity_framework.png)
+<img src="comandante_entity_framework.png" width="50%">
 
-![Comandante Entity Framework Rows](comandante_entity_rows.png)
+<img src="comandante_entity_rows.png" width="50%">
 
-![Comandante Entity Framework Create](comandante_entity_create.png)
+<img src="comandante_entity_create.png" width="50%">
 
-![Comandante Entity Framework Run SQL](comandante_run_sql.png)
+<img src="comandante_run_sql.png" width="50%">
 
 
 
 # MVC
 
-![Comandante MVC Hosting](comandante_hosting.png)
+<img src="comandante_hosting.png" width="50%">
 
-![Comandante MVC Routing](comandante_routing.png)
+<img src="comandante_routing.png" width="50%">
 
-![Comandante MVC Services](comandante_services.png)
+<img src="comandante_services.png" width="50%">
 
-![Comandante MVC Service Method](comandante_service_method.png)
+<img src="comandante_service_method.png" width="50%">
 
 # Monitoring
 
-![Comandante Monitoring Requests](comandante_requests.png)
+<img src="comandante_requests.png" width="50%">
 
