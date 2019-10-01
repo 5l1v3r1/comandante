@@ -5,7 +5,7 @@
 
 @if (Model.Field.ClrType == typeof(string) || Model.Field.ClrType.IsNumericType())
 {
-    <input name="@Model.Field.Name" value="@Model.Value" style="min-width: 250px" />
+    <textarea name="@Model.Field.Name" style="min-width: 300px" rows="1">@Model.Value</textarea>
 }
 else
 @if (Model.Field.ClrType == typeof(bool))
@@ -15,7 +15,7 @@ else
 else
 if (Model.Field.ClrType == typeof(bool?))
 {
-    <select name="@Model.Field.Name"  style="min-width: 250px">
+    <select name="@Model.Field.Name"  style="min-width: 300px">
         <option value="">Not specofied</option>
         <option value="True" @(@Model.Value == "True" ? "selected" : "")>True</option>
         <option value="False" @(@Model.Value == "False" ? "selected" : "")>False</option>
@@ -24,7 +24,7 @@ if (Model.Field.ClrType == typeof(bool?))
 else
 if (Model.Field.ClrType == typeof(DateTime) || Model.Field.ClrType == typeof(DateTime?) || Model.Field.ClrType == typeof(DateTimeOffset) || Model.Field.ClrType == typeof(DateTimeOffset?))
 {
-    <input name="@Model.Field.Name" value="@Model.Value" type="datetime-local"  style="min-width: 250px" />
+    <input name="@Model.Field.Name" value="@Model.Value" type="datetime-local"  style="min-width: 300px" />
 }
 else
 {

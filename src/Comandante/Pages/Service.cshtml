@@ -4,6 +4,7 @@
         <a href="@Url.Link("/Hosting", new { })" class="tab-button">Hosting</a>
         <a href="@Url.Link("/Routing", new { })" class="tab-button">Routing</a>
         <a href="@Url.Link("/Services", new { })" class="tab-button active">Services</a>
+        <a href="@Url.Link("/Options", new { })" class="tab-button">Options</a>
         <br />
     </li>
     <li><span class="small text-muted">Service: </span>@Model.Service.ServiceFriendlyName</li>
@@ -35,11 +36,10 @@
             <tr>
                 <td>
                     <a href="@(Url.Link("/ServiceMethod", new { _s = @Model.Service.ServiceFullName, _m = m.Id }))">
-                        <span class="text-muted">@m.MethodReturnType </span>@m.MethodName<span class="text-muted">@m.MethodParameters</span>
+                        <span class="text-muted">@m.MethodAccessor </span><span class="text-muted">@m.MethodReturnType </span>@m.MethodName<span class="text-muted">@m.MethodParameters</span>
                     </a>
                 </td>
             </tr>
-
         }
     </table>
 
@@ -50,7 +50,7 @@
             <tr>
                 <td>
                     <a href="@(Url.Link("/ServiceProperty", new { _s = @Model.Service.ServiceFullName, _p = p.Id }))">
-                        <span class="text-muted">@p.PropertyType </span>@p.Name
+                        <span class="text-muted">@p.PropertyType </span>@p.Name<span class="text-muted"> @p.GetSet</span>
                     </a>
                 </td>
             </tr>
@@ -65,7 +65,7 @@
             <tr>
                 <td>
                     <a href="@(Url.Link("/ServiceField", new { _s = @Model.Service.ServiceFullName, _f = f.Id }))">
-                        <span class="text-muted">@f.FieldType </span>@f.Name
+                        <span class="text-muted">@f.Accessor </span><span class="text-muted">@f.FieldType </span>@f.Name
                     </a>
                 </td>
             </tr>

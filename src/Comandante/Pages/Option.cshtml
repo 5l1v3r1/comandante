@@ -1,0 +1,27 @@
+﻿<ul class="breadcrumb">
+    <li>MVC<br /></li>
+    <li>
+        <a href="@Url.Link("/Hosting", new { })" class="tab-button">Hosting</a>
+        <a href="@Url.Link("/Routing", new { })" class="tab-button">Routing</a>
+        <a href="@Url.Link("/Services", new { })" class="tab-button">Services</a>
+        <a href="@Url.Link("/Options", new { })" class="tab-button active">Options</a>
+        <br />
+    </li>
+    <li><span class="small text-muted">Option: </span>@Model.Option.OptionFriendlyName</li>
+</ul>
+
+@if (Model.Option != null)
+{
+    <h3>Option</h3>
+    <table class="form">
+        <tr>
+            <td>Class</td>
+            <td><span class="text-muted">@(Model.Option.OptionType.Namespace != null ? Model.Option.OptionType.Namespace + "." : "" )</span>@Model.Option.OptionFriendlyName</td>
+        </tr>
+        <tr>
+            <td>Values</td>
+            <td><pre>@Model.OptionInstance</pre></td>
+        </tr>
+    </table>
+}
+

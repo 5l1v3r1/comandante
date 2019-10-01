@@ -17,8 +17,20 @@ namespace Comandante.TestsWeb
             CreateWebHostBuilder(args).Build().Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args)
+        {
+            var config = new ConfigurationBuilder()
+                // Call additional providers here as needed.
+                // Call AddCommandLine last to allow arguments to override other configuration.
+                .AddCommandLine(args)
+                .AddEnvironmentVariables()
+                .Build();
+
+            var host = WebHost.CreateDefaultBuilder(args)
+                .UseConfiguration(config)
                 .UseStartup<Startup>();
+
+            return host;
+        }
     }
 }

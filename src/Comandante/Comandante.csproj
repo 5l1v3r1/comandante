@@ -5,9 +5,9 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/golabek-co-uk/Comandante</RepositoryUrl>
     <Description>ASP Mvc dotNet Core Debug Tool</Description>
-    <Version>1.10.0</Version>
-    <AssemblyVersion>1.10.0.0</AssemblyVersion>
-    <FileVersion>1.10.0.0</FileVersion>
+    <Version>1.12.0</Version>
+    <AssemblyVersion>1.12.0.0</AssemblyVersion>
+    <FileVersion>1.12.0.0</FileVersion>
     <PackageId>Comandante</PackageId>
     <Authors>Comandante</Authors>
     <Company>Comandante</Company>
@@ -27,6 +27,8 @@
     <None Remove="Pages\Log.cshtml" />
     <None Remove="Pages\Logs.cshtml" />
     <None Remove="Pages\Monitoring.cshtml" />
+    <None Remove="Pages\Option.cshtml" />
+    <None Remove="Pages\Options.cshtml" />
     <None Remove="Pages\Request.cshtml" />
     <None Remove="Pages\Requests.cshtml" />
     <None Remove="Pages\Routing.cshtml" />
@@ -56,10 +58,12 @@
     <EmbeddedResource Include="Pages\EventListener.cshtml" />
     <EmbeddedResource Include="Pages\Monitoring.cshtml" />
     <EmbeddedResource Include="Pages\Log.cshtml" />
+    <EmbeddedResource Include="Pages\Option.cshtml" />
     <EmbeddedResource Include="Pages\ServiceField.cshtml" />
     <EmbeddedResource Include="Pages\ServiceProperty.cshtml" />
     <EmbeddedResource Include="Pages\ServiceMethod.cshtml" />
     <EmbeddedResource Include="Pages\Service.cshtml" />
+    <EmbeddedResource Include="Pages\Options.cshtml" />
     <EmbeddedResource Include="Pages\Services.cshtml" />
     <EmbeddedResource Include="Pages\Routing.cshtml" />
     <EmbeddedResource Include="Pages\_MethodFieldEditor.cshtml" />

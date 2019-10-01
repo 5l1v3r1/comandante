@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,6 +13,12 @@ namespace Comandante.TestsWeb.Services
 
     public class TestService : ITestService
     {
+        private readonly IOptions<Db> db;
+
+        public TestService(IOptions<Db> db)
+        {
+            this.db = db;
+        }
         public object NotImplementedExceptionTest(int id, string test, DateTime? date)
         {
             throw new NotImplementedException();
@@ -26,5 +33,11 @@ namespace Comandante.TestsWeb.Services
                 Date = date
             };
         }
+
+        public async Task TestAsync(string id)
+        {
+            await Task.CompletedTask;
+        }
     }
+
 }

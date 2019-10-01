@@ -4,6 +4,7 @@
         <a href="@Url.Link("/Hosting", new { })" class="tab-button">Hosting</a>
         <a href="@Url.Link("/Routing", new { })" class="tab-button">Routing</a>
         <a href="@Url.Link("/Services", new { })" class="tab-button active">Services</a>
+        <a href="@Url.Link("/Options", new { })" class="tab-button">Options</a>
         <br />
     </li>
     <li><a href="@Url.Link("/Service", new { _s = Model.Service.ServiceFullName })"><span class="small text-muted">Service: </span>@Model.Service.ServiceFriendlyName</a><br /></li>
@@ -11,7 +12,7 @@
 </ul>
 
 <h3>Service Property</h3>
-<span class="text-muted">@Model.Property.PropertyType </span>@Model.Property.Name
+<span class="text-muted">@Model.Property.PropertyType </span>@Model.Property.Name <span class="text-muted">@Model.Property.GetSet </span>
 
 <form autocomplete="off" method="post">
     <input name="_p" value="@Model.Property.Id" type="hidden" />
@@ -23,7 +24,7 @@
         <ul class="errors">
             @foreach (var error in Model.Errors)
             {
-                <li>@error</li>
+                <li><pre>@error</pre></li>
             }
         </ul>
     }
@@ -33,7 +34,7 @@
         <ul class="warnings">
             @foreach (var warning in Model.Warnings)
             {
-                <li>@warning</li>
+                <li><pre>@warning</pre></li>
             }
         </ul>
     }

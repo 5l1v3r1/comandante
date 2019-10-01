@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,8 +70,31 @@ namespace Comandante.Services
             return JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings
             {
                 ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
-                PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects
+                 
+                //ContractResolver = new IgnoreSystemNamespaceResolver(),
+                //PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects
             });
         }
     }
+
+    //class IgnoreSystemNamespaceResolver : DefaultContractResolver
+    //{
+    //    protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+    //    {
+    //        JsonProperty prop = base.CreateProperty(member, memberSerialization);
+
+    //        if (prop.PropertyType.IsGenericType)
+    //        {
+    //            return prop;
+    //        }
+
+    //        if (prop.PropertyType.Namespace.StartsWith("System") == false)
+    //        {
+    //            return prop;
+    //        }
+
+    //        prop.Ignored = true;
+    //        return prop;
+    //    }
+    //}
 }

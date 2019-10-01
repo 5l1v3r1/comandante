@@ -24,12 +24,11 @@
     </tr>
     <tr>
         <td>DbContext</td>
-        <td>@Model.DbContext</td>
+        <td><a class="text-normal" href="@Url.Link("/EFContext", new { _dbContext = Model.DbContext })">@Model.DbContext</a></td>
     </tr>
     <tr>
         <td></td>
         <td>
-            <a class="button small" href="@Url.Link("/EFContext", new { _dbContext = Model.DbContext })">Details</a>
             <a class="button small" href="@Url.Link("/EFRunSql", new { _dbContext = Model.DbContext })">Run Sql</a>
         </td>
     </tr>

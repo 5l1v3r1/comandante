@@ -1,0 +1,44 @@
+﻿<ul class="breadcrumb">
+    <li>MVC<br /></li>
+    <li>
+        <a href="@Url.Link("/Hosting", new { })" class="tab-button">Hosting</a>
+        <a href="@Url.Link("/Routing", new { })" class="tab-button">Routing</a>
+        <a href="@Url.Link("/Services", new { })" class="tab-button">Services</a>
+        <a href="@Url.Link("/Options", new { })" class="tab-button active">Options</a>
+    </li>
+</ul>
+
+<h3>Services</h3>
+@if (Model.Options != null)
+{
+    <table>
+        <thead class="small">
+            <tr>
+                <th>Option</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var o in Model.Options)
+            {
+
+                <tr>
+                    <td><a href="@Url.Link("/Option", new { _o = o.OptionFullName })">@o.OptionFriendlyName</a></td>
+                </tr>
+
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div>Sorry, cannot find options. Make sure you call AddComandante method in ConfigureServices</div>
+    <pre>
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddComandante();
+            ...
+        }
+    </pre>
+}
+
+

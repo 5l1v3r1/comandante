@@ -27,6 +27,8 @@ namespace Comandante.TestsWeb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<Db>(Configuration.GetSection("db"));
+
             services.AddComandante();
 
             services.Configure<CookiePolicyOptions>(options =>
@@ -36,6 +38,7 @@ namespace Comandante.TestsWeb
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            
             services.AddTransient<ITestService, TestService>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

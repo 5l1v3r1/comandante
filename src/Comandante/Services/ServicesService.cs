@@ -25,7 +25,7 @@ namespace Comandante.Services
                     ImplementationType = x.ImplementationType,
                     ImplementationFriendlyName = x.ImplementationType?.GetFriendlyName(),
                     ImplementationFullName = x.ImplementationType?.GetFullFriendlyName()
-                }).OrderBy(x => x.ServiceType.Namespace != null && (x.ServiceType.Namespace.StartsWith("Microsoft.") || x.ServiceType.Namespace.StartsWith("System.")) ? 1 : 0).ToList();
+                }).Distinct(new ServiceInfoComparer()).OrderBy(x => x.ServiceType.Namespace != null && (x.ServiceType.Namespace.StartsWith("Microsoft.") || x.ServiceType.Namespace.StartsWith("System.")) ? 1 : 0).ToList();
         }
 
         public ServiceInfo GetService(string fullName)
@@ -38,23 +38,28 @@ namespace Comandante.Services
             }
             catch { }
             
-            foreach (var prop in serviceType.GetProperties())
+            foreach (var prop in serviceType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 serviceModel.Properties.Add(new ServicePropertyInfo
                 {
                     Id = prop.Name,
                     Name = prop.Name,
+                    GetSet = "{"
+                        + (prop.GetMethod != null ? (prop.GetMethod.IsPublic ? " get;" : "") + (prop.GetMethod.IsPrivate ? " private get;" : "") : "")
+                        + (prop.SetMethod != null ? (prop.SetMethod.IsPublic ? " set;" : "") + (prop.SetMethod.IsPrivate ? " private set;" : "") : "")
+                        + " }",
                     PropertyType = prop.PropertyType.GetFriendlyName(),
                     Poperty = prop
                 });
             }
 
-            foreach (var field in serviceType.GetFields())
+            foreach (var field in serviceType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
                 serviceModel.Fields.Add(new ServiceFieldInfo
                 {
                     Id = field.Name,
                     Name = field.Name,
+                    Accessor = (field.IsPublic ? "public" : "") + (field.IsPrivate ? "private" : ""),
                     FieldType = field.FieldType.GetFriendlyName(),
                     Field = field
                 });
@@ -78,6 +83,7 @@ namespace Comandante.Services
                     MethodName = method.Name,
                     MethodReturnType = method.ReturnType.GetFriendlyName(),
                     MethodParameters = methodParameters,
+                    MethodAccessor = (method.IsPublic ? "public" : "") + (method.IsPrivate ? "private" : ""),
                     Method = method
                 });
             }
@@ -127,7 +133,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                errors.Add($"Method invocation resulted with the error: {ex.GetAllMessages()}");
+                errors.Add($"Method invocation resulted with the error: {ex.GetAllDetails()}");
                 return new ServiceInvokeResult { Errors = errors };
             }
 
@@ -140,7 +146,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                return new ServiceInvokeResult { Result = ex.GetAllMessages() }
+                return new ServiceInvokeResult { Result = ex.GetAllDetails() }
 ;
             }
         }
@@ -157,7 +163,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                errors.Add($"Cannot instantiate the service. Error: {ex.GetAllMessages()}");
+                errors.Add($"Cannot instantiate the service. Error: {ex.GetAllDetails()}");
                 return new ServiceInvokeResult { Errors = errors };
             }
 
@@ -170,7 +176,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                errors.Add($"Property invocation resulted with the error: {ex.GetAllMessages()}");
+                errors.Add($"Property invocation resulted with the error: {ex.GetAllDetails()}");
                 return new ServiceInvokeResult { Errors = errors };
             }
 
@@ -182,7 +188,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                return new ServiceInvokeResult { Result = ex.GetAllMessages() };
+                return new ServiceInvokeResult { Result = ex.GetAllDetails() };
             }
         }
 
@@ -197,7 +203,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                errors.Add($"Cannot instantiate the service. Error: {ex.GetAllMessages()}");
+                errors.Add($"Cannot instantiate the service. Error: {ex.GetAllDetails()}");
                 return new ServiceInvokeResult { Errors = errors };
             }
 
@@ -210,7 +216,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                errors.Add($"Field invocation resulted with the error: {ex.GetAllMessages()}");
+                errors.Add($"Field invocation resulted with the error: {ex.GetAllDetails()}");
                 return new ServiceInvokeResult { Errors = errors };
             }
 
@@ -222,7 +228,7 @@ namespace Comandante.Services
             }
             catch (Exception ex)
             {
-                return new ServiceInvokeResult { Result = ex.GetAllMessages() };
+                return new ServiceInvokeResult { Result = ex.GetAllDetails() };
             }
         }
     }
@@ -248,6 +254,7 @@ namespace Comandante.Services
         public string MethodName;
         public string MethodReturnType;
         public string MethodParameters;
+        public string MethodAccessor;
         public System.Reflection.MethodInfo Method;
     }
 
@@ -256,13 +263,15 @@ namespace Comandante.Services
         public string Id;
         public string Name;
         public string PropertyType;
-        internal PropertyInfo Poperty;
+        public PropertyInfo Poperty;
+        public string GetSet;
     }
 
     public class ServiceFieldInfo
     {
         public string Id;
         public string Name;
+        public string Accessor;
         public string FieldType;
         internal FieldInfo Field;
     }
@@ -273,5 +282,20 @@ namespace Comandante.Services
         public bool IsSuccess => Errors == null || Errors.Count == 1;
         public string Result;
     }
-    
+
+    public class ServiceInfoComparer : IEqualityComparer<ServiceInfo>
+    {
+        public bool Equals(ServiceInfo x, ServiceInfo y)
+        {
+            return
+                x.ServiceFullName == y.ServiceFullName &&
+                x.ImplementationFullName == y.ImplementationFullName &&
+                x.Lifetime == y.Lifetime;
+        }
+
+        public int GetHashCode(ServiceInfo obj)
+        {
+            return HashCode.Combine(obj.ServiceFullName, obj.ImplementationFullName, obj.Lifetime);
+        }
+    }
 }
