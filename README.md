@@ -89,4 +89,4 @@ Run the app and navigate to http://localhost/comandante
 <img src="comandante_requests.png" width="50%">
 
 
-[![Analytics](https://ga-beacon.appspot.com/UA-149252719-1/welcome-page)](https://github.com/igrigorik/ga-beacon)
+[![Analytics](https://ga-beacon.appspot.com/UA-149294181-1/welcome-page)](https://github.com/igrigorik/ga-beacon)
